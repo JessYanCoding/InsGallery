@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int themeId;
     private int chooseMode = PictureMimeType.ofAll();
     private boolean isWeChatStyle;
+    private boolean isInstagramStyle;
     private boolean isUpward;
     private boolean needScaleBig = true;
     private boolean needScaleSmall = true;
@@ -420,6 +421,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .loadImageEngine(GlideEngine.createGlideEngine())// 外部传入图片加载引擎，必传项
                         .theme(themeId)// 主题样式设置 具体参考 values/styles   用法：R.style.picture.white.style v2.3.3后 建议使用setPictureStyle()动态方式
                         .isWeChatStyle(isWeChatStyle)// 是否开启微信图片选择风格
+                        .isInstagramStyle(isInstagramStyle)
                         .isUseCustomCamera(cb_custom_camera.isChecked())// 是否使用自定义相机
                         .setLanguage(language)// 设置语言，默认中文
                         .setPictureStyle(mPictureParameterStyle)// 动态自定义相册主题
@@ -676,6 +678,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+        isInstagramStyle = false;
         switch (checkedId) {
             case R.id.rb_all:
                 chooseMode = PictureMimeType.ofAll();
@@ -775,6 +778,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_white_style:
                 themeId = R.style.picture_white_style;
+                isInstagramStyle = true;
                 isWeChatStyle = false;
                 getWhiteStyle();
                 break;

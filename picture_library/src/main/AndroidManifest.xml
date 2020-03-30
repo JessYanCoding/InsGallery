@@ -20,6 +20,11 @@
         <activity
             android:name=".PictureSelectorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
+
+        <activity
+            android:name=".widget.instagram.PictureSelectorInstagramStyleActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
         <activity
             android:name=".PictureSelectorWeChatStyleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
