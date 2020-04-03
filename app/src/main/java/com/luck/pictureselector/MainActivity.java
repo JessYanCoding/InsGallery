@@ -891,15 +891,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 是否开启右下角已完成(0/9)风格
         mPictureParameterStyle.isOpenCompletedNumStyle = false;
         // 是否开启类似QQ相册带数字选择风格
-        mPictureParameterStyle.isOpenCheckNumStyle = false;
+        mPictureParameterStyle.isOpenCheckNumStyle = true;
         // 相册状态栏背景色
         mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#FFFFFF");
         // 相册列表标题栏背景色
         mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#FFFFFF");
         // 相册列表标题栏右侧上拉箭头
-        mPictureParameterStyle.pictureTitleUpResId = R.drawable.ic_orange_arrow_up;
+        mPictureParameterStyle.pictureTitleUpResId = R.drawable.ic_arrow_up;
         // 相册列表标题栏右侧下拉箭头
-        mPictureParameterStyle.pictureTitleDownResId = R.drawable.ic_orange_arrow_down;
+        mPictureParameterStyle.pictureTitleDownResId = R.drawable.ic_arrow_down;
         // 相册文件夹列表选中圆点
         mPictureParameterStyle.pictureFolderCheckedDotStyle = R.drawable.picture_orange_oval;
         // 相册返回箭头
@@ -907,9 +907,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 标题栏字体颜色
         mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
         // 相册右侧取消按钮字体颜色  废弃 改用.pictureRightDefaultTextColor和.pictureRightDefaultTextColor
-        mPictureParameterStyle.pictureCancelTextColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
+        mPictureParameterStyle.pictureRightDefaultTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_1766FF);
         // 相册列表勾选图片样式
-        mPictureParameterStyle.pictureCheckedStyle = R.drawable.picture_checkbox_selector;
+        mPictureParameterStyle.pictureCheckedStyle = R.drawable.picture_instagram_num_selector;
         // 相册列表底部背景色
         mPictureParameterStyle.pictureBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa);
         // 已选数量圆点背景样式
@@ -933,7 +933,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 外部预览界面是否显示删除按钮
         mPictureParameterStyle.pictureExternalPreviewGonePreviewDelete = true;
 //        // 自定义相册右侧文本内容设置
-//        mPictureParameterStyle.pictureRightDefaultText = "";
+        mPictureParameterStyle.pictureRightDefaultText = "完成";
 //        // 自定义相册未完成文本内容
 //        mPictureParameterStyle.pictureUnCompleteText = "";
 //        // 自定义相册完成文本内容

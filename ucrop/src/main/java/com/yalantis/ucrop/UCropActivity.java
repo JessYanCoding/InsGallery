@@ -26,19 +26,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.IdRes;
-import androidx.annotation.IntDef;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.transition.AutoTransition;
-import androidx.transition.Transition;
-import androidx.transition.TransitionManager;
-
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.immersion.CropImmersiveManage;
 import com.yalantis.ucrop.model.AspectRatio;
@@ -59,6 +46,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.transition.AutoTransition;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 
 /**
  * Created by Oleksii Shliama (https://github.com/shliama).
@@ -487,6 +487,11 @@ public class UCropActivity extends AppCompatActivity {
         @Override
         public void onScale(float currentScale) {
             setScaleText(currentScale);
+        }
+
+        @Override
+        public void onBitmapLoadComplete(@NonNull Bitmap bitmap) {
+
         }
 
         @Override
