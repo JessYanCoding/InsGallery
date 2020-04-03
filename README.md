@@ -1,4 +1,4 @@
-# PictureSelector 2.0 
+# PictureSelector 2.0
    一款针对Android平台下的图片选择器，支持从相册获取图片、视频、音频&拍照，支持裁剪(单图or多图裁剪)、压缩、主题自定义配置等功能，支持动态获取权限&适配Android 5.0+系统的开源图片选择框架。<br>
   
   <br>项目一直维护(有bug修复完一般会在周末更新)，如果有bug请描述清楚并可以提Issues，个人QQ 893855882 希望用得着的朋友点个star。 <br>
@@ -162,3 +162,5 @@ PictureSelector.create(this).externalPictureVideo(video_path);
 |:-----------:|:-----------:|:--------:|
 |![](image/picture_white_style.png) |![](image/picture_video.jpg) | ![](image/picture_audio.jpg)| 
 
+# InsGallery
+📸 Instagram-like image picker for Android
