@@ -125,7 +125,7 @@ public class InstagramGallery extends FrameLayout {
             mGalleryView.getHitRect(rect);
             if (mGalleryView instanceof GalleryView && rect.contains((int) (ev.getX()), (int) (ev.getY()))) {
                 float dy = (int) ev.getY() - interceptY;
-                if (dy > 0 && ((GalleryView) mGalleryView).isScrollTop()) {
+                if (dy > 5 && ((GalleryView) mGalleryView).isScrollTop()) {
                     startedTrackingY = (int) ev.getY();
                     return true;
                 } else {

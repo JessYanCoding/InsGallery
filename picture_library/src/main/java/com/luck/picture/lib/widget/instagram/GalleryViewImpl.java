@@ -67,6 +67,9 @@ public class GalleryViewImpl extends RecyclerView implements GalleryView {
                 velocityTracker = VelocityTracker.obtain();
             }
             velocityTracker.addMovement(event);
+            if (startedTrackingY == 0) {
+                startedTrackingY = (int) event.getY();
+            }
             float dy = (int) event.getY() - startedTrackingY;
 
             if (dy > 0 && isScrollTop()) {
