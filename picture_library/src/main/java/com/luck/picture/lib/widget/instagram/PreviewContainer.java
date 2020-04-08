@@ -6,6 +6,8 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.view.Gravity;
@@ -33,6 +35,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * ================================================
@@ -46,6 +49,7 @@ public class PreviewContainer extends FrameLayout {
     public static final int PLAY_VIDEO_MODE = 1;
     private UCropView mUCropView;
     private VideoView mVideoView;
+    private ImageView mThumbView;
     private GestureCropImageView mGestureCropImageView;
     private OverlayView mOverlayView;
     private ImageView mRatioView;
@@ -56,6 +60,10 @@ public class PreviewContainer extends FrameLayout {
     private boolean isMulti;
     private onSelectionModeChangedListener mListener;
     private int PlayMode;
+    private MediaPlayer mMediaPlayer;
+    private boolean isPause;
+    private ObjectAnimator mThumbAnimator;
+    private ImageView mPlayButton;
 
     private TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
         @Override
@@ -82,24 +90,35 @@ public class PreviewContainer extends FrameLayout {
         }
 
     };
+    private AnimatorSet mAnimatorSet;
+    private ObjectAnimator mPlayAnimator;
 
     public PreviewContainer(@NonNull Context context) {
         super(context);
         mHandler = new Handler(context.getMainLooper());
 
         mVideoView = new VideoView(context);
-        addView(mVideoView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        mVideoView.setVisibility(View.GONE);
+        addView(mVideoView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER));
         mVideoView.setOnClickListener((v -> {
-            if (PlayMode != PLAY_VIDEO_MODE) {
-                return;
-            }
+            pauseVideo();
         }));
         mVideoView.setOnPreparedListener(mp -> {
-            mp.setOnVideoSizeChangedListener((mp1, width, height) -> {
-
-            });
+            mMediaPlayer = mp;
+            mp.setLooping(true);
+            changeVideoSize(mp, isAspectRatio);
         });
+
+
+        mThumbView = new ImageView(context);
+        mThumbView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        mThumbView.setOnClickListener(v -> pauseVideo());
+        addView(mThumbView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+        mPlayButton = new ImageView(context);
+        mPlayButton.setImageResource(R.drawable.discover_play);
+        mPlayButton.setOnClickListener(v -> pauseVideo());
+        mPlayButton.setVisibility(GONE);
+        addView(mPlayButton, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
 
         mUCropView = new UCropView(getContext(), null);
         mGestureCropImageView = mUCropView.getCropImageView();
@@ -150,11 +169,12 @@ public class PreviewContainer extends FrameLayout {
         ratioLayoutParams.bottomMargin = ScreenUtils.dip2px(context, 12);
         addView(mRatioView, ratioLayoutParams);
         mRatioView.setOnClickListener((v) -> {
-            if (PlayMode != PLAY_IMAGE_MODE) {
-                return;
-            }
             isAspectRatio = !isAspectRatio;
-            resetAspectRatio();
+            if (PlayMode == PLAY_IMAGE_MODE) {
+                resetAspectRatio();
+            } else if (PlayMode == PLAY_VIDEO_MODE) {
+                changeVideoSize(mMediaPlayer, isAspectRatio);
+            }
         });
 
         mMultiView = new ImageView(context);
@@ -186,6 +206,31 @@ public class PreviewContainer extends FrameLayout {
         addView(divider, dividerParms);
     }
 
+    private void pauseVideo() {
+        if (PlayMode != PLAY_VIDEO_MODE) {
+            return;
+        }
+        if (mPlayAnimator != null && mPlayAnimator.isRunning()) {
+            mPlayAnimator.cancel();
+        }
+        if (!isPause) {
+            mPlayButton.setVisibility(VISIBLE);
+            mPlayAnimator = ObjectAnimator.ofFloat(mPlayButton, "alpha", 0, 1.0f).setDuration(200);
+            mVideoView.pause();
+        } else {
+            mPlayAnimator = ObjectAnimator.ofFloat(mPlayButton, "alpha", 1.0f, 0).setDuration(200);
+            mPlayAnimator.addListener(new AnimatorListenerImpl() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mPlayButton.setVisibility(GONE);
+                }
+            });
+            mVideoView.start();
+        }
+        mPlayAnimator.start();
+        isPause = !isPause;
+    }
+
     private void resetAspectRatio() {
         mGestureCropImageView.setTargetAspectRatio(isAspectRatio ? 0 : 1.0f);
         mGestureCropImageView.onImageLaidOut();
@@ -206,35 +251,71 @@ public class PreviewContainer extends FrameLayout {
         }
     }
 
-    public void playVideo(LocalMedia media) {
+    public void playVideo(LocalMedia media, RecyclerView.ViewHolder holder) {
         if (PlayMode != PLAY_VIDEO_MODE) {
             return;
         }
-        if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(media.getPath())) {
-            mVideoView.setVideoURI(Uri.parse(media.getPath()));
-        } else {
-            mVideoView.setVideoPath(media.getPath());
+        if (mThumbAnimator != null && mThumbAnimator.isRunning()) {
+            mThumbAnimator.cancel();
         }
-        mVideoView.start();
+        mHandler.removeCallbacksAndMessages(null);
+        Drawable drawable = null;
+        if (holder != null && holder instanceof InstagramImageGridAdapter.ViewHolder) {
+            drawable = ((InstagramImageGridAdapter.ViewHolder) holder).ivPicture.getDrawable();
+        }
+        if (drawable != null) {
+            mThumbView.setImageDrawable(drawable);
+        } else {
+            mThumbView.setBackgroundColor(Color.WHITE);
+        }
+        mPlayButton.setVisibility(GONE);
+        mHandler.postDelayed(() -> {
+            if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(media.getPath())) {
+                mVideoView.setVideoURI(Uri.parse(media.getPath()));
+            } else {
+                mVideoView.setVideoPath(media.getPath());
+            }
+            mVideoView.start();
+            isPause = false;
+            if (mThumbView.getVisibility() == VISIBLE) {
+                mThumbAnimator = ObjectAnimator.ofFloat(mThumbView, "alpha", 1.0f, 1.0f, 0).setDuration(800);
+                mThumbAnimator.start();
+            }
+        }, 800);
     }
 
     public void checkModel(int mode) {
         PlayMode = mode;
 
-        AnimatorSet set = new AnimatorSet();
+        if (mVideoView.getVisibility() == VISIBLE && mVideoView.isPlaying()) {
+            mVideoView.pause();
+            isPause = true;
+        }
+        if (mAnimatorSet != null && mAnimatorSet.isRunning()) {
+            mAnimatorSet.cancel();
+        }
+        mAnimatorSet = new AnimatorSet();
         List<Animator> animators = new ArrayList<>();
         if (mode == PLAY_IMAGE_MODE) {
             setViewVisibility(mUCropView, View.VISIBLE);
-            setViewVisibility(mVideoView, View.GONE);
-            animators.add(ObjectAnimator.ofFloat(mUCropView, "alpha", 0.1f,1.0f));
+            animators.add(ObjectAnimator.ofFloat(mUCropView, "alpha", 0.1f, 1.0f));
+            mAnimatorSet.addListener(new AnimatorListenerImpl() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    setViewVisibility(mVideoView, View.GONE);
+                    setViewVisibility(mThumbView, View.GONE);
+                }
+            });
         } else if (mode == PLAY_VIDEO_MODE) {
             setViewVisibility(mVideoView, View.VISIBLE);
+            setViewVisibility(mThumbView, View.VISIBLE);
             setViewVisibility(mUCropView, View.GONE);
             animators.add(ObjectAnimator.ofFloat(mVideoView, "alpha", 0f, 1.0f));
+            animators.add(ObjectAnimator.ofFloat(mThumbView, "alpha", 0.1f, 1.0f));
         }
-        set.setDuration(800);
-        set.playTogether(animators);
-        set.start();
+        mAnimatorSet.setDuration(800);
+        mAnimatorSet.playTogether(animators);
+        mAnimatorSet.start();
     }
 
     private void setViewVisibility(View view, int visibility) {
@@ -272,6 +353,53 @@ public class PreviewContainer extends FrameLayout {
 
     public void setListener(onSelectionModeChangedListener listener) {
         mListener = listener;
+    }
+
+    /**
+     * 修改预览View的大小, 以用来适配屏幕
+     */
+    public void changeVideoSize(MediaPlayer mediaPlayer, boolean isAspectRatio) {
+        if (mediaPlayer == null || mVideoView == null) {
+            return;
+        }
+        try {
+            mediaPlayer.getVideoWidth();
+        } catch (Exception e) {
+            return;
+        }
+        int videoWidth = mediaPlayer.getVideoWidth();
+        int videoHeight = mediaPlayer.getVideoHeight();
+        int parentWidth = getMeasuredWidth();
+        int parentHeight = getMeasuredHeight();
+
+        float targetAspectRatio = videoWidth * 1.0f / videoHeight;
+
+        int height = (int) (parentWidth / targetAspectRatio);
+
+        int adjustWidth;
+        int adjustHeight;
+        if (isAspectRatio) {
+            if (height > parentHeight) {
+                adjustWidth = (int) (parentHeight * targetAspectRatio);
+                adjustHeight = parentHeight;
+            } else {
+                adjustWidth = parentWidth;
+                adjustHeight = height;
+            }
+        } else {
+            if (height < parentHeight) {
+                adjustWidth = (int) (parentHeight * targetAspectRatio);
+                adjustHeight = parentHeight;
+            } else {
+                adjustWidth = parentWidth;
+                adjustHeight = height;
+            }
+        }
+
+        FrameLayout.LayoutParams layoutParams = (FrameLayout.LayoutParams) mVideoView.getLayoutParams();
+        layoutParams.width = adjustWidth;
+        layoutParams.height = adjustHeight;
+        mVideoView.setLayoutParams(layoutParams);
     }
 
     public interface onSelectionModeChangedListener {

@@ -24,6 +24,7 @@ import com.luck.picture.lib.PictureMediaScannerConnection;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
+import com.luck.picture.lib.adapter.PictureImageGridAdapter;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
@@ -982,15 +983,10 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         if (PictureMimeType.eqVideo(mimeType)) {
             // video
             mPreviewContainer.checkModel(PreviewContainer.PLAY_VIDEO_MODE);
-            mPreviewContainer.playVideo(media);
+            mPreviewContainer.playVideo(media, holder);
         } else if (PictureMimeType.eqAudio(mimeType)) {
             // audio
-            if (config.selectionMode == PictureConfig.SINGLE) {
-                result.add(media);
-                onResult(result);
-            } else {
-                audioDialog(media.getPath());
-            }
+            audioDialog(media.getPath());
         } else {
             // image
             if (media != null) {
