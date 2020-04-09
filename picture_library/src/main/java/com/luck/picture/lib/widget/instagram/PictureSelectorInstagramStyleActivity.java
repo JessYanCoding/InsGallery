@@ -154,6 +154,8 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         config.isCamera = false;
         config.selectionMode = PictureConfig.SINGLE;
         config.isSingleDirectReturn = true;
+        config.isWithVideoImage = false;
+        config.maxVideoSelectNum = 1;
 
         mPictureRecycler = new GalleryViewImpl(getContext());
         mPreviewContainer = new PreviewContainer(getContext());
@@ -472,14 +474,13 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        if (id == R.id.picture_left_back || id == R.id.picture_right) {
+        if (id == R.id.picture_left_back) {
             if (folderWindow != null && folderWindow.isShowing()) {
                 folderWindow.dismiss();
             } else {
                 onBackPressed();
             }
-        }
-        if (id == R.id.picture_title || id == R.id.ivArrow) {
+        } else if (id == R.id.picture_title || id == R.id.ivArrow) {
             if (folderWindow.isShowing()) {
                 folderWindow.dismiss();
             } else {
@@ -491,6 +492,8 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     }
                 }
             }
+        } else if (id == R.id.picture_right) {
+            onComplete();
         }
     }
 
@@ -499,6 +502,12 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
      */
     private void onComplete() {
         List<LocalMedia> result = mAdapter.getSelectedImages();
+        if (config.selectionMode == PictureConfig.SINGLE) {
+            if (result.size() > 0) {
+                result.clear();
+            }
+            result.add(mAdapter.getImages().get(mPreviewPosition));
+        }
         int size = result.size();
         LocalMedia image = result.size() > 0 ? result.get(0) : null;
         String mimeType = image != null ? image.getMimeType() : "";
@@ -661,8 +670,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         LocalMedia image = images.size() > 0 ? images.get(0) : null;
         if (config.enableCrop && eqImg) {
             if (config.selectionMode == PictureConfig.SINGLE) {
-                config.originalPath = image.getPath();
-                startCrop(config.originalPath, image.getMimeType());
+                if (mPreviewContainer != null) {
+                    mPreviewContainer.cropAndSaveImage(this);
+                }
             } else {
                 // 是图片和选择压缩并且是多张，调用批量压缩
                 ArrayList<CutInfo> cuts = new ArrayList<>();
@@ -930,7 +940,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
     @Override
     public void onChange(List<LocalMedia> selectImages) {
-        changeImageNumber(selectImages);
+
     }
 
     @Override
@@ -1022,27 +1032,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             }
         }
     }
-
-
-    /**
-     * change image selector state
-     *
-     * @param selectImages
-     */
-    protected void changeImageNumber(List<LocalMedia> selectImages) {
-        boolean enable = selectImages.size() != 0;
-        if (enable) {
-            if (numComplete) {
-                initCompleteText(selectImages.size());
-            } else {
-            }
-        } else {
-            if (numComplete) {
-                initCompleteText(selectImages.size());
-            }
-        }
-    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -83,11 +83,9 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
             selection.add(media);
         }
         this.selectImages = selection;
-        if (!config.isSingleDirectReturn) {
-            subSelectPosition();
-            if (imageSelectChangedListener != null) {
-                imageSelectChangedListener.onChange(selectImages);
-            }
+        subSelectPosition();
+        if (imageSelectChangedListener != null) {
+            imageSelectChangedListener.onChange(selectImages);
         }
     }
 

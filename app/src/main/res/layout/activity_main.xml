@@ -333,7 +333,6 @@
                     android:id="@+id/cb_isCamera"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="false"
                     android:gravity="center_vertical"
                     android:text="显示or隐藏拍摄"
                     android:textColor="@color/app_color_53575e"
@@ -394,6 +393,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
+                    android:checked="true"
                     android:text="是否裁剪图片"
                     android:textColor="@color/app_color_53575e"
                     android:textSize="14sp" />

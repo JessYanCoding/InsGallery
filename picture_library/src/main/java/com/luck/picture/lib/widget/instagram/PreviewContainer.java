@@ -3,7 +3,9 @@ package com.luck.picture.lib.widget.instagram;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -23,6 +25,9 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
+import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.UCropActivity;
+import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.util.FileUtils;
 import com.yalantis.ucrop.util.MimeType;
 import com.yalantis.ucrop.view.GestureCropImageView;
@@ -59,7 +64,7 @@ public class PreviewContainer extends FrameLayout {
     private boolean isAspectRatio;
     private boolean isMulti;
     private onSelectionModeChangedListener mListener;
-    private int PlayMode;
+    private int mPlayMode;
     private MediaPlayer mMediaPlayer;
     private boolean isPause;
     private ObjectAnimator mThumbAnimator;
@@ -184,9 +189,9 @@ public class PreviewContainer extends FrameLayout {
         addView(mRatioView, ratioLayoutParams);
         mRatioView.setOnClickListener((v) -> {
             isAspectRatio = !isAspectRatio;
-            if (PlayMode == PLAY_IMAGE_MODE) {
+            if (mPlayMode == PLAY_IMAGE_MODE) {
                 resetAspectRatio();
-            } else if (PlayMode == PLAY_VIDEO_MODE) {
+            } else if (mPlayMode == PLAY_VIDEO_MODE) {
                 changeVideoSize(mMediaPlayer, isAspectRatio);
             }
         });
@@ -221,7 +226,7 @@ public class PreviewContainer extends FrameLayout {
     }
 
     private void pauseVideo() {
-        if (PlayMode != PLAY_VIDEO_MODE) {
+        if (mPlayMode != PLAY_VIDEO_MODE) {
             return;
         }
         if (mPlayAnimator != null && mPlayAnimator.isRunning()) {
@@ -251,7 +256,7 @@ public class PreviewContainer extends FrameLayout {
     }
 
     public void setImageUri(@NonNull Uri inputUri, @Nullable Uri outputUri) {
-        if (PlayMode != PLAY_IMAGE_MODE) {
+        if (mPlayMode != PLAY_IMAGE_MODE) {
             return;
         }
         if (inputUri != null && outputUri != null) {
@@ -266,7 +271,7 @@ public class PreviewContainer extends FrameLayout {
     }
 
     public void playVideo(LocalMedia media, RecyclerView.ViewHolder holder) {
-        if (PlayMode != PLAY_VIDEO_MODE) {
+        if (mPlayMode != PLAY_VIDEO_MODE) {
             return;
         }
         if (mThumbAnimator != null && mThumbAnimator.isRunning()) {
@@ -297,7 +302,7 @@ public class PreviewContainer extends FrameLayout {
     }
 
     public void checkModel(int mode) {
-        PlayMode = mode;
+        mPlayMode = mode;
 
         if (mVideoView.getVisibility() == VISIBLE && mVideoView.isPlaying()) {
             mVideoView.pause();
@@ -416,15 +421,48 @@ public class PreviewContainer extends FrameLayout {
 
     public void onPause() {
         // Stop video when the activity is pause.
-        if (PlayMode == PLAY_VIDEO_MODE) {
+        if (mPlayMode == PLAY_VIDEO_MODE) {
             mPositionWhenPaused = mVideoView.getCurrentPosition();
             mVideoView.stopPlayback();
         }
     }
 
+    public void cropAndSaveImage(PictureSelectorInstagramStyleActivity activity) {
+        mGestureCropImageView.cropAndSaveImage(UCropActivity.DEFAULT_COMPRESS_FORMAT, UCropActivity.DEFAULT_COMPRESS_QUALITY, new BitmapCropCallback() {
+
+            @Override
+            public void onBitmapCropped(@NonNull Uri resultUri, int offsetX, int offsetY, int imageWidth, int imageHeight) {
+                setResultUri(activity, resultUri, mGestureCropImageView.getTargetAspectRatio(), offsetX, offsetY, imageWidth, imageHeight);
+            }
+
+            @Override
+            public void onCropFailure(@NonNull Throwable t) {
+                setResultError(activity, t);
+            }
+        });
+    }
+
+    protected void setResultUri(PictureSelectorInstagramStyleActivity activity, Uri uri, float resultAspectRatio, int offsetX, int offsetY, int imageWidth, int imageHeight) {
+        activity.onActivityResult(UCrop.REQUEST_CROP, Activity.RESULT_OK, new Intent()
+                .putExtra(UCrop.EXTRA_OUTPUT_URI, uri)
+                .putExtra(UCrop.EXTRA_OUTPUT_CROP_ASPECT_RATIO, resultAspectRatio)
+                .putExtra(UCrop.EXTRA_OUTPUT_IMAGE_WIDTH, imageWidth)
+                .putExtra(UCrop.EXTRA_OUTPUT_IMAGE_HEIGHT, imageHeight)
+                .putExtra(UCrop.EXTRA_OUTPUT_OFFSET_X, offsetX)
+                .putExtra(UCrop.EXTRA_OUTPUT_OFFSET_Y, offsetY));
+    }
+
+    protected void setResultError(PictureSelectorInstagramStyleActivity activity, Throwable throwable) {
+        activity.onActivityResult(UCrop.REQUEST_CROP, UCrop.RESULT_ERROR, new Intent().putExtra(UCrop.EXTRA_ERROR, throwable));
+    }
+
+    public int getPlayMode() {
+        return mPlayMode;
+    }
+
     public void onResume() {
         // Resume video player
-        if (PlayMode == PLAY_VIDEO_MODE) {
+        if (mPlayMode == PLAY_VIDEO_MODE) {
             if (!mVideoView.isPlaying()) {
                 mVideoView.start();
             }
