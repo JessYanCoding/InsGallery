@@ -109,6 +109,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     @Override
     protected void onResume() {
         super.onResume();
+        if (mPreviewContainer != null) {
+            mPreviewContainer.onResume();
+        }
         // 这里只针对权限被手动拒绝后进入设置页面重新获取权限后的操作
         if (isEnterSetting) {
             if (PermissionChecker
@@ -122,6 +125,14 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 showPermissionsDialog(false, getString(R.string.picture_jurisdiction));
             }
             isEnterSetting = false;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mPreviewContainer != null) {
+            mPreviewContainer.onPause();
         }
     }
 

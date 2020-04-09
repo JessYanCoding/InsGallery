@@ -64,6 +64,8 @@ public class PreviewContainer extends FrameLayout {
     private boolean isPause;
     private ObjectAnimator mThumbAnimator;
     private ImageView mPlayButton;
+    private boolean isLoadingVideo;
+    private int mPositionWhenPaused = -1;
 
     private TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
         @Override
@@ -106,6 +108,18 @@ public class PreviewContainer extends FrameLayout {
             mMediaPlayer = mp;
             mp.setLooping(true);
             changeVideoSize(mp, isAspectRatio);
+            mp.setOnInfoListener((mp1, what, extra) -> {
+                if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                    // video started
+                    if (mThumbView.getVisibility() == VISIBLE && isLoadingVideo) {
+                        isLoadingVideo = false;
+                        mThumbAnimator = ObjectAnimator.ofFloat(mThumbView, "alpha", 1.0f, 0).setDuration(400);
+                        mThumbAnimator.start();
+                    }
+                    return true;
+                }
+                return false;
+            });
         });
 
 
@@ -269,6 +283,7 @@ public class PreviewContainer extends FrameLayout {
             mThumbView.setBackgroundColor(Color.WHITE);
         }
         mPlayButton.setVisibility(GONE);
+        isLoadingVideo = false;
         mHandler.postDelayed(() -> {
             if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(media.getPath())) {
                 mVideoView.setVideoURI(Uri.parse(media.getPath()));
@@ -277,11 +292,8 @@ public class PreviewContainer extends FrameLayout {
             }
             mVideoView.start();
             isPause = false;
-            if (mThumbView.getVisibility() == VISIBLE) {
-                mThumbAnimator = ObjectAnimator.ofFloat(mThumbView, "alpha", 1.0f, 1.0f, 0).setDuration(800);
-                mThumbAnimator.start();
-            }
-        }, 800);
+            isLoadingVideo = true;
+        }, 600);
     }
 
     public void checkModel(int mode) {
@@ -400,6 +412,31 @@ public class PreviewContainer extends FrameLayout {
         layoutParams.width = adjustWidth;
         layoutParams.height = adjustHeight;
         mVideoView.setLayoutParams(layoutParams);
+    }
+
+    public void onPause() {
+        // Stop video when the activity is pause.
+        if (PlayMode == PLAY_VIDEO_MODE) {
+            mPositionWhenPaused = mVideoView.getCurrentPosition();
+            mVideoView.stopPlayback();
+        }
+    }
+
+    public void onResume() {
+        // Resume video player
+        if (PlayMode == PLAY_VIDEO_MODE) {
+            if (!mVideoView.isPlaying()) {
+                mVideoView.start();
+            }
+            if (isPause) {
+                mPlayButton.setVisibility(GONE);
+                isPause = false;
+            }
+            if (mPositionWhenPaused >= 0) {
+                mVideoView.seekTo(mPositionWhenPaused);
+                mPositionWhenPaused = -1;
+            }
+        }
     }
 
     public interface onSelectionModeChangedListener {
