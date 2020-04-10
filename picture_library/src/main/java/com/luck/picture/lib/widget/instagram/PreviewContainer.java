@@ -194,6 +194,9 @@ public class PreviewContainer extends FrameLayout {
             } else if (mPlayMode == PLAY_VIDEO_MODE) {
                 changeVideoSize(mMediaPlayer, isAspectRatio);
             }
+            if (mListener != null) {
+                mListener.onRatioChange(isAspectRatio);
+            }
         });
 
         mMultiView = new ImageView(context);
@@ -215,7 +218,7 @@ public class PreviewContainer extends FrameLayout {
                 mRatioView.setVisibility(View.VISIBLE);
             }
             if (mListener != null) {
-                mListener.onModeChange(isMulti);
+                mListener.onSelectionModeChange(isMulti);
             }
         });
 
@@ -478,6 +481,7 @@ public class PreviewContainer extends FrameLayout {
     }
 
     public interface onSelectionModeChangedListener {
-        void onModeChange(boolean isMulti);
+        void onSelectionModeChange(boolean isMulti);
+        void onRatioChange(boolean isOneToOne);
     }
 }

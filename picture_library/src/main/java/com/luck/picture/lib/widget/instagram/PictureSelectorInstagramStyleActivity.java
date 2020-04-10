@@ -156,24 +156,40 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         config.isSingleDirectReturn = true;
         config.isWithVideoImage = false;
         config.maxVideoSelectNum = 1;
+        config.aspect_ratio_x = 1;
+        config.aspect_ratio_y = 1;
 
         mPictureRecycler = new GalleryViewImpl(getContext());
         mPreviewContainer = new PreviewContainer(getContext());
         mInstagramGallery = new InstagramGallery(getContext(), mPreviewContainer, mPictureRecycler);
         mInstagramGallery.setPreviewBottomMargin(ScreenUtils.dip2px(getContext(), 2));
 
-        mPreviewContainer.setListener((isMulti -> {
-            if (isMulti) {
-                config.selectionMode = PictureConfig.MULTIPLE;
-                config.isSingleDirectReturn = false;
-            } else {
-                config.selectionMode = PictureConfig.SINGLE;
-                config.isSingleDirectReturn = true;
+        mPreviewContainer.setListener(new PreviewContainer.onSelectionModeChangedListener() {
+            @Override
+            public void onSelectionModeChange(boolean isMulti) {
+                if (isMulti) {
+                    config.selectionMode = PictureConfig.MULTIPLE;
+                    config.isSingleDirectReturn = false;
+                } else {
+                    config.selectionMode = PictureConfig.SINGLE;
+                    config.isSingleDirectReturn = true;
+                }
+                if (mAdapter != null) {
+                    mAdapter.notifyDataSetChanged();
+                }
             }
-            if (mAdapter != null) {
-                mAdapter.notifyDataSetChanged();
+
+            @Override
+            public void onRatioChange(boolean isOneToOne) {
+                if (isOneToOne) {
+                    config.aspect_ratio_x = 0;
+                    config.aspect_ratio_y = 0;
+                } else {
+                    config.aspect_ratio_x = 1;
+                    config.aspect_ratio_y = 1;
+                }
             }
-        }));
+        });
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.addRule(RelativeLayout.ABOVE, R.id.rl_bottom);

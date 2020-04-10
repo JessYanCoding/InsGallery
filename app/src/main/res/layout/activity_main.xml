@@ -104,8 +104,9 @@
                         android:id="@+id/rb_white_style"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="主题样式一"
-                        android:textColor="@color/app_color_53575e"
+                        android:text="主题样式一 (仿Instagram-超炫风格)"
+                        android:textStyle="bold"
+                        android:textColor="@color/app_color_c51"
                         android:textSize="14sp" />
 
                     <RadioButton

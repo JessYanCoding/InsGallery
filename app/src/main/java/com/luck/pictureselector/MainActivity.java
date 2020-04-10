@@ -678,7 +678,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
-        isInstagramStyle = false;
         switch (checkedId) {
             case R.id.rb_all:
                 chooseMode = PictureMimeType.ofAll();
@@ -774,6 +773,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.rb_default_style:
                 themeId = R.style.picture_default_style;
                 isWeChatStyle = false;
+                isInstagramStyle = false;
                 getDefaultStyle();
                 break;
             case R.id.rb_white_style:
@@ -785,16 +785,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.rb_num_style:
                 themeId = R.style.picture_QQ_style;
                 isWeChatStyle = false;
+                isInstagramStyle = false;
                 getNumStyle();
                 break;
             case R.id.rb_sina_style:
                 themeId = R.style.picture_Sina_style;
                 isWeChatStyle = false;
+                isInstagramStyle = false;
                 getSinaStyle();
                 break;
             case R.id.rb_we_chat_style:
                 themeId = R.style.picture_WeChat_style;
                 isWeChatStyle = true;
+                isInstagramStyle = false;
                 getWeChatStyle();
                 break;
         }
