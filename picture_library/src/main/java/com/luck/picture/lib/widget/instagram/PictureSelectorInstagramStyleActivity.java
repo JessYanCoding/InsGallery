@@ -393,12 +393,20 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                             startPreview(images, 0);
                         }
                         mTvEmpty.setVisibility(isEmpty ? View.INVISIBLE : View.VISIBLE);
+                        mInstagramGallery.setVisibility(isEmpty ? View.VISIBLE : View.INVISIBLE);
+                        boolean enabled = isEmpty || config.returnEmpty;
+                        mTvPictureRight.setEnabled(enabled);
+                        mTvPictureRight.setTextColor(enabled ? config.style.pictureRightDefaultTextColor : ContextCompat.getColor(getContext(), R.color.picture_color_9B9B9D));
                     }
                 } else {
                     mTvEmpty.setCompoundDrawablesRelativeWithIntrinsicBounds
                             (0, R.drawable.picture_icon_data_error, 0, 0);
                     mTvEmpty.setText(getString(R.string.picture_data_exception));
                     mTvEmpty.setVisibility(images.size() > 0 ? View.INVISIBLE : View.VISIBLE);
+                    mInstagramGallery.setVisibility(images.size() > 0 ? View.VISIBLE : View.INVISIBLE);
+                    boolean enabled = images.size() > 0 || config.returnEmpty;
+                    mTvPictureRight.setEnabled(enabled);
+                    mTvPictureRight.setTextColor(enabled ? config.style.pictureRightDefaultTextColor : ContextCompat.getColor(getContext(), R.color.picture_color_9B9B9D));
                 }
             }
         });
@@ -506,7 +514,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             if (result.size() > 0) {
                 result.clear();
             }
-            result.add(mAdapter.getImages().get(mPreviewPosition));
+            if (mAdapter.getImages().size() > 0) {
+                result.add(mAdapter.getImages().get(mPreviewPosition));
+            }
         }
         int size = result.size();
         LocalMedia image = result.size() > 0 ? result.get(0) : null;

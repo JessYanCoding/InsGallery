@@ -24,6 +24,7 @@ public class GalleryViewImpl extends RecyclerView implements GalleryView {
         setOverScrollMode(OVER_SCROLL_NEVER);
         addOnScrollListener(new OnScrollListener() {
             int state;
+
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 state = newState;
@@ -43,13 +44,15 @@ public class GalleryViewImpl extends RecyclerView implements GalleryView {
     @Override
     public boolean isScrollTop() {
         View child = getChildAt(0);
-        RecyclerView.ViewHolder holder = findContainingViewHolder(child);
-        if (holder != null && holder.getAdapterPosition() == 0) {
-            int top = child.getTop();
-            if (top >= 0) {
-                return true;
-            } else {
-                return false;
+        if (child != null) {
+            RecyclerView.ViewHolder holder = findContainingViewHolder(child);
+            if (holder != null && holder.getAdapterPosition() == 0) {
+                int top = child.getTop();
+                if (top >= 0) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         }
         return false;
