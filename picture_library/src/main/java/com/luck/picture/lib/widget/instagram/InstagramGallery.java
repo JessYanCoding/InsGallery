@@ -5,16 +5,21 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Rect;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
+import com.luck.picture.lib.R;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 /**
  * ================================================
@@ -30,12 +35,14 @@ public class InstagramGallery extends FrameLayout {
     private int startedTrackingY;
     private float scrollPosition;
     private VelocityTracker velocityTracker;
-    private android.view.animation.Interpolator Interpolator = new LinearInterpolator();
+    private Interpolator interpolator = new LinearInterpolator();
     private int galleryHeight;
     private int interceptY;
     private boolean scrollTop;
     private View maskView;
-    private int PreviewBottomMargin;
+    private TextView emptyView;
+    private int previewBottomMargin;
+    private int viewVisibility = VISIBLE;
 
     public InstagramGallery(@NonNull Context context) {
         super(context);
@@ -44,14 +51,6 @@ public class InstagramGallery extends FrameLayout {
     public InstagramGallery(@NonNull Context context, ViewGroup previewView, ViewGroup galleryView) {
         super(context);
         installView(previewView, galleryView);
-    }
-
-    private void installMaskView(@NonNull Context context) {
-        maskView = new View(context);
-        maskView.setBackgroundColor(0x99000000);
-        addView(maskView);
-        maskView.setVisibility(GONE);
-        maskView.setOnClickListener(v -> startChildAnimation(false, 200));
     }
 
     public void installView(ViewGroup previewView, ViewGroup galleryView) {
@@ -64,6 +63,26 @@ public class InstagramGallery extends FrameLayout {
             addView(galleryView);
         }
         installMaskView(getContext());
+        installEmptyView(getContext());
+    }
+
+    private void installMaskView(@NonNull Context context) {
+        maskView = new View(context);
+        maskView.setBackgroundColor(0x99000000);
+        addView(maskView);
+        maskView.setVisibility(GONE);
+        maskView.setOnClickListener(v -> startChildAnimation(false, 200));
+    }
+
+    private void installEmptyView(@NonNull Context context) {
+        emptyView = new TextView(context);
+        emptyView.setGravity(Gravity.CENTER);
+        emptyView.setLineSpacing(ScreenUtils.dip2px(context, 3), 1.0f);
+        emptyView.setTextSize(16);
+        emptyView.setTextColor(ContextCompat.getColor(context, R.color.picture_color_aab2bd));
+        emptyView.setText(context.getString(R.string.picture_empty));
+        addView(emptyView);
+        emptyView.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -84,7 +103,11 @@ public class InstagramGallery extends FrameLayout {
         }
 
         if (maskView.getVisibility() == VISIBLE) {
-            maskView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(width - PreviewBottomMargin, MeasureSpec.EXACTLY));
+            maskView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(width - previewBottomMargin, MeasureSpec.EXACTLY));
+        }
+
+        if (emptyView.getVisibility() == VISIBLE) {
+            emptyView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
         }
 
         setMeasuredDimension(width, height);
@@ -106,10 +129,19 @@ public class InstagramGallery extends FrameLayout {
             viewTop += mPreviewView.getMeasuredHeight();
             mGalleryView.layout(viewLeft, viewTop, viewLeft + mGalleryView.getMeasuredWidth(), viewTop + mGalleryView.getMeasuredHeight());
         }
+
+        if (emptyView.getVisibility() == VISIBLE) {
+            viewTop = (getMeasuredHeight() - emptyView.getMeasuredHeight()) / 2;
+            viewLeft = (getMeasuredWidth() - emptyView.getMeasuredWidth()) / 2;
+            emptyView.layout(viewLeft, viewTop, viewLeft + emptyView.getMeasuredWidth(), viewTop + emptyView.getMeasuredHeight());
+        }
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (viewVisibility != VISIBLE) {
+            return super.onInterceptTouchEvent(ev);
+        }
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             Rect rect = new Rect();
             mPreviewView.getHitRect(rect);
@@ -141,7 +173,7 @@ public class InstagramGallery extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mPreviewView == null || mGalleryView == null) {
+        if (mPreviewView == null || mGalleryView == null || viewVisibility != VISIBLE) {
             return super.onTouchEvent(event);
         }
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -216,7 +248,7 @@ public class InstagramGallery extends FrameLayout {
                     ObjectAnimator.ofInt(this, "galleryHeight", galleryHeight, getGalleryHeight(getMeasuredWidth(), getMeasuredHeight())));
         }
         animatorSet.setDuration(duration);
-        animatorSet.setInterpolator(Interpolator);
+        animatorSet.setInterpolator(interpolator);
         if (callback != null) {
             animatorSet.addListener(new Animator.AnimatorListener() {
                 @Override
@@ -331,7 +363,7 @@ public class InstagramGallery extends FrameLayout {
     }
 
     public void setPreviewBottomMargin(int previewBottomMargin) {
-        PreviewBottomMargin = previewBottomMargin;
+        this.previewBottomMargin = previewBottomMargin;
     }
 
     private int getGalleryHeight(int ParentWidth, int ParentHeight) {
@@ -340,6 +372,32 @@ public class InstagramGallery extends FrameLayout {
 
     private int getPreviewFoldHeight() {
         return ScreenUtils.dip2px(getContext(), 60);
+    }
+
+    public ViewGroup getPreviewView() {
+        return mPreviewView;
+    }
+
+    public ViewGroup getGalleryView() {
+        return mGalleryView;
+    }
+
+    public TextView getEmptyView() {
+        return emptyView;
+    }
+
+    public void setViewVisibility(int visibility) {
+        viewVisibility = visibility;
+        setViewVisibility(mPreviewView, visibility);
+        setViewVisibility(mGalleryView, visibility);
+    }
+
+    private void setViewVisibility(View view, int visibility) {
+        if (view != null) {
+            if (view.getVisibility() != visibility) {
+                view.setVisibility(visibility);
+            }
+        }
     }
 
     public interface AnimationCallback {

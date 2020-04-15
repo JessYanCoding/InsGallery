@@ -10,18 +10,4 @@
 
     <include layout="@layout/picture_title_bar" />
 
-    <TextView
-        android:id="@+id/tv_empty"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:gravity="center"
-        android:lineSpacingExtra="3dp"
-        android:text="@string/picture_empty"
-        android:textColor="@color/picture_color_aab2bd"
-        android:textSize="16sp"
-        android:visibility="invisible" />
-
 </RelativeLayout>

@@ -88,6 +88,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     protected InstagramGallery mInstagramGallery;
     private PreviewContainer mPreviewContainer;
     private int mPreviewPosition;
+    private InstagramViewPager mInstagramViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,9 +190,15 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.addRule(RelativeLayout.BELOW, R.id.titleViewBg);
-        ((RelativeLayout) container).addView(mInstagramGallery, params);
 
-        mTvEmpty = findViewById(R.id.tv_empty);
+        List<Page> list = new ArrayList<>();
+        list.add(new PageGallery(mInstagramGallery));
+        list.add(new PagePhoto());
+        list.add(new PageVideo());
+        mInstagramViewPager = new InstagramViewPager(getContext(), list);
+        ((RelativeLayout) container).addView(mInstagramViewPager, params);
+
+        mTvEmpty = mInstagramGallery.getEmptyView();
         isNumComplete(numComplete);
         mIvPictureLeftBack.setOnClickListener(this);
         mTvPictureRight.setOnClickListener(this);
@@ -394,7 +401,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                             startPreview(images, 0);
                         }
                         mTvEmpty.setVisibility(isEmpty ? View.INVISIBLE : View.VISIBLE);
-                        mInstagramGallery.setVisibility(isEmpty ? View.VISIBLE : View.INVISIBLE);
+                        mInstagramGallery.setViewVisibility(isEmpty ? View.VISIBLE : View.INVISIBLE);
                         boolean enabled = isEmpty || config.returnEmpty;
                         mTvPictureRight.setEnabled(enabled);
                         mTvPictureRight.setTextColor(enabled ? config.style.pictureRightDefaultTextColor : ContextCompat.getColor(getContext(), R.color.picture_color_9B9B9D));
@@ -404,7 +411,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                             (0, R.drawable.picture_icon_data_error, 0, 0);
                     mTvEmpty.setText(getString(R.string.picture_data_exception));
                     mTvEmpty.setVisibility(images.size() > 0 ? View.INVISIBLE : View.VISIBLE);
-                    mInstagramGallery.setVisibility(images.size() > 0 ? View.VISIBLE : View.INVISIBLE);
+                    mInstagramGallery.setViewVisibility(images.size() > 0 ? View.VISIBLE : View.INVISIBLE);
                     boolean enabled = images.size() > 0 || config.returnEmpty;
                     mTvPictureRight.setEnabled(enabled);
                     mTvPictureRight.setTextColor(enabled ? config.style.pictureRightDefaultTextColor : ContextCompat.getColor(getContext(), R.color.picture_color_9B9B9D));
