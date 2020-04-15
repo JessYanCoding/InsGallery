@@ -161,7 +161,7 @@ public class PreviewContainer extends FrameLayout {
                 } else {
                     mHandler.removeCallbacksAndMessages(null);
                 }
-            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
                 mHandler.postDelayed(() -> {
                     if (mCropGridShowing) {
                         mOverlayView.setShowCropGrid(false);

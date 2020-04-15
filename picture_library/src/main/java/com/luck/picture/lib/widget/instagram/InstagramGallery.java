@@ -274,10 +274,17 @@ public class InstagramGallery extends FrameLayout {
     }
 
     public void setScrollPosition(float value) {
-        scrollPosition = value;
-        if (scrollPosition < -(getMeasuredWidth() - getPreviewFoldHeight())) {
+        float oldScrollPosition = scrollPosition;
+        if (value < -(getMeasuredWidth() - getPreviewFoldHeight())) {
             scrollPosition = -(getMeasuredWidth() - getPreviewFoldHeight());
+        } else {
+            scrollPosition = value;
         }
+
+        if (oldScrollPosition == scrollPosition) {
+            return;
+        }
+
         mPreviewView.setTranslationY(scrollPosition);
         mGalleryView.setTranslationY(scrollPosition);
         maskView.setTranslationY(scrollPosition);
