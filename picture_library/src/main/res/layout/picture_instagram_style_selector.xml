@@ -10,18 +10,6 @@
 
     <include layout="@layout/picture_title_bar" />
 
-    <RelativeLayout
-        android:id="@+id/rl_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_alignParentBottom="true"
-        android:background="?attr/picture.bottom.bg"
-        android:gravity="center_vertical">
-
-
-    </RelativeLayout>
-
-
     <TextView
         android:id="@+id/tv_empty"
         android:layout_width="match_parent"

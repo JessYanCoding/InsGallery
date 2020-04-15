@@ -77,7 +77,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     protected TextView mTvPictureTitle, mTvPictureRight, mTvEmpty, mTvPlayPause, mTvStop, mTvQuit,
             mTvMusicStatus, mTvMusicTotal, mTvMusicTime;
     protected RecyclerView mPictureRecycler;
-    protected RelativeLayout mBottomLayout;
     protected InstagramImageGridAdapter mAdapter;
     protected List<LocalMedia> images = new ArrayList<>();
     protected List<LocalMediaFolder> foldersList = new ArrayList<>();
@@ -192,14 +191,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         });
 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        params.addRule(RelativeLayout.ABOVE, R.id.rl_bottom);
         params.addRule(RelativeLayout.BELOW, R.id.titleViewBg);
         ((RelativeLayout) container).addView(mInstagramGallery, params);
 
-        mBottomLayout = findViewById(R.id.rl_bottom);
         mTvEmpty = findViewById(R.id.tv_empty);
         isNumComplete(numComplete);
-        mBottomLayout.setVisibility(View.GONE);
         mIvPictureLeftBack.setOnClickListener(this);
         mTvPictureRight.setOnClickListener(this);
         mTvPictureTitle.setOnClickListener(this);
@@ -291,9 +287,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             if (config.style.pictureLeftBackIcon != 0) {
                 mIvPictureLeftBack.setImageResource(config.style.pictureLeftBackIcon);
             }
-            if (config.style.pictureBottomBgColor != 0) {
-                mBottomLayout.setBackgroundColor(config.style.pictureBottomBgColor);
-            }
             if (config.style.pictureContainerBackgroundColor != 0) {
                 container.setBackgroundColor(config.style.pictureContainerBackgroundColor);
             }
@@ -304,11 +297,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             if (config.downResId != 0) {
                 Drawable drawable = ContextCompat.getDrawable(this, config.downResId);
                 mIvArrow.setImageDrawable(drawable);
-            }
-            int pictureBottomBgColor = AttrsUtils.
-                    getTypeValueColor(getContext(), R.attr.picture_bottom_bg);
-            if (pictureBottomBgColor != 0) {
-                mBottomLayout.setBackgroundColor(pictureBottomBgColor);
             }
         }
         titleViewBg.setBackgroundColor(colorPrimary);
