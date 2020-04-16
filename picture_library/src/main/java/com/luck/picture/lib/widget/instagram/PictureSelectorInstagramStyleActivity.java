@@ -194,7 +194,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
         List<Page> list = new ArrayList<>();
         list.add(new PageGallery(mInstagramGallery));
-        list.add(new PagePhoto());
+        list.add(new PagePhoto(this, config));
         list.add(new PageVideo());
         mInstagramViewPager = new InstagramViewPager(getContext(), list);
         ((RelativeLayout) container).addView(mInstagramViewPager, params);
@@ -202,21 +202,18 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mInstagramViewPager.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                Log.d("Test", "position: " + position + "; positionOffset: " + positionOffset + "; positionOffsetPixels: " + positionOffsetPixels);
                 if (position == 0) {
                     if (positionOffset >= 0.5f) {
                         mPreviewContainer.pauseVideo(true);
-                        Log.d("Test", "pauseVideo");
                     } else {
                         mPreviewContainer.pauseVideo(false);
-                        Log.d("Test", "playVideo");
                     }
                 }
             }
 
             @Override
             public void onPageSelected(int position) {
-                Log.d("Test", "onPageSelected: " + position);
+
             }
         });
 
