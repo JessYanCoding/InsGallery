@@ -229,13 +229,21 @@ public class PreviewContainer extends FrameLayout {
     }
 
     private void pauseVideo() {
+        pauseVideo(!isPause);
+    }
+
+    public void pauseVideo(boolean pause) {
+        if (isPause == pause) {
+            return;
+        }
+        isPause = pause;
         if (mPlayMode != PLAY_VIDEO_MODE) {
             return;
         }
         if (mPlayAnimator != null && mPlayAnimator.isRunning()) {
             mPlayAnimator.cancel();
         }
-        if (!isPause) {
+        if (pause) {
             mPlayButton.setVisibility(VISIBLE);
             mPlayAnimator = ObjectAnimator.ofFloat(mPlayButton, "alpha", 0, 1.0f).setDuration(200);
             mVideoView.pause();
@@ -250,7 +258,6 @@ public class PreviewContainer extends FrameLayout {
             mVideoView.start();
         }
         mPlayAnimator.start();
-        isPause = !isPause;
     }
 
     private void resetAspectRatio() {

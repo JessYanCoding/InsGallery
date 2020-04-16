@@ -40,6 +40,7 @@ public class InstagramViewPager extends FrameLayout {
     int startClickY;
     long time;
     private AnimatorSet mAnimatorSet;
+    private OnPageChangeListener mOnPageChangeListener;
 
     public InstagramViewPager(@NonNull Context context) {
         super(context);
@@ -277,10 +278,20 @@ public class InstagramViewPager extends FrameLayout {
 
         if (mTabLayout != null) {
             mTabLayout.setIndicatorPosition(position, offset / getMeasuredWidth());
-            if (offset == 0) {
+        }
+
+        if (mOnPageChangeListener != null) {
+            mOnPageChangeListener.onPageScrolled(position, offset / getMeasuredWidth(), (int) offset);
+        }
+
+        if (offset == 0) {
+            if (mTabLayout != null) {
                 mTabLayout.selectTab(position);
-                mItems.get(position).refreshData(getContext());
             }
+            if (mOnPageChangeListener != null) {
+                mOnPageChangeListener.onPageSelected(position);
+            }
+            mItems.get(position).refreshData(getContext());
         }
 
         if (offset > 0) {
@@ -298,5 +309,9 @@ public class InstagramViewPager extends FrameLayout {
             mItems.get(position).init(position, this);
             currentView.setTag(true);
         }
+    }
+
+    public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
+        mOnPageChangeListener = onPageChangeListener;
     }
 }

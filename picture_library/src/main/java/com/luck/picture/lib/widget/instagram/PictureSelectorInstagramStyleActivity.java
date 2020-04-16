@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -197,6 +198,27 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         list.add(new PageVideo());
         mInstagramViewPager = new InstagramViewPager(getContext(), list);
         ((RelativeLayout) container).addView(mInstagramViewPager, params);
+
+        mInstagramViewPager.setOnPageChangeListener(new OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                Log.d("Test", "position: " + position + "; positionOffset: " + positionOffset + "; positionOffsetPixels: " + positionOffsetPixels);
+                if (position == 0) {
+                    if (positionOffset >= 0.5f) {
+                        mPreviewContainer.pauseVideo(true);
+                        Log.d("Test", "pauseVideo");
+                    } else {
+                        mPreviewContainer.pauseVideo(false);
+                        Log.d("Test", "playVideo");
+                    }
+                }
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                Log.d("Test", "onPageSelected: " + position);
+            }
+        });
 
         mTvEmpty = mInstagramGallery.getEmptyView();
         isNumComplete(numComplete);
