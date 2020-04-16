@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
+import com.luck.picture.lib.tools.ScreenUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +43,7 @@ public class InstagramViewPager extends FrameLayout {
     long time;
     private AnimatorSet mAnimatorSet;
     private OnPageChangeListener mOnPageChangeListener;
+    private int skipRange;
 
     public InstagramViewPager(@NonNull Context context) {
         super(context);
@@ -48,15 +51,16 @@ public class InstagramViewPager extends FrameLayout {
 
     public InstagramViewPager(@NonNull Context context, List<Page> items) {
         super(context);
-        if (items != null && !items.isEmpty()) {
-            mItems.addAll(items);
-            installView(items);
-            mItems.get(0).init(0, this);
-            mViews.get(0).setTag(true);
-            mItems.get(0).refreshData(context);
-            mTabLayout = new TabLayout(context, items);
-            addView(mTabLayout);
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("items is isEmpty!");
         }
+        mItems.addAll(items);
+        installView(items);
+        mItems.get(0).init(0, this);
+        mViews.get(0).setTag(true);
+        mItems.get(0).refreshData(context);
+        mTabLayout = new TabLayout(context, items);
+        addView(mTabLayout);
     }
 
     public void installView(List<Page> items) {
@@ -84,7 +88,7 @@ public class InstagramViewPager extends FrameLayout {
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
         int tabLayoutHeight = height;
-        if (mTabLayout != null && mTabLayout.getVisibility() == VISIBLE) {
+        if (mTabLayout.getVisibility() == VISIBLE) {
             measureChild(mTabLayout, widthMeasureSpec, heightMeasureSpec);
             tabLayoutHeight -= mTabLayout.getMeasuredHeight();
         }
@@ -107,7 +111,7 @@ public class InstagramViewPager extends FrameLayout {
             view.layout(viewLeft, viewTop, viewLeft + view.getMeasuredWidth(), viewTop + view.getMeasuredHeight());
         }
 
-        if (mTabLayout != null && mTabLayout.getVisibility() == VISIBLE) {
+        if (mTabLayout.getVisibility() == VISIBLE) {
             viewLeft = 0;
             viewTop = getMeasuredHeight() - mTabLayout.getMeasuredHeight();
             mTabLayout.layout(viewLeft, viewTop, viewLeft + mTabLayout.getMeasuredWidth(), viewTop + mTabLayout.getMeasuredHeight());
@@ -132,7 +136,7 @@ public class InstagramViewPager extends FrameLayout {
 
             float dx = (int) ev.getX() - interceptX;
             float dy = (int) ev.getY() - interceptY;
-            if (Math.abs(dx) > 10 && Math.abs(dy) < 10) {
+            if (Math.abs(dx) > ScreenUtils.dip2px(getContext(), 3) && Math.abs(dy) < ScreenUtils.dip2px(getContext(), 5)) {
                 startedTrackingX = (int) ev.getX();
                 startedTrackingY = (int) ev.getY();
                 return true;
@@ -166,7 +170,7 @@ public class InstagramViewPager extends FrameLayout {
             startedTrackingX = (int) event.getX();
             startedTrackingY = (int) event.getY();
 
-            if (click && (Math.abs(event.getX() - startClickX) > 5 || Math.abs(event.getY() - startClickY) > 5)) {
+            if (click && (Math.abs(event.getX() - startClickX) > ScreenUtils.dip2px(getContext(), 3) || Math.abs(event.getY() - startClickY) > ScreenUtils.dip2px(getContext(), 3))) {
                 click = false;
             }
         } else if (event.getAction() == MotionEvent.ACTION_CANCEL || event.getAction() == MotionEvent.ACTION_UP) {
@@ -269,25 +273,25 @@ public class InstagramViewPager extends FrameLayout {
             return;
         }
 
-        for (View view : mViews) {
-            view.setTranslationX(scrollHorizontalPosition);
+        boolean isTranslationX = skipRange <= 0 || scrollHorizontalPosition >= -(getMeasuredWidth() * (mViews.size() - (1 + skipRange)));
+
+        if (isTranslationX) {
+            for (View view : mViews) {
+                view.setTranslationX(scrollHorizontalPosition);
+            }
         }
 
         int position = (int) (Math.abs(scrollHorizontalPosition) / getMeasuredWidth());
         float offset = Math.abs(scrollHorizontalPosition) % getMeasuredWidth();
 
-        if (mTabLayout != null) {
-            mTabLayout.setIndicatorPosition(position, offset / getMeasuredWidth());
-        }
+        mTabLayout.setIndicatorPosition(position, offset / getMeasuredWidth());
 
         if (mOnPageChangeListener != null) {
             mOnPageChangeListener.onPageScrolled(position, offset / getMeasuredWidth(), (int) offset);
         }
 
         if (offset == 0) {
-            if (mTabLayout != null) {
-                mTabLayout.selectTab(position);
-            }
+            mTabLayout.selectTab(position);
             if (mOnPageChangeListener != null) {
                 mOnPageChangeListener.onPageSelected(position);
             }
@@ -309,6 +313,13 @@ public class InstagramViewPager extends FrameLayout {
             mItems.get(position).init(position, this);
             currentView.setTag(true);
         }
+    }
+
+    public void setSkipRange(int skipRange) {
+        if (skipRange < 1 || skipRange >= mItems.size()) {
+            return;
+        }
+        this.skipRange = skipRange;
     }
 
     public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {

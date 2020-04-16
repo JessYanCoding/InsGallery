@@ -199,9 +199,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mInstagramViewPager = new InstagramViewPager(getContext(), list);
         ((RelativeLayout) container).addView(mInstagramViewPager, params);
 
+        mInstagramViewPager.setSkipRange(1);
         mInstagramViewPager.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                Log.d("Test", "position: " + position + "; positionOffset: " + positionOffset + "; positionOffsetPixels: " + positionOffsetPixels);
                 if (position == 0) {
                     if (positionOffset >= 0.5f) {
                         mPreviewContainer.pauseVideo(true);
@@ -213,7 +215,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
             @Override
             public void onPageSelected(int position) {
-
+                Log.d("Test", "onPageSelected: " + position);
             }
         });
 
