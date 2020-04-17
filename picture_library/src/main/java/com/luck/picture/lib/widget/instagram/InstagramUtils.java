@@ -13,6 +13,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.os.Build;
 import android.util.StateSet;
+import android.view.View;
 
 import com.luck.picture.lib.tools.ScreenUtils;
 
@@ -23,12 +24,11 @@ import com.luck.picture.lib.tools.ScreenUtils;
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public class DrawableUtils {
+public class InstagramUtils {
 
-    public DrawableUtils() {
+    public InstagramUtils() {
         throw new IllegalStateException("you can't instantiate me!");
     }
-
 
     public static Drawable createCircleDrawable(int size, int color) {
         OvalShape ovalShape = new OvalShape();
@@ -106,6 +106,14 @@ public class DrawableUtils {
             stateListDrawable.addState(new int[]{android.R.attr.state_focused}, pressedDrawable);
             stateListDrawable.addState(StateSet.WILD_CARD, defaultDrawable);
             return stateListDrawable;
+        }
+    }
+
+    public static void setViewVisibility(View view, int visibility) {
+        if (view != null) {
+            if (view.getVisibility() != visibility) {
+                view.setVisibility(visibility);
+            }
         }
     }
 }

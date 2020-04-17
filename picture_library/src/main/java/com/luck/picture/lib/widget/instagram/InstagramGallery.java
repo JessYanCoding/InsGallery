@@ -386,16 +386,8 @@ public class InstagramGallery extends FrameLayout {
 
     public void setViewVisibility(int visibility) {
         viewVisibility = visibility;
-        setViewVisibility(mPreviewView, visibility);
-        setViewVisibility(mGalleryView, visibility);
-    }
-
-    private void setViewVisibility(View view, int visibility) {
-        if (view != null) {
-            if (view.getVisibility() != visibility) {
-                view.setVisibility(visibility);
-            }
-        }
+        InstagramUtils.setViewVisibility(mPreviewView, visibility);
+        InstagramUtils.setViewVisibility(mGalleryView, visibility);
     }
 
     public interface AnimationCallback {

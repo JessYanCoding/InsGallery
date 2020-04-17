@@ -178,7 +178,7 @@ public class PreviewContainer extends FrameLayout {
 
         mRatioView = new ImageView(context);
 
-        CombinedDrawable ratiodDrawable = new CombinedDrawable(DrawableUtils.createSimpleSelectorCircleDrawable(ScreenUtils.dip2px(context, 30), 0x88000000, Color.BLACK),
+        CombinedDrawable ratiodDrawable = new CombinedDrawable(InstagramUtils.createSimpleSelectorCircleDrawable(ScreenUtils.dip2px(context, 30), 0x88000000, Color.BLACK),
                 context.getResources().getDrawable(R.drawable.discover_telescopic).mutate());
         ratiodDrawable.setCustomSize(ScreenUtils.dip2px(context, 30), ScreenUtils.dip2px(context, 30));
 
@@ -201,7 +201,7 @@ public class PreviewContainer extends FrameLayout {
 
         mMultiView = new ImageView(context);
 
-        CombinedDrawable multiDrawable = new CombinedDrawable(DrawableUtils.createSimpleSelectorCircleDrawable(ScreenUtils.dip2px(context, 30), 0x88000000, Color.BLACK),
+        CombinedDrawable multiDrawable = new CombinedDrawable(InstagramUtils.createSimpleSelectorCircleDrawable(ScreenUtils.dip2px(context, 30), 0x88000000, Color.BLACK),
                 context.getResources().getDrawable(R.drawable.discover_many).mutate());
         multiDrawable.setCustomSize(ScreenUtils.dip2px(context, 30), ScreenUtils.dip2px(context, 30));
 
@@ -324,33 +324,25 @@ public class PreviewContainer extends FrameLayout {
         mAnimatorSet = new AnimatorSet();
         List<Animator> animators = new ArrayList<>();
         if (mode == PLAY_IMAGE_MODE) {
-            setViewVisibility(mUCropView, View.VISIBLE);
+            InstagramUtils.setViewVisibility(mUCropView, View.VISIBLE);
             animators.add(ObjectAnimator.ofFloat(mUCropView, "alpha", 0.1f, 1.0f));
             mAnimatorSet.addListener(new AnimatorListenerImpl() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    setViewVisibility(mVideoView, View.GONE);
-                    setViewVisibility(mThumbView, View.GONE);
+                    InstagramUtils.setViewVisibility(mVideoView, View.GONE);
+                    InstagramUtils.setViewVisibility(mThumbView, View.GONE);
                 }
             });
         } else if (mode == PLAY_VIDEO_MODE) {
-            setViewVisibility(mVideoView, View.VISIBLE);
-            setViewVisibility(mThumbView, View.VISIBLE);
-            setViewVisibility(mUCropView, View.GONE);
+            InstagramUtils.setViewVisibility(mVideoView, View.VISIBLE);
+            InstagramUtils.setViewVisibility(mThumbView, View.VISIBLE);
+            InstagramUtils.setViewVisibility(mUCropView, View.GONE);
             animators.add(ObjectAnimator.ofFloat(mVideoView, "alpha", 0f, 1.0f));
             animators.add(ObjectAnimator.ofFloat(mThumbView, "alpha", 0.1f, 1.0f));
         }
         mAnimatorSet.setDuration(800);
         mAnimatorSet.playTogether(animators);
         mAnimatorSet.start();
-    }
-
-    private void setViewVisibility(View view, int visibility) {
-        if (view != null) {
-            if (view.getVisibility() != visibility) {
-                view.setVisibility(visibility);
-            }
-        }
     }
 
     /**
