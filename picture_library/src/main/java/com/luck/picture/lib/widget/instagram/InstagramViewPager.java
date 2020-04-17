@@ -279,6 +279,12 @@ public class InstagramViewPager extends FrameLayout {
             for (View view : mViews) {
                 view.setTranslationX(scrollHorizontalPosition);
             }
+        } else {
+            if (mViews.get(0).getTranslationX() != -(getMeasuredWidth() * (mViews.size() - (1 + skipRange)))) {
+                for (View view : mViews) {
+                    view.setTranslationX(-(getMeasuredWidth() * (mViews.size() - (1 + skipRange))));
+                }
+            }
         }
 
         int position = (int) (Math.abs(scrollHorizontalPosition) / getMeasuredWidth());

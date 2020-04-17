@@ -29,8 +29,8 @@ import androidx.core.content.ContextCompat;
  * ================================================
  */
 public class InstagramGallery extends FrameLayout {
-    ViewGroup mPreviewView;
-    ViewGroup mGalleryView;
+    private ViewGroup mPreviewView;
+    private ViewGroup mGalleryView;
     private int startedTrackingX;
     private int startedTrackingY;
     private float scrollPosition;
@@ -115,8 +115,6 @@ public class InstagramGallery extends FrameLayout {
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int width = right - left;
-        int height = bottom - top;
         int viewTop = 0;
         int viewLeft = 0;
         if (maskView.getVisibility() == VISIBLE) {
