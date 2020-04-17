@@ -59,4 +59,6 @@
     <string name="picture_photo_pictures">Take Picture</string>
     <string name="picture_photo_recording">Long Press Camera</string>
     <string name="picture_go_setting">Go Setting</string>
+    <string name="photo">Photo</string>
+    <string name="video">Video</string>
 </resources>

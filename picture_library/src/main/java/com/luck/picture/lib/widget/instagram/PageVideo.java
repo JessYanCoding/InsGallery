@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.luck.picture.lib.R;
+
 /**
  * ================================================
  * Created by JessYan on 2020/4/15 12:02
@@ -34,6 +36,6 @@ public class PageVideo implements Page {
 
     @Override
     public String getTitle(Context context) {
-        return "视频";
+        return context.getString(R.string.video);
     }
 }

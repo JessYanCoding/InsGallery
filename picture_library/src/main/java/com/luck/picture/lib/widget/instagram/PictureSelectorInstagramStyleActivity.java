@@ -90,6 +90,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private PreviewContainer mPreviewContainer;
     private int mPreviewPosition;
     private InstagramViewPager mInstagramViewPager;
+    private Handler mHandler;
+    private boolean isRunningBind;
+    private String mTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +152,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mTvPictureRight = findViewById(R.id.picture_right);
         mIvArrow = findViewById(R.id.ivArrow);
 
+        mHandler = new Handler(getMainLooper());
         config.isCamera = false;
         config.selectionMode = PictureConfig.SINGLE;
         config.isSingleDirectReturn = true;
@@ -211,11 +215,33 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                         mPreviewContainer.pauseVideo(false);
                     }
                 }
+                if (isRunningBind) {
+                    mHandler.removeCallbacksAndMessages(null);
+                    isRunningBind = false;
+                }
+                if (position == 1) {
+                    ((PagePhoto) list.get(1)).setCaptureButtonTranslationX(-positionOffsetPixels);
+                } else if (position == 2 && positionOffsetPixels == 0) {
+                    ((PagePhoto) list.get(1)).setCaptureButtonTranslationX(-mInstagramViewPager.getMeasuredWidth());
+                }
             }
 
             @Override
             public void onPageSelected(int position) {
                 Log.d("Test", "onPageSelected: " + position);
+                if (position == 1 || position == 2) {
+                    isRunningBind = true;
+                    mHandler.postDelayed(() -> {
+                        ((PagePhoto) list.get(1)).bindToLifecycle();
+                        isRunningBind = false;
+                    }, 500);
+                }
+                changeTabState(position);
+                if (position == 1) {
+                    ((PagePhoto) list.get(1)).setCameraState(InstagramCameraView.STATE_CAPTURE);
+                } else if(position == 2) {
+                    ((PagePhoto) list.get(1)).setCameraState(InstagramCameraView.STATE_RECORDER);
+                }
             }
         });
 
@@ -225,9 +251,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mTvPictureRight.setOnClickListener(this);
         mTvPictureTitle.setOnClickListener(this);
         mIvArrow.setOnClickListener(this);
-        String title = config.chooseMode == PictureMimeType.ofAudio() ?
+        mTitle = config.chooseMode == PictureMimeType.ofAudio() ?
                 getString(R.string.picture_all_audio) : getString(R.string.picture_camera_roll);
-        mTvPictureTitle.setText(title);
+        mTvPictureTitle.setText(mTitle);
         folderWindow = new FolderPopWindow(this, config);
         folderWindow.setArrowImageView(mIvArrow);
         folderWindow.setOnItemClickListener(this);
@@ -249,6 +275,30 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mAdapter = new InstagramImageGridAdapter(getContext(), config);
         mAdapter.setOnPhotoSelectChangedListener(this);
         mPictureRecycler.setAdapter(mAdapter);
+    }
+
+    private void changeTabState(int position) {
+        String title;
+        boolean enable;
+        if (position == 1) {
+            title = getString(R.string.photo);
+            enable = false;
+        } else if(position == 2) {
+            title = getString(R.string.video);
+            enable = false;
+        } else {
+            title = mTitle;
+            enable = true;
+        }
+        if (enable) {
+            mIvArrow.setVisibility(View.VISIBLE);
+            mTvPictureRight.setVisibility(View.VISIBLE);
+        } else {
+            mIvArrow.setVisibility(View.INVISIBLE);
+            mTvPictureRight.setVisibility(View.INVISIBLE);
+        }
+        mTvPictureTitle.setEnabled(enable);
+        mTvPictureTitle.setText(title);
     }
 
     @Override
@@ -944,6 +994,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     public void onItemClick(boolean isCameraFolder, String folderName, List<LocalMedia> images) {
         boolean camera = config.isCamera && isCameraFolder;
         mAdapter.setShowCamera(camera);
+        mTitle = folderName;
         mTvPictureTitle.setText(folderName);
         folderWindow.dismiss();
         mAdapter.bindImagesData(images);
