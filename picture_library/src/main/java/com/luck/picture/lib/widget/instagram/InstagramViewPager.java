@@ -136,7 +136,7 @@ public class InstagramViewPager extends FrameLayout {
 
             float dx = (int) ev.getX() - interceptX;
             float dy = (int) ev.getY() - interceptY;
-            if (Math.abs(dx) > ScreenUtils.dip2px(getContext(), 3) && Math.abs(dy) < ScreenUtils.dip2px(getContext(), 5)) {
+            if (ev.getPointerCount() < 2 && Math.abs(dx) > ScreenUtils.dip2px(getContext(), 3) && Math.abs(dy) < ScreenUtils.dip2px(getContext(), 5)) {
                 startedTrackingX = (int) ev.getX();
                 startedTrackingY = (int) ev.getY();
                 return true;
