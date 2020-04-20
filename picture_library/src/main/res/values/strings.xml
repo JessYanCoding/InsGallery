@@ -58,6 +58,7 @@
     <string name="picture_choose_min_seconds">不能选择低于 %1$ds 内的视频</string>
     <string name="picture_choose_limit_seconds">只能选择 %1$ds 至 %2$ds内的视频</string>
     <string name="picture_go_setting">去设置</string>
+    <string name="gallery">图库</string>
     <string name="photo">照片</string>
     <string name="video">视频</string>
 </resources>

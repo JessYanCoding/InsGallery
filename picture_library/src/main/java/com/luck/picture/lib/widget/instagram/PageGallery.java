@@ -5,6 +5,8 @@ import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.luck.picture.lib.R;
+
 /**
  * ================================================
  * Created by JessYan on 2020/4/15 11:59
@@ -36,7 +38,7 @@ public class PageGallery implements Page {
 
     @Override
     public String getTitle(Context context) {
-        return "图库";
+        return context.getString(R.string.gallery);
     }
 
     @Override
