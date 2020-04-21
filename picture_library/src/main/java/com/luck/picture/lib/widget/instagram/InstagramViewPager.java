@@ -8,7 +8,7 @@ import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 
 import com.luck.picture.lib.tools.ScreenUtils;
@@ -30,7 +30,7 @@ public class InstagramViewPager extends FrameLayout {
     private int startedTrackingY;
     private float scrollHorizontalPosition;
     private VelocityTracker velocityTracker;
-    private android.view.animation.Interpolator Interpolator = new LinearInterpolator();
+    private android.view.animation.Interpolator Interpolator = new AccelerateInterpolator();
     private int interceptY;
     private int interceptX;
     private List<Page> mItems = new ArrayList<>();
