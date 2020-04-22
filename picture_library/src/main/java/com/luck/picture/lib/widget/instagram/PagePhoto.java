@@ -1,6 +1,7 @@
 package com.luck.picture.lib.widget.instagram;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -28,6 +29,12 @@ public class PagePhoto implements Page {
     @Override
     public View getView(Context context) {
         mInstagramCameraView = new InstagramCameraView(context, mParentActivity);
+        if (config.recordVideoSecond > 0) {
+            mInstagramCameraView.setRecordVideoMaxTime(config.recordVideoSecond);
+        }
+        if (config.recordVideoMinSecond > 0) {
+            mInstagramCameraView.setRecordVideoMinTime(config.recordVideoMinSecond);
+        }
         return mInstagramCameraView;
     }
 
@@ -44,6 +51,11 @@ public class PagePhoto implements Page {
     @Override
     public String getTitle(Context context) {
         return context.getString(R.string.photo);
+    }
+
+    @Override
+    public Rect disallowInterceptTouchRect() {
+        return mInstagramCameraView.disallowInterceptTouchRect();
     }
 
     public void bindToLifecycle() {

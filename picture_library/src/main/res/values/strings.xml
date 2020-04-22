@@ -61,4 +61,6 @@
     <string name="gallery">图库</string>
     <string name="photo">照片</string>
     <string name="video">视频</string>
+    <string name="press_to_record">按住录制视频。</string>
+    <string name="alert_record">视频录制至少需要%d秒。</string>
 </resources>

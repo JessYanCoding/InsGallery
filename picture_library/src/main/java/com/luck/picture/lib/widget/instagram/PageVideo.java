@@ -2,6 +2,7 @@ package com.luck.picture.lib.widget.instagram;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -16,6 +17,11 @@ import com.luck.picture.lib.R;
  * ================================================
  */
 public class PageVideo implements Page {
+    private PagePhoto mPagePhoto;
+
+    public PageVideo(PagePhoto pagePhoto) {
+        mPagePhoto = pagePhoto;
+    }
 
     @Override
     public View getView(Context context) {
@@ -37,5 +43,10 @@ public class PageVideo implements Page {
     @Override
     public String getTitle(Context context) {
         return context.getString(R.string.video);
+    }
+
+    @Override
+    public Rect disallowInterceptTouchRect() {
+        return mPagePhoto.disallowInterceptTouchRect();
     }
 }

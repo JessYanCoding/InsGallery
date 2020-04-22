@@ -14,17 +14,17 @@ import android.view.View;
  * ================================================
  */
 public class InstagramCaptureButton extends View {
+    private static final int PRESS_COLOR = 0xFFAAAAAA;
+    private static final int NORMAL_COLOR = 0xFFDCDCDC;
     private Paint mPaint;
-    private int outsideColor = 0xFFDCDCDC;
+    private int outsideColor = NORMAL_COLOR;
     private int insideColor = Color.WHITE;
-
     private float center_x;
     private float center_y;
-
-
     private float buttonRadius;
     private float buttonOutsideRadius;
     private float buttonInsideRadius;
+    private boolean isPress;
 
     public InstagramCaptureButton(Context context) {
         super(context);
@@ -39,6 +39,19 @@ public class InstagramCaptureButton extends View {
         buttonRadius = getMeasuredWidth() / 2f;
         buttonOutsideRadius = buttonRadius;
         buttonInsideRadius = buttonRadius * 0.65f;
+    }
+
+    public void pressButton(boolean isPress) {
+        if (this.isPress == isPress) {
+            return;
+        }
+        this.isPress = isPress;
+        if (isPress) {
+            outsideColor = PRESS_COLOR;
+        } else {
+            outsideColor = NORMAL_COLOR;
+        }
+        invalidate();
     }
 
     @Override

@@ -1,7 +1,19 @@
 package com.luck.picture.lib.widget.instagram;
 
 import android.content.Context;
+import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.SystemClock;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
+import android.widget.Toast;
+
+import com.luck.picture.lib.R;
+import com.luck.picture.lib.tools.ScreenUtils;
 
 import androidx.annotation.NonNull;
 
@@ -13,15 +25,39 @@ import androidx.annotation.NonNull;
  * ================================================
  */
 public class InstagramCaptureLayout extends FrameLayout {
+    private static final int LONG_PRESS = 1;
+    private static final int TIMER = 2;
     private InstagramCaptureButton mCaptureButton;
     private InstagramCaptureButton mRecordButton;
+    private InstagramRecordProgressBar mRecordProgressBar;
+    private InstagramRecordIndicator mRecordIndicator;
+    private InstagramCaptureListener mCaptureListener;
+    private final Handler mHandler;
+    private int mCameraState = InstagramCameraView.STATE_CAPTURE;
+    boolean click;
+    int startClickX;
+    int startClickY;
+    long time;
+    private boolean mInLongPress;
+    private boolean mIsRecordEnd;
+    private int mRecordedTime;
+    private int mMaxDurationTime;
+    private int mMinDurationTime;
 
     public InstagramCaptureLayout(@NonNull Context context) {
         super(context);
+        mHandler = new GestureHandler(context.getMainLooper());
+
+        mRecordProgressBar = new InstagramRecordProgressBar(context);
+        addView(mRecordProgressBar);
+        mRecordProgressBar.setVisibility(View.INVISIBLE);
         mCaptureButton = new InstagramCaptureButton(context);
         addView(mCaptureButton);
         mRecordButton = new InstagramCaptureButton(context);
         addView(mRecordButton);
+        mRecordIndicator = new InstagramRecordIndicator(context);
+        addView(mRecordIndicator);
+        mRecordIndicator.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -29,25 +65,213 @@ public class InstagramCaptureLayout extends FrameLayout {
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
 
-        int diameterSize = (int) (width / 4f);
+        measureChild(mRecordProgressBar, widthMeasureSpec, heightMeasureSpec);
+
+        int diameterSize = (int) (width / 4.2f);
         mCaptureButton.measure(MeasureSpec.makeMeasureSpec(diameterSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(diameterSize, MeasureSpec.EXACTLY));
         mRecordButton.measure(MeasureSpec.makeMeasureSpec(diameterSize, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(diameterSize, MeasureSpec.EXACTLY));
 
+        measureChild(mRecordIndicator, widthMeasureSpec, heightMeasureSpec);
         setMeasuredDimension(width, height);
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int viewTop = (getMeasuredHeight() - mCaptureButton.getMeasuredHeight()) / 2;
-        int viewLeft = (getMeasuredWidth() - mCaptureButton.getMeasuredWidth()) / 2;
+        int viewTop = ScreenUtils.dip2px(getContext(), 1);
+        int viewLeft = 0;
+        mRecordProgressBar.layout(viewLeft, viewTop, viewLeft + mRecordProgressBar.getMeasuredWidth(), viewTop + mRecordProgressBar.getMeasuredHeight());
+
+        viewTop = (getMeasuredHeight() - mCaptureButton.getMeasuredHeight()) / 2;
+        viewLeft = (getMeasuredWidth() - mCaptureButton.getMeasuredWidth()) / 2;
         mCaptureButton.layout(viewLeft, viewTop, viewLeft + mCaptureButton.getMeasuredWidth(), viewTop + mCaptureButton.getMeasuredHeight());
 
         viewLeft += getMeasuredWidth();
         mRecordButton.layout(viewLeft, viewTop, viewLeft + mCaptureButton.getMeasuredWidth(), viewTop + mCaptureButton.getMeasuredHeight());
+
+        viewTop = (viewTop - mRecordIndicator.getMeasuredHeight()) / 2;
+        viewLeft = (getMeasuredWidth() - mRecordIndicator.getMeasuredWidth()) / 2;
+        mRecordIndicator.layout(viewLeft, viewTop, viewLeft + mRecordIndicator.getMeasuredWidth(), viewTop + mRecordIndicator.getMeasuredHeight());
+    }
+
+    public void setCaptureListener(InstagramCaptureListener captureListener) {
+        mCaptureListener = captureListener;
     }
 
     public void setCaptureButtonTranslationX(float translationX) {
         mCaptureButton.setTranslationX(translationX);
         mRecordButton.setTranslationX(translationX);
+    }
+
+    public Rect disallowInterceptTouchRect() {
+        if (mCameraState == InstagramCameraView.STATE_RECORDER && mInLongPress) {
+            Rect rect = new Rect();
+            getHitRect(rect);
+            return rect;
+        }
+        return null;
+    }
+
+    public void setCameraState(int cameraState) {
+        if (mCameraState == cameraState) {
+            return;
+        }
+        mCameraState = cameraState;
+        if (mCameraState == InstagramCameraView.STATE_RECORDER) {
+            InstagramUtils.setViewVisibility(mRecordProgressBar, View.VISIBLE);
+            mRecordProgressBar.startRecordAnimation();
+        } else {
+            mRecordProgressBar.stopRecordAnimation();
+            InstagramUtils.setViewVisibility(mRecordProgressBar, View.INVISIBLE);
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (mCameraState == InstagramCameraView.STATE_CAPTURE) {
+                click = true;
+                startClickX = (int) event.getX();
+                startClickY = (int) event.getY();
+
+                Rect rect = new Rect();
+                mCaptureButton.getHitRect(rect);
+                if (rect.contains((int) (event.getX()), (int) (event.getY()))) {
+                    mCaptureButton.pressButton(true);
+                }
+            }
+
+            if (mCameraState == InstagramCameraView.STATE_RECORDER) {
+                Rect recordRect = new Rect();
+                mRecordButton.getHitRect(recordRect);
+                if (recordRect.contains((int) (event.getX()), (int) (event.getY()))) {
+                    mRecordButton.pressButton(true);
+                    mInLongPress = false;
+                    mIsRecordEnd = false;
+                    mHandler.removeMessages(TIMER);
+                    mHandler.removeMessages(LONG_PRESS);
+                    mHandler.sendMessageAtTime(
+                            mHandler.obtainMessage(
+                                    LONG_PRESS),
+                            event.getDownTime() + ViewConfiguration.getLongPressTimeout());
+                }
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            if (mCameraState == InstagramCameraView.STATE_CAPTURE && click && (Math.abs(event.getX() - startClickX) > ScreenUtils.dip2px(getContext(), 3) || Math.abs(event.getY() - startClickY) > ScreenUtils.dip2px(getContext(), 3))) {
+                click = false;
+                mCaptureButton.pressButton(false);
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (mCameraState == InstagramCameraView.STATE_CAPTURE && click) {
+                Rect rect = new Rect();
+                mCaptureButton.getHitRect(rect);
+                if (rect.contains((int) (event.getX()), (int) (event.getY()))) {
+                    long elapsedRealtime = SystemClock.elapsedRealtime();
+                    if (elapsedRealtime - time > 300) {
+                        time = elapsedRealtime;
+                        click = false;
+                        if (mCaptureListener != null) {
+                            mCaptureListener.takePictures();
+                        }
+                    }
+                }
+                mCaptureButton.pressButton(false);
+            }
+
+            if (mCameraState == InstagramCameraView.STATE_RECORDER && !mIsRecordEnd) {
+                mRecordButton.pressButton(false);
+
+                if (mInLongPress) {
+                    // TODO: 2020/4/20 结束录制视频
+                    mInLongPress = false;
+                    mIsRecordEnd = true;
+                    mHandler.removeMessages(TIMER);
+                    mRecordIndicator.stopIndicatorAnimation();
+                    mRecordIndicator.setVisibility(View.INVISIBLE);
+                    mRecordProgressBar.stopRecord();
+                    if (mRecordedTime < mMinDurationTime) {
+                        if (mCaptureListener != null) {
+                            mCaptureListener.recordShort(mRecordedTime);
+                        }
+                        Toast.makeText(getContext(), getContext().getString(R.string.alert_record, mMinDurationTime), Toast.LENGTH_SHORT).show();
+                    } else if (mCaptureListener != null) {
+                        mCaptureListener.recordEnd(mRecordedTime);
+                    }
+                    mRecordedTime = 0;
+                } else {
+                    Toast.makeText(getContext(), getContext().getString(R.string.press_to_record), Toast.LENGTH_SHORT).show();
+                    mHandler.removeMessages(LONG_PRESS);
+                    mHandler.removeMessages(TIMER);
+                }
+            }
+        } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
+            if (mCameraState == InstagramCameraView.STATE_CAPTURE) {
+                mCaptureButton.pressButton(false);
+            }
+            if (mCameraState == InstagramCameraView.STATE_RECORDER) {
+                mRecordButton.pressButton(false);
+                mHandler.removeMessages(TIMER);
+                mHandler.removeMessages(LONG_PRESS);
+                mInLongPress = false;
+            }
+        }
+        return true;
+    }
+
+    public void setRecordVideoMaxTime(int maxDurationTime) {
+        mMaxDurationTime = maxDurationTime;
+        mRecordProgressBar.setMaxTime(maxDurationTime * 1000);
+    }
+
+    public void setRecordVideoMinTime(int minDurationTime) {
+        mMinDurationTime = minDurationTime;
+    }
+
+    private class GestureHandler extends Handler {
+
+        public GestureHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case LONG_PRESS:
+                    dispatchLongPress();
+                    break;
+                case TIMER:
+                    if (mInLongPress) {
+                        mRecordedTime++;
+                        mRecordIndicator.setRecordedTime(mRecordedTime);
+                        if (mRecordedTime < mMaxDurationTime) {
+                            mHandler.sendEmptyMessageDelayed(TIMER, 1000);
+                        } else {
+                            mInLongPress = false;
+                            mIsRecordEnd = true;
+                            mRecordIndicator.stopIndicatorAnimation();
+                            mRecordIndicator.setVisibility(View.INVISIBLE);
+                            mRecordProgressBar.stopRecord();
+                            if (mCaptureListener != null) {
+                                mCaptureListener.recordEnd(mRecordedTime);
+                            }
+                            mRecordedTime = 0;
+                        }
+                    }
+                    break;
+                default:
+                    throw new RuntimeException("Unknown message " + msg); //never
+            }
+        }
+    }
+
+    private void dispatchLongPress() {
+        mInLongPress = true;
+        if (mCaptureListener != null) {
+            mCaptureListener.recordStart();
+        }
+        mRecordIndicator.setVisibility(View.VISIBLE);
+        mRecordIndicator.setRecordedTime(mRecordedTime);
+        mRecordIndicator.playIndicatorAnimation();
+        mRecordProgressBar.startRecord();
+        mHandler.sendEmptyMessageDelayed(TIMER, 1000);
     }
 }

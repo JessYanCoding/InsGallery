@@ -3,6 +3,7 @@ package com.luck.picture.lib.widget.instagram;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Rect;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -69,6 +70,32 @@ public class InstagramCameraView extends FrameLayout {
 
         mCaptureLayout = new InstagramCaptureLayout(context);
         addView(mCaptureLayout);
+        mCaptureLayout.setCaptureListener(new InstagramCaptureListener() {
+            @Override
+            public void takePictures() {
+
+            }
+
+            @Override
+            public void recordStart() {
+
+            }
+
+            @Override
+            public void recordEnd(long time) {
+
+            }
+
+            @Override
+            public void recordShort(long time) {
+
+            }
+
+            @Override
+            public void recordError() {
+
+            }
+        });
     }
 
     @SuppressLint("MissingPermission")
@@ -124,6 +151,7 @@ public class InstagramCameraView extends FrameLayout {
         } else if (mCameraState == STATE_RECORDER) {
             InstagramUtils.setViewVisibility(mFlashView, View.INVISIBLE);
         }
+        mCaptureLayout.setCameraState(cameraState);
     }
 
     public CameraView getCameraView() {
@@ -144,6 +172,20 @@ public class InstagramCameraView extends FrameLayout {
                 mFlashView.setImageResource(R.drawable.discover_flash_off);
                 mCameraView.setFlash(ImageCapture.FLASH_MODE_OFF);
                 break;
+            default:
+                break;
         }
+    }
+
+    public Rect disallowInterceptTouchRect() {
+        return mCaptureLayout.disallowInterceptTouchRect();
+    }
+
+    public void setRecordVideoMaxTime(int maxDurationTime) {
+        mCaptureLayout.setRecordVideoMaxTime(maxDurationTime);
+    }
+
+    public void setRecordVideoMinTime(int minDurationTime) {
+        mCaptureLayout.setRecordVideoMinTime(minDurationTime);
     }
 }

@@ -160,6 +160,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         config.maxVideoSelectNum = 1;
         config.aspect_ratio_x = 1;
         config.aspect_ratio_y = 1;
+        config.recordVideoMinSecond = 3;
 
         mPictureRecycler = new GalleryViewImpl(getContext());
         mPreviewContainer = new PreviewContainer(getContext());
@@ -198,8 +199,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
         List<Page> list = new ArrayList<>();
         list.add(new PageGallery(mInstagramGallery));
-        list.add(new PagePhoto(this, config));
-        list.add(new PageVideo());
+        PagePhoto pagePhoto = new PagePhoto(this, config);
+        list.add(pagePhoto);
+        list.add(new PageVideo(pagePhoto));
         mInstagramViewPager = new InstagramViewPager(getContext(), list);
         ((RelativeLayout) container).addView(mInstagramViewPager, params);
 
@@ -207,7 +209,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mInstagramViewPager.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                Log.d("Test", "position: " + position + "; positionOffset: " + positionOffset + "; positionOffsetPixels: " + positionOffsetPixels);
                 if (position == 0) {
                     if (positionOffset >= 0.5f) {
                         mPreviewContainer.pauseVideo(true);
@@ -228,7 +229,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
             @Override
             public void onPageSelected(int position) {
-                Log.d("Test", "onPageSelected: " + position);
                 if (position == 1 || position == 2) {
                     isRunningBind = true;
                     mHandler.postDelayed(() -> {
