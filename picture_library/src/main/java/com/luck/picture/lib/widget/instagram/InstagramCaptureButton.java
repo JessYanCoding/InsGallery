@@ -54,6 +54,10 @@ public class InstagramCaptureButton extends View {
         invalidate();
     }
 
+    public boolean isPress() {
+        return isPress;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         mPaint.setColor(outsideColor);

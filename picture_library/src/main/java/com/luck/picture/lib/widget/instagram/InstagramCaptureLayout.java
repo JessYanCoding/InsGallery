@@ -177,7 +177,7 @@ public class InstagramCaptureLayout extends FrameLayout {
                 mCaptureButton.pressButton(false);
             }
 
-            if (mCameraState == InstagramCameraView.STATE_RECORDER && !mIsRecordEnd) {
+            if (mCameraState == InstagramCameraView.STATE_RECORDER && mRecordButton.isPress() && !mIsRecordEnd) {
                 mRecordButton.pressButton(false);
 
                 if (mInLongPress) {
