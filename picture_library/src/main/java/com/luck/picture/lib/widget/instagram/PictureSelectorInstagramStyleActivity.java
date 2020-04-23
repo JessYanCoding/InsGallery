@@ -25,6 +25,7 @@ import com.luck.picture.lib.PictureMediaScannerConnection;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
+import com.luck.picture.lib.camera.listener.CameraListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
@@ -204,6 +205,25 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         list.add(new PageVideo(pagePhoto));
         mInstagramViewPager = new InstagramViewPager(getContext(), list);
         ((RelativeLayout) container).addView(mInstagramViewPager, params);
+
+        pagePhoto.setCameraListener(new CameraListener() {
+            @Override
+            public void onPictureSuccess(@NonNull File file) {
+                Intent intent = new Intent();
+                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
+                requestCamera(intent);
+            }
+
+            @Override
+            public void onRecordSuccess(@NonNull File file) {
+
+            }
+
+            @Override
+            public void onError(int videoCaptureError, String message, Throwable cause) {
+
+            }
+        });
 
         mInstagramViewPager.setSkipRange(1);
         mInstagramViewPager.setOnPageChangeListener(new OnPageChangeListener() {
@@ -1035,19 +1055,8 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
     @Override
     public void onPictureClick(LocalMedia media, int position) {
-//        if (config.selectionMode == PictureConfig.SINGLE && config.isSingleDirectReturn) {
-//            List<LocalMedia> list = new ArrayList<>();
-//            list.add(media);
-//            if (config.enableCrop && PictureMimeType.eqImage(media.getMimeType()) && !config.isCheckOriginalImage) {
-//                mAdapter.bindSelectImages(list);
-//                startCrop(media.getPath(), media.getMimeType());
-//            } else {
-//                handlerResult(list);
-//            }
-//        } else {
         List<LocalMedia> images = mAdapter.getImages();
         startPreview(images, position);
-//        }
     }
 
     /**
@@ -1059,7 +1068,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     public void startPreview(List<LocalMedia> previewImages, int position) {
         RecyclerView.ViewHolder holder = mPictureRecycler.findViewHolderForAdapterPosition(position);
         if (!mInstagramGallery.isScrollTop()) {
-            if (holder != null && holder.itemView != null) {
+            if (position == 0) {
+                mPictureRecycler.smoothScrollToPosition(0);
+            } else if (holder != null && holder.itemView != null) {
                 mPictureRecycler.smoothScrollBy(0, holder.itemView.getTop());
             }
         }
@@ -1073,20 +1084,16 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
                 @Override
                 public void onAnimationEnd() {
-                    if (holder != null && holder.itemView != null) {
+                    if (position == 0) {
+                        mPictureRecycler.smoothScrollToPosition(0);
+                    } else if (holder != null && holder.itemView != null) {
                         mPictureRecycler.smoothScrollBy(0, holder.itemView.getTop());
                     }
                 }
             });
         }
 
-        if (mPreviewPosition != position && mAdapter != null) {
-            int previousPosition = mPreviewPosition;
-            mPreviewPosition = position;
-            mAdapter.setPreviewPosition(position);
-            mAdapter.notifyItemChanged(previousPosition);
-            mAdapter.notifyItemChanged(position);
-        }
+        setPreviewPosition(position);
 
         LocalMedia media = previewImages.get(position);
         String mimeType = media.getMimeType();
@@ -1120,6 +1127,16 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                         TextUtils.isEmpty(config.renameCropFileName) ? DateUtils.getCreateFileName("IMG_") + suffix : config.renameCropFileName);
                 mPreviewContainer.setImageUri(uri, Uri.fromFile(file));
             }
+        }
+    }
+
+    private void setPreviewPosition(int position) {
+        if (mPreviewPosition != position && mAdapter != null) {
+            int previousPosition = mPreviewPosition;
+            mPreviewPosition = position;
+            mAdapter.setPreviewPosition(position);
+            mAdapter.notifyItemChanged(previousPosition);
+            mAdapter.notifyItemChanged(position);
         }
     }
 
@@ -1320,6 +1337,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         media.setSize(size);
         media.setChooseModel(config.chooseMode);
         if (mAdapter != null) {
+            boolean isPreview = true;
             images.add(0, media);
             if (checkVideoLegitimacy(media)) {
                 if (config.selectionMode == PictureConfig.SINGLE) {
@@ -1365,6 +1383,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                                 selectedImages.add(0, media);
                                 mAdapter.bindSelectImages(selectedImages);
                             } else {
+                                isPreview = false;
                                 ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), media.getMimeType(),
                                         config.maxVideoSelectNum));
                             }
@@ -1374,6 +1393,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                                 selectedImages.add(0, media);
                                 mAdapter.bindSelectImages(selectedImages);
                             } else {
+                                isPreview = false;
                                 ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), media.getMimeType(),
                                         config.maxSelectNum));
                             }
@@ -1390,6 +1410,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                                     }
                                 }
                             } else {
+                                isPreview = false;
                                 ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), mimeType,
                                         config.maxVideoSelectNum));
                             }
@@ -1402,6 +1423,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                                     mAdapter.bindSelectImages(selectedImages);
                                 }
                             } else {
+                                isPreview = false;
                                 ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), mimeType,
                                         config.maxSelectNum));
                             }
@@ -1411,6 +1433,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             }
             mAdapter.notifyItemInserted(config.isCamera ? 1 : 0);
             mAdapter.notifyItemRangeChanged(config.isCamera ? 1 : 0, images.size());
+            if (config.selectionMode != PictureConfig.SINGLE && isPreview) {
+                startPreview(images, 0);
+            } else {
+                setPreviewPosition(mPreviewPosition + 1);
+            }
             // 解决部分手机拍照完Intent.ACTION_MEDIA_SCANNER_SCAN_FILE，不及时刷新问题手动添加
             manualSaveFolder(media);
             // 这里主要解决极个别手机拍照会在DCIM目录重复生成一张照片问题

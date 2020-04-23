@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.luck.picture.lib.PictureBaseActivity;
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.camera.listener.CameraListener;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 
 /**
@@ -18,22 +19,26 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
  */
 public class PagePhoto implements Page {
     private PictureBaseActivity mParentActivity;
-    private PictureSelectionConfig config;
+    private PictureSelectionConfig mConfig;
     private InstagramCameraView mInstagramCameraView;
+    private CameraListener mCameraListener;
 
     public PagePhoto(PictureBaseActivity parentActivity, PictureSelectionConfig config) {
         this.mParentActivity = parentActivity;
-        this.config = config;
+        this.mConfig = config;
     }
 
     @Override
     public View getView(Context context) {
-        mInstagramCameraView = new InstagramCameraView(context, mParentActivity);
-        if (config.recordVideoSecond > 0) {
-            mInstagramCameraView.setRecordVideoMaxTime(config.recordVideoSecond);
+        mInstagramCameraView = new InstagramCameraView(context, mParentActivity, mConfig);
+        if (mConfig.recordVideoSecond > 0) {
+            mInstagramCameraView.setRecordVideoMaxTime(mConfig.recordVideoSecond);
         }
-        if (config.recordVideoMinSecond > 0) {
-            mInstagramCameraView.setRecordVideoMinTime(config.recordVideoMinSecond);
+        if (mConfig.recordVideoMinSecond > 0) {
+            mInstagramCameraView.setRecordVideoMinTime(mConfig.recordVideoMinSecond);
+        }
+        if (mCameraListener != null) {
+            mInstagramCameraView.setCameraListener(mCameraListener);
         }
         return mInstagramCameraView;
     }
@@ -68,5 +73,12 @@ public class PagePhoto implements Page {
 
     public void setCameraState(int cameraState) {
         mInstagramCameraView.setCameraState(cameraState);
+    }
+
+    public void setCameraListener(CameraListener cameraListener) {
+        mCameraListener = cameraListener;
+        if (mInstagramCameraView != null) {
+            mInstagramCameraView.setCameraListener(mCameraListener);
+        }
     }
 }

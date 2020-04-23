@@ -4,19 +4,34 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.camera.listener.CameraListener;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.thread.PictureThreadUtils;
+import com.luck.picture.lib.tools.AndroidQTransformUtils;
+import com.luck.picture.lib.tools.DateUtils;
+import com.luck.picture.lib.tools.MediaUtils;
+import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
+import com.luck.picture.lib.tools.SdkVersionUtils;
+import com.luck.picture.lib.tools.StringUtils;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
 import androidx.camera.view.CameraView;
+import androidx.core.content.ContextCompat;
 
 /**
  * ================================================
@@ -32,6 +47,7 @@ public class InstagramCameraView extends FrameLayout {
     private static final int TYPE_FLASH_ON = 0x022;
     private static final int TYPE_FLASH_OFF = 0x023;
     private int mTypeFlash = TYPE_FLASH_OFF;
+    private PictureSelectionConfig mConfig;
     private AppCompatActivity mActivity;
     private final CameraView mCameraView;
     private final ImageView mSwitchView;
@@ -40,10 +56,12 @@ public class InstagramCameraView extends FrameLayout {
     private boolean isBind;
     private int mCameraState = STATE_CAPTURE;
     private boolean isFront;
+    private CameraListener mCameraListener;
 
-    public InstagramCameraView(@NonNull Context context, AppCompatActivity activity) {
+    public InstagramCameraView(@NonNull Context context, AppCompatActivity activity, PictureSelectionConfig config) {
         super(context);
         mActivity = activity;
+        mConfig = config;
 
         mCameraView = new CameraView(context);
         addView(mCameraView);
@@ -73,7 +91,38 @@ public class InstagramCameraView extends FrameLayout {
         mCaptureLayout.setCaptureListener(new InstagramCaptureListener() {
             @Override
             public void takePictures() {
+                mCameraView.setCaptureMode(androidx.camera.view.CameraView.CaptureMode.IMAGE);
+                File imageOutFile = createImageFile();
+                mCameraView.takePicture(imageOutFile, ContextCompat.getMainExecutor(getContext().getApplicationContext()), new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(mConfig.cameraPath)) {
+                            PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<Boolean>() {
 
+                                @Override
+                                public Boolean doInBackground() {
+                                    return AndroidQTransformUtils.copyPathToDCIM(getContext(),
+                                            imageOutFile, Uri.parse(mConfig.cameraPath));
+                                }
+
+                                @Override
+                                public void onSuccess(Boolean result) {
+                                    PictureThreadUtils.cancel(PictureThreadUtils.getSinglePool());
+                                }
+                            });
+                        }
+                        if (imageOutFile != null && imageOutFile.exists() && mCameraListener != null) {
+                            mCameraListener.onPictureSuccess(imageOutFile);
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        if (mCameraListener != null) {
+                            mCameraListener.onError(exception.getImageCaptureError(), exception.getMessage(), exception.getCause());
+                        }
+                    }
+                });
             }
 
             @Override
@@ -96,6 +145,40 @@ public class InstagramCameraView extends FrameLayout {
 
             }
         });
+    }
+
+    public File createImageFile() {
+        if (SdkVersionUtils.checkedAndroid_Q()) {
+            String diskCacheDir = PictureFileUtils.getDiskCacheDir(getContext());
+            File rootDir = new File(diskCacheDir);
+            if (!rootDir.exists() && rootDir.mkdirs()) {
+            }
+            boolean isOutFileNameEmpty = TextUtils.isEmpty(mConfig.cameraFileName);
+            String suffix = TextUtils.isEmpty(mConfig.suffixType) ? PictureFileUtils.POSTFIX : mConfig.suffixType;
+            String newFileImageName = isOutFileNameEmpty ? DateUtils.getCreateFileName("IMG_") + suffix : mConfig.cameraFileName;
+            File cameraFile = new File(rootDir, newFileImageName);
+            Uri outUri = getOutUri(PictureMimeType.ofImage());
+            if (outUri != null) {
+                mConfig.cameraPath = outUri.toString();
+            }
+            return cameraFile;
+        } else {
+            String cameraFileName = "";
+            if (!TextUtils.isEmpty(mConfig.cameraFileName)) {
+                boolean isSuffixOfImage = PictureMimeType.isSuffixOfImage(mConfig.cameraFileName);
+                mConfig.cameraFileName = !isSuffixOfImage ? StringUtils.renameSuffix(mConfig.cameraFileName, PictureMimeType.JPEG) : mConfig.cameraFileName;
+                cameraFileName = mConfig.camera ? mConfig.cameraFileName : StringUtils.rename(mConfig.cameraFileName);
+            }
+            File cameraFile = PictureFileUtils.createCameraFile(getContext(),
+                    PictureMimeType.ofImage(), cameraFileName, mConfig.suffixType, mConfig.outPutCameraPath);
+            mConfig.cameraPath = cameraFile.getAbsolutePath();
+            return cameraFile;
+        }
+    }
+
+    private Uri getOutUri(int type) {
+        return type == PictureMimeType.ofVideo()
+                ? MediaUtils.createVideoUri(getContext()) : MediaUtils.createImageUri(getContext());
     }
 
     @SuppressLint("MissingPermission")
@@ -187,5 +270,9 @@ public class InstagramCameraView extends FrameLayout {
 
     public void setRecordVideoMinTime(int minDurationTime) {
         mCaptureLayout.setRecordVideoMinTime(minDurationTime);
+    }
+
+    public void setCameraListener(CameraListener cameraListener) {
+        mCameraListener = cameraListener;
     }
 }
