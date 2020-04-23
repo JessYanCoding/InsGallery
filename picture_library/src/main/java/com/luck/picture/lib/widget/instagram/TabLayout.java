@@ -84,8 +84,10 @@ public class TabLayout extends FrameLayout {
         int measuredHeight = layoutHeight > 0 ? layoutHeight : ScreenUtils.dip2px(getContext(), 44);
         if (!tabViews.isEmpty()) {
             tabWidth = width / tabViews.size();
-            indicatorLeft = 0;
-            indicatorRight = tabWidth;
+            if (indicatorLeft == -1) {
+                indicatorLeft = 0;
+                indicatorRight = tabWidth;
+            }
 
             for (View view : tabViews) {
                 view.measure(MeasureSpec.makeMeasureSpec(tabWidth, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(measuredHeight - selectedIndicatorHeight, MeasureSpec.EXACTLY));
