@@ -216,7 +216,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
             @Override
             public void onRecordSuccess(@NonNull File file) {
-
+                Intent intent = new Intent();
+                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
+                requestCamera(intent);
             }
 
             @Override

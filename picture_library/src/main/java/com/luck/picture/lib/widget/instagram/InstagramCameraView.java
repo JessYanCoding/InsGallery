@@ -27,9 +27,11 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.VideoCapture;
 import androidx.camera.view.CameraView;
 import androidx.core.content.ContextCompat;
 
@@ -57,6 +59,7 @@ public class InstagramCameraView extends FrameLayout {
     private int mCameraState = STATE_CAPTURE;
     private boolean isFront;
     private CameraListener mCameraListener;
+    private long mRecordTime = 0;
 
     public InstagramCameraView(@NonNull Context context, AppCompatActivity activity, PictureSelectionConfig config) {
         super(context);
@@ -127,24 +130,92 @@ public class InstagramCameraView extends FrameLayout {
 
             @Override
             public void recordStart() {
+                mCameraView.setCaptureMode(androidx.camera.view.CameraView.CaptureMode.VIDEO);
+                mCameraView.startRecording(createVideoFile(), ContextCompat.getMainExecutor(getContext().getApplicationContext()),
+                        new VideoCapture.OnVideoSavedCallback() {
+                            @Override
+                            public void onVideoSaved(@NonNull File file) {
+                                if (mRecordTime < mConfig.recordVideoMinSecond && file.exists() && file.delete()) {
+                                    return;
+                                }
+                                if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(mConfig.cameraPath)) {
+                                    PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<Boolean>() {
 
+                                        @Override
+                                        public Boolean doInBackground() {
+                                            return AndroidQTransformUtils.copyPathToDCIM(getContext(),
+                                                    file, Uri.parse(mConfig.cameraPath));
+                                        }
+
+                                        @Override
+                                        public void onSuccess(Boolean result) {
+                                            PictureThreadUtils.cancel(PictureThreadUtils.getSinglePool());
+                                        }
+                                    });
+                                }
+                                if (file != null && file.exists() && mCameraListener != null) {
+                                    mCameraListener.onRecordSuccess(file);
+                                }
+                            }
+
+                            @Override
+                            public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause) {
+                                if (mCameraListener != null) {
+                                    mCameraListener.onError(videoCaptureError, message, cause);
+                                }
+                            }
+                        });
             }
 
             @Override
             public void recordEnd(long time) {
-
+                mRecordTime = time;
+                mCameraView.stopRecording();
             }
 
             @Override
             public void recordShort(long time) {
-
+                mRecordTime = time;
+                mCameraView.stopRecording();
             }
 
             @Override
             public void recordError() {
-
+                if (mCameraListener != null) {
+                    mCameraListener.onError(0, "An unknown error", null);
+                }
             }
         });
+    }
+
+    public File createVideoFile() {
+        if (SdkVersionUtils.checkedAndroid_Q()) {
+            String diskCacheDir = PictureFileUtils.getVideoDiskCacheDir(getContext());
+            File rootDir = new File(diskCacheDir);
+            if (!rootDir.exists() && rootDir.mkdirs()) {
+            }
+            boolean isOutFileNameEmpty = TextUtils.isEmpty(mConfig.cameraFileName);
+            String suffix = TextUtils.isEmpty(mConfig.suffixType) ? PictureMimeType.MP4 : mConfig.suffixType;
+            String newFileImageName = isOutFileNameEmpty ? DateUtils.getCreateFileName("VID_") + suffix : mConfig.cameraFileName;
+            File cameraFile = new File(rootDir, newFileImageName);
+            Uri outUri = getOutUri(PictureMimeType.ofVideo());
+            if (outUri != null) {
+                mConfig.cameraPath = outUri.toString();
+            }
+            return cameraFile;
+        } else {
+            String cameraFileName = "";
+            if (!TextUtils.isEmpty(mConfig.cameraFileName)) {
+                boolean isSuffixOfImage = PictureMimeType.isSuffixOfImage(mConfig.cameraFileName);
+                mConfig.cameraFileName = !isSuffixOfImage ? StringUtils
+                        .renameSuffix(mConfig.cameraFileName, PictureMimeType.MP4) : mConfig.cameraFileName;
+                cameraFileName = mConfig.camera ? mConfig.cameraFileName : StringUtils.rename(mConfig.cameraFileName);
+            }
+            File cameraFile = PictureFileUtils.createCameraFile(getContext(),
+                    PictureMimeType.ofVideo(), cameraFileName, mConfig.suffixType, mConfig.outPutCameraPath);
+            mConfig.cameraPath = cameraFile.getAbsolutePath();
+            return cameraFile;
+        }
     }
 
     public File createImageFile() {
