@@ -229,9 +229,6 @@ public class InstagramViewPager extends FrameLayout {
     }
 
     public void selectPagePosition(int position) {
-        if (mAnimatorSet != null && mAnimatorSet.isRunning()) {
-            mAnimatorSet.cancel();
-        }
         long duration = 150;
         int span = Math.abs(mCurrentPosition - position);
         if (span > 1) {
@@ -248,6 +245,9 @@ public class InstagramViewPager extends FrameLayout {
     }
 
     private void startChildAnimation(float destination, long duration) {
+        if (mAnimatorSet != null && mAnimatorSet.isRunning()) {
+            mAnimatorSet.cancel();
+        }
         mAnimatorSet = new AnimatorSet();
         mAnimatorSet.playTogether(
                 ObjectAnimator.ofFloat(this, "scrollHorizontalPosition", scrollHorizontalPosition, destination));
