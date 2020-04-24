@@ -43,6 +43,7 @@ public class InstagramGallery extends FrameLayout {
     private TextView emptyView;
     private int previewBottomMargin;
     private int viewVisibility = VISIBLE;
+    private AnimatorSet mAnimatorSet;
 
     public InstagramGallery(@NonNull Context context) {
         super(context);
@@ -235,20 +236,23 @@ public class InstagramGallery extends FrameLayout {
 
     private void startChildAnimation(final boolean scrollTop, long duration, AnimationCallback callback) {
         this.scrollTop = scrollTop;
-        AnimatorSet animatorSet = new AnimatorSet();
+        if (mAnimatorSet != null && mAnimatorSet.isRunning()) {
+            mAnimatorSet.cancel();
+        }
+        mAnimatorSet = new AnimatorSet();
         if (scrollTop) {
-            animatorSet.playTogether(
-                    ObjectAnimator.ofFloat(this, "scrollPosition", scrollPosition, -(getMeasuredWidth() - getPreviewFoldHeight())),
-                    ObjectAnimator.ofInt(this, "galleryHeight", galleryHeight, getMeasuredHeight() - getPreviewFoldHeight()));
+            setGalleryHeight(getMeasuredHeight() - getPreviewFoldHeight());
+            mAnimatorSet.playTogether(
+                    ObjectAnimator.ofFloat(this, "scrollPosition", scrollPosition, -(getMeasuredWidth() - getPreviewFoldHeight())));
         } else {
-            animatorSet.playTogether(
+            mAnimatorSet.playTogether(
                     ObjectAnimator.ofFloat(this, "scrollPosition", scrollPosition, 0),
                     ObjectAnimator.ofInt(this, "galleryHeight", galleryHeight, getGalleryHeight(getMeasuredWidth(), getMeasuredHeight())));
         }
-        animatorSet.setDuration(duration);
-        animatorSet.setInterpolator(interpolator);
+        mAnimatorSet.setDuration(duration);
+        mAnimatorSet.setInterpolator(interpolator);
         if (callback != null) {
-            animatorSet.addListener(new Animator.AnimatorListener() {
+            mAnimatorSet.addListener(new Animator.AnimatorListener() {
                 @Override
                 public void onAnimationStart(Animator animation) {
                     callback.onAnimationStart();
@@ -270,7 +274,7 @@ public class InstagramGallery extends FrameLayout {
                 }
             });
         }
-        animatorSet.start();
+        mAnimatorSet.start();
     }
 
     private void measureGallerayHeight(float dy) {
