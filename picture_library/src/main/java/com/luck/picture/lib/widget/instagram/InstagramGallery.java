@@ -395,4 +395,8 @@ public class InstagramGallery extends FrameLayout {
 
         void onAnimationEnd();
     }
+
+    public void setInitGalleryHeight() {
+        mGalleryView.getLayoutParams().height = -1;
+    }
 }

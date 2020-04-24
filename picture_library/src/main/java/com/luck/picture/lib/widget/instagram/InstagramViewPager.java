@@ -44,6 +44,8 @@ public class InstagramViewPager extends FrameLayout {
     private AnimatorSet mAnimatorSet;
     private OnPageChangeListener mOnPageChangeListener;
     private int skipRange;
+    private boolean scrollEnable = true;
+    private boolean isDisplayTabLayout = true;
 
     public InstagramViewPager(@NonNull Context context) {
         super(context);
@@ -87,13 +89,13 @@ public class InstagramViewPager extends FrameLayout {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
-        int tabLayoutHeight = height;
+        int childHeight = height;
         if (mTabLayout.getVisibility() == VISIBLE) {
             measureChild(mTabLayout, widthMeasureSpec, heightMeasureSpec);
-            tabLayoutHeight -= mTabLayout.getMeasuredHeight();
+            childHeight -= mTabLayout.getMeasuredHeight();
         }
         for (View view : mViews) {
-            view.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(tabLayoutHeight, MeasureSpec.EXACTLY));
+            view.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY));
         }
         setMeasuredDimension(width, height);
     }
@@ -120,6 +122,9 @@ public class InstagramViewPager extends FrameLayout {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (!scrollEnable) {
+            return false;
+        }
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             interceptX = (int) ev.getX();
             interceptY = (int) ev.getY();
@@ -330,5 +335,21 @@ public class InstagramViewPager extends FrameLayout {
 
     public void setOnPageChangeListener(OnPageChangeListener onPageChangeListener) {
         mOnPageChangeListener = onPageChangeListener;
+    }
+
+    public void setScrollEnable(boolean scrollEnable) {
+        this.scrollEnable = scrollEnable;
+    }
+
+    public void displayTabLayout(boolean isDisplay) {
+        if (isDisplayTabLayout == isDisplay) {
+            return;
+        }
+        isDisplayTabLayout = isDisplay;
+        if (isDisplay) {
+            InstagramUtils.setViewVisibility(mTabLayout, View.VISIBLE);
+        } else {
+            InstagramUtils.setViewVisibility(mTabLayout, View.GONE);
+        }
     }
 }
