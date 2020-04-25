@@ -88,7 +88,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     protected boolean isFirstEnterActivity = false;
     protected boolean isEnterSetting;
     protected InstagramGallery mInstagramGallery;
-    private PreviewContainer mPreviewContainer;
+    private InstagramPreviewContainer mPreviewContainer;
     private int mPreviewPosition;
     private InstagramViewPager mInstagramViewPager;
     private Handler mHandler;
@@ -172,11 +172,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         config.recordVideoMinSecond = 3;
 
         mPictureRecycler = new GalleryViewImpl(getContext());
-        mPreviewContainer = new PreviewContainer(getContext());
+        mPreviewContainer = new InstagramPreviewContainer(getContext());
         mInstagramGallery = new InstagramGallery(getContext(), mPreviewContainer, mPictureRecycler);
         mInstagramGallery.setPreviewBottomMargin(ScreenUtils.dip2px(getContext(), 2));
 
-        mPreviewContainer.setListener(new PreviewContainer.onSelectionModeChangedListener() {
+        mPreviewContainer.setListener(new InstagramPreviewContainer.onSelectionModeChangedListener() {
             @Override
             public void onSelectionModeChange(boolean isMulti) {
                 if (isMulti) {
@@ -1148,7 +1148,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         List<LocalMedia> result = new ArrayList<>();
         if (PictureMimeType.eqVideo(mimeType)) {
             // video
-            mPreviewContainer.checkModel(PreviewContainer.PLAY_VIDEO_MODE);
+            mPreviewContainer.checkModel(InstagramPreviewContainer.PLAY_VIDEO_MODE);
             mPreviewContainer.playVideo(media, holder);
         } else if (PictureMimeType.eqAudio(mimeType)) {
             // audio
@@ -1156,7 +1156,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         } else {
             // image
             if (media != null) {
-                mPreviewContainer.checkModel(PreviewContainer.PLAY_IMAGE_MODE);
+                mPreviewContainer.checkModel(InstagramPreviewContainer.PLAY_IMAGE_MODE);
                 final String path;
                 if (media.isCut() && !media.isCompressed()) {
                     // 裁剪过

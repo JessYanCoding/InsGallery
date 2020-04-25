@@ -49,7 +49,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public class PreviewContainer extends FrameLayout {
+public class InstagramPreviewContainer extends FrameLayout {
     public static final int PLAY_IMAGE_MODE = 0;
     public static final int PLAY_VIDEO_MODE = 1;
     private UCropView mUCropView;
@@ -100,7 +100,7 @@ public class PreviewContainer extends FrameLayout {
     private AnimatorSet mAnimatorSet;
     private ObjectAnimator mPlayAnimator;
 
-    public PreviewContainer(@NonNull Context context) {
+    public InstagramPreviewContainer(@NonNull Context context) {
         super(context);
         mHandler = new Handler(context.getMainLooper());
 
