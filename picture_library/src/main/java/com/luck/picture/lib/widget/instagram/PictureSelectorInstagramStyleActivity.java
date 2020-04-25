@@ -56,6 +56,7 @@ import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -93,6 +94,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private Handler mHandler;
     private boolean isRunningBind;
     private String mTitle;
+    private List<Page> mList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +128,13 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 showPermissionsDialog(false, getString(R.string.picture_jurisdiction));
             }
             isEnterSetting = false;
+        }
+        if (mInstagramViewPager != null) {
+            if (mInstagramViewPager.getSelectedPosition() == 1 || mInstagramViewPager.getSelectedPosition() == 2) {
+                if (PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA)) {
+                    initCamera();
+                }
+            }
         }
     }
 
@@ -207,12 +216,12 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.addRule(RelativeLayout.BELOW, R.id.titleViewBg);
 
-        List<Page> list = new ArrayList<>();
-        list.add(new PageGallery(mInstagramGallery));
+        mList = new ArrayList<>();
+        mList.add(new PageGallery(mInstagramGallery));
         PagePhoto pagePhoto = new PagePhoto(this, config);
-        list.add(pagePhoto);
-        list.add(new PageVideo(pagePhoto));
-        mInstagramViewPager = new InstagramViewPager(getContext(), list);
+        mList.add(pagePhoto);
+        mList.add(new PageVideo(pagePhoto));
+        mInstagramViewPager = new InstagramViewPager(getContext(), mList);
         ((RelativeLayout) container).addView(mInstagramViewPager, params);
 
         pagePhoto.setCameraListener(new CameraListener() {
@@ -232,7 +241,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
             @Override
             public void onError(int videoCaptureError, String message, Throwable cause) {
-
+                if (videoCaptureError == -1) {
+                    onTakePhoto();
+                } else {
+                    ToastUtils.s(getContext(), message);
+                }
             }
         });
 
@@ -252,26 +265,22 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     isRunningBind = false;
                 }
                 if (position == 1) {
-                    ((PagePhoto) list.get(1)).setCaptureButtonTranslationX(-positionOffsetPixels);
+                    ((PagePhoto) mList.get(1)).setCaptureButtonTranslationX(-positionOffsetPixels);
                 } else if (position == 2 && positionOffsetPixels == 0) {
-                    ((PagePhoto) list.get(1)).setCaptureButtonTranslationX(-mInstagramViewPager.getMeasuredWidth());
+                    ((PagePhoto) mList.get(1)).setCaptureButtonTranslationX(-mInstagramViewPager.getMeasuredWidth());
                 }
             }
 
             @Override
             public void onPageSelected(int position) {
                 if (position == 1 || position == 2) {
-                    isRunningBind = true;
-                    mHandler.postDelayed(() -> {
-                        ((PagePhoto) list.get(1)).bindToLifecycle();
-                        isRunningBind = false;
-                    }, 500);
+                    onTakePhoto();
                 }
                 changeTabState(position);
                 if (position == 1) {
-                    ((PagePhoto) list.get(1)).setCameraState(InstagramCameraView.STATE_CAPTURE);
-                } else if(position == 2) {
-                    ((PagePhoto) list.get(1)).setCameraState(InstagramCameraView.STATE_RECORDER);
+                    ((PagePhoto) mList.get(1)).setCameraState(InstagramCameraView.STATE_CAPTURE);
+                } else if (position == 2) {
+                    ((PagePhoto) mList.get(1)).setCameraState(InstagramCameraView.STATE_RECORDER);
                 }
             }
         });
@@ -314,7 +323,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         if (position == 1) {
             title = getString(R.string.photo);
             enable = false;
-        } else if(position == 2) {
+        } else if (position == 2) {
             title = getString(R.string.video);
             enable = false;
         } else {
@@ -1046,7 +1055,12 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
                     PermissionChecker
                             .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                startCamera();
+                initCamera();
+                if (mInstagramViewPager != null) {
+                    if (mInstagramViewPager.getSelectedPosition() == 2) {
+                        takeAudioPermissions();
+                    }
+                }
             } else {
                 PermissionChecker.requestPermissions(this, new String[]{
                         Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -1056,6 +1070,29 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             PermissionChecker
                     .requestPermissions(this,
                             new String[]{Manifest.permission.CAMERA}, PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE);
+        }
+    }
+
+    private void takeAudioPermissions() {
+            if (PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)) {
+
+            } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
+                showPermissionsDialog(true, getString(R.string.picture_audio));
+            } else {
+                PermissionChecker
+                        .requestPermissions(this,
+                                new String[]{Manifest.permission.RECORD_AUDIO}, PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE);
+            }
+    }
+
+    private void initCamera() {
+        if (!((PagePhoto) mList.get(1)).isBindCamera()) {
+            ((PagePhoto) mList.get(1)).setEmptyViewVisibility(View.INVISIBLE);
+            isRunningBind = true;
+            mHandler.postDelayed(() -> {
+                ((PagePhoto) mList.get(1)).bindToLifecycle();
+                isRunningBind = false;
+            }, 500);
         }
     }
 
@@ -1761,13 +1798,18 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onTakePhoto();
                 } else {
-                    showPermissionsDialog(true, getString(R.string.picture_camera));
+                    ((PagePhoto) mList.get(1)).setEmptyViewVisibility(View.VISIBLE);
                 }
                 break;
             case PictureConfig.APPLY_CAMERA_STORAGE_PERMISSIONS_CODE:
                 // 拍照前重新获取存储权限
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startCamera();
+                    initCamera();
+                    if (mInstagramViewPager != null) {
+                        if (mInstagramViewPager.getSelectedPosition() == 2) {
+                            takeAudioPermissions();
+                        }
+                    }
                 } else {
                     showPermissionsDialog(false, getString(R.string.picture_jurisdiction));
                 }
@@ -1775,9 +1817,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             case PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE:
                 // 录音权限
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startCustomCamera();
+                    takeAudioPermissions();
                 } else {
-                    showPermissionsDialog(false, getString(R.string.picture_audio));
+
                 }
                 break;
         }

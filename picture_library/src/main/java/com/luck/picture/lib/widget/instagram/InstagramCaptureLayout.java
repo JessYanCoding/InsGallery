@@ -1,5 +1,6 @@
 package com.luck.picture.lib.widget.instagram;
 
+import android.Manifest;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import androidx.annotation.NonNull;
@@ -180,8 +182,13 @@ public class InstagramCaptureLayout extends FrameLayout {
             if (mCameraState == InstagramCameraView.STATE_RECORDER && mRecordButton.isPress() && !mIsRecordEnd) {
                 mRecordButton.pressButton(false);
 
+                boolean isCamera = PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.CAMERA);
+                boolean isRecordAudio = PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO);
+                if (!isCamera || !isRecordAudio) {
+                    return true;
+                }
+
                 if (mInLongPress) {
-                    // TODO: 2020/4/20 结束录制视频
                     mInLongPress = false;
                     mIsRecordEnd = true;
                     mHandler.removeMessages(TIMER);
@@ -264,6 +271,14 @@ public class InstagramCaptureLayout extends FrameLayout {
     }
 
     private void dispatchLongPress() {
+        boolean isCamera = PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.CAMERA);
+        boolean isRecordAudio = PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.RECORD_AUDIO);
+        if (!isCamera || !isRecordAudio) {
+            if (mCaptureListener != null) {
+                mCaptureListener.recordError();
+            }
+            return;
+        }
         mInLongPress = true;
         if (mCaptureListener != null) {
             mCaptureListener.recordStart();

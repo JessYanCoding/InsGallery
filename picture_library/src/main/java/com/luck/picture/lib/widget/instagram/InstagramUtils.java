@@ -38,7 +38,7 @@ public class InstagramUtils {
         return defaultDrawable;
     }
 
-    public static CombinedDrawable createCircleDrawableWithIcon(Context context,int size, int iconRes) {
+    public static CombinedDrawable createCircleDrawableWithIcon(Context context, int size, int iconRes) {
         return createCircleDrawableWithIcon(context, size, iconRes, 0);
     }
 
@@ -111,9 +111,7 @@ public class InstagramUtils {
 
     public static void setViewVisibility(View view, int visibility) {
         if (view != null) {
-            if (view.getVisibility() != visibility) {
-                view.setVisibility(visibility);
-            }
+            view.setVisibility(visibility);
         }
     }
 }

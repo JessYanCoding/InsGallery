@@ -67,6 +67,10 @@ public class PagePhoto implements Page {
         mInstagramCameraView.bindToLifecycle();
     }
 
+    public boolean isBindCamera() {
+        return mInstagramCameraView.isBind();
+    }
+
     public void setCaptureButtonTranslationX(float translationX) {
         mInstagramCameraView.setCaptureButtonTranslationX(translationX);
     }
@@ -80,5 +84,9 @@ public class PagePhoto implements Page {
         if (mInstagramCameraView != null) {
             mInstagramCameraView.setCameraListener(mCameraListener);
         }
+    }
+
+    public void setEmptyViewVisibility(int visibility) {
+        mInstagramCameraView.setEmptyViewVisibility(visibility);
     }
 }

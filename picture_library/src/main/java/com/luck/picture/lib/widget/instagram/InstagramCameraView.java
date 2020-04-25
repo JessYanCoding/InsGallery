@@ -60,6 +60,7 @@ public class InstagramCameraView extends FrameLayout {
     private boolean isFront;
     private CameraListener mCameraListener;
     private long mRecordTime = 0;
+    private final InstagramCameraEmptyView mCameraEmptyView;
 
     public InstagramCameraView(@NonNull Context context, AppCompatActivity activity, PictureSelectionConfig config) {
         super(context);
@@ -182,10 +183,14 @@ public class InstagramCameraView extends FrameLayout {
             @Override
             public void recordError() {
                 if (mCameraListener != null) {
-                    mCameraListener.onError(0, "An unknown error", null);
+                    mCameraListener.onError(-1, "No permission", null);
                 }
             }
         });
+
+        mCameraEmptyView = new InstagramCameraEmptyView(context);
+        addView(mCameraEmptyView);
+        mCameraEmptyView.setVisibility(View.INVISIBLE);
     }
 
     public File createVideoFile() {
@@ -260,12 +265,17 @@ public class InstagramCameraView extends FrameLayout {
         }
     }
 
+    public boolean isBind() {
+        return isBind;
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
         int height = MeasureSpec.getSize(heightMeasureSpec);
 
         mCameraView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(width - ScreenUtils.dip2px(getContext(), 2), MeasureSpec.EXACTLY));
+        mCameraEmptyView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(width - ScreenUtils.dip2px(getContext(), 2), MeasureSpec.EXACTLY));
         mSwitchView.measure(MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 30), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 30), MeasureSpec.EXACTLY));
         mFlashView.measure(MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 30), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 30), MeasureSpec.EXACTLY));
         mCaptureLayout.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height - width + ScreenUtils.dip2px(getContext(), 2), MeasureSpec.EXACTLY));
@@ -278,6 +288,7 @@ public class InstagramCameraView extends FrameLayout {
         int viewTop = 0;
         int viewLeft = 0;
         mCameraView.layout(viewLeft, viewTop, viewLeft + mCameraView.getMeasuredWidth(), viewTop + mCameraView.getMeasuredHeight());
+        mCameraEmptyView.layout(viewLeft, viewTop, viewLeft + mCameraView.getMeasuredWidth(), viewTop + mCameraView.getMeasuredHeight());
 
         viewTop = getMeasuredWidth() - ScreenUtils.dip2px(getContext(), 12) - mSwitchView.getMeasuredHeight();
         viewLeft = ScreenUtils.dip2px(getContext(), 14);
@@ -345,5 +356,9 @@ public class InstagramCameraView extends FrameLayout {
 
     public void setCameraListener(CameraListener cameraListener) {
         mCameraListener = cameraListener;
+    }
+
+    public void setEmptyViewVisibility(int visibility) {
+        InstagramUtils.setViewVisibility(mCameraEmptyView, visibility);
     }
 }

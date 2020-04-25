@@ -36,6 +36,7 @@ public class InstagramViewPager extends FrameLayout {
     private List<Page> mItems = new ArrayList<>();
     private List<View> mViews = new ArrayList<>();
     private int mCurrentPosition;
+    private int mSelectedPosition;
     private TabLayout mTabLayout;
     boolean click;
     int startClickX;
@@ -302,6 +303,7 @@ public class InstagramViewPager extends FrameLayout {
         }
 
         if (offset == 0) {
+            mSelectedPosition = position;
             mTabLayout.selectTab(position);
             if (mOnPageChangeListener != null) {
                 mOnPageChangeListener.onPageSelected(position);
@@ -351,5 +353,9 @@ public class InstagramViewPager extends FrameLayout {
         } else {
             InstagramUtils.setViewVisibility(mTabLayout, View.GONE);
         }
+    }
+
+    public int getSelectedPosition() {
+        return mSelectedPosition;
     }
 }

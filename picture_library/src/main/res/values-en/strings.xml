@@ -64,4 +64,7 @@
     <string name="video">Video</string>
     <string name="press_to_record">Press and hold to record.</string>
     <string name="alert_record">Video recording at least %d seconds.</string>
+    <string name="camera_access">Enable camera access</string>
+    <string name="camera_access_content">Allow access to take photos and videos.</string>
+    <string name="enable">Enable</string>
 </resources>
