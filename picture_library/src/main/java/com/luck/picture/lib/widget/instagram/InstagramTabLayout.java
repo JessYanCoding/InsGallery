@@ -29,7 +29,7 @@ import androidx.core.view.ViewCompat;
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public class TabLayout extends FrameLayout {
+public class InstagramTabLayout extends FrameLayout {
     private List<String> titles = new ArrayList<>();
     private List<View> tabViews = new ArrayList<>();
     private int selectedIndicatorHeight;
@@ -40,7 +40,7 @@ public class TabLayout extends FrameLayout {
     private int indicatorRight = -1;
     private int tabWidth;
 
-    public TabLayout(Context context, List<Page> items) {
+    public InstagramTabLayout(Context context, List<Page> items) {
         super(context);
         fillTitles(items);
         installTabView(context, titles);

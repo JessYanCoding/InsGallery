@@ -37,7 +37,7 @@ public class InstagramViewPager extends FrameLayout {
     private List<View> mViews = new ArrayList<>();
     private int mCurrentPosition;
     private int mSelectedPosition;
-    private TabLayout mTabLayout;
+    private InstagramTabLayout mTabLayout;
     boolean click;
     int startClickX;
     int startClickY;
@@ -62,7 +62,7 @@ public class InstagramViewPager extends FrameLayout {
         mItems.get(0).init(0, this);
         mViews.get(0).setTag(true);
         mItems.get(0).refreshData(context);
-        mTabLayout = new TabLayout(context, items);
+        mTabLayout = new InstagramTabLayout(context, items);
         addView(mTabLayout);
     }
 
