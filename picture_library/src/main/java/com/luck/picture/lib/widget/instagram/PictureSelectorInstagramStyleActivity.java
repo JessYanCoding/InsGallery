@@ -1392,6 +1392,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     // 单选模式下直接返回模式
                     if (config.isSingleDirectReturn) {
                         List<LocalMedia> selectedImages = mAdapter.getSelectedImages();
+                        if (selectedImages.size() > 0) {
+                            selectedImages.clear();
+                        }
                         selectedImages.add(media);
                         mAdapter.bindSelectImages(selectedImages);
                         singleDirectReturnCameraHandleResult(mimeType);
