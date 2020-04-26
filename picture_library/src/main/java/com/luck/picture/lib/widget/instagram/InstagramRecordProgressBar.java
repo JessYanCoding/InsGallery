@@ -11,6 +11,8 @@ import android.view.View;
 
 import com.luck.picture.lib.tools.ScreenUtils;
 
+import java.lang.ref.WeakReference;
+
 /**
  * ================================================
  * Created by JessYan on 2020/4/22 14:23
@@ -25,13 +27,7 @@ public class InstagramRecordProgressBar extends View {
     private float progress;
     private final GradientDrawable defaultIndicator;
     private ValueAnimator mValueAnimator;
-    private ValueAnimator.AnimatorUpdateListener mUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
-        @Override
-        public void onAnimationUpdate(ValueAnimator animation) {
-            defaultIndicator.setAlpha((int) animation.getAnimatedValue());
-            invalidate();
-        }
-    };
+    private ValueAnimator.AnimatorUpdateListener mUpdateListener = new UpdateListener(this);
 
     public InstagramRecordProgressBar(Context context) {
         super(context);
@@ -121,6 +117,23 @@ public class InstagramRecordProgressBar extends View {
         @Override
         public void onFinish() {
 
+        }
+    }
+
+    private static class UpdateListener implements ValueAnimator.AnimatorUpdateListener {
+        private WeakReference<InstagramRecordProgressBar> mRecordProgressBar;
+
+        public UpdateListener(InstagramRecordProgressBar recordProgressBar) {
+            mRecordProgressBar = new WeakReference<>(recordProgressBar);
+        }
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            InstagramRecordProgressBar recordProgressBar = mRecordProgressBar.get();
+            if (recordProgressBar != null) {
+                recordProgressBar.defaultIndicator.setAlpha((int) animation.getAnimatedValue());
+                recordProgressBar.invalidate();
+            }
         }
     }
 }
