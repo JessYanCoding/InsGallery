@@ -11,11 +11,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.tools.ScreenUtils;
+import com.luck.picture.lib.tools.ToastUtils;
 
 import androidx.annotation.NonNull;
 
@@ -199,13 +199,13 @@ public class InstagramCaptureLayout extends FrameLayout {
                         if (mCaptureListener != null) {
                             mCaptureListener.recordShort(mRecordedTime);
                         }
-                        Toast.makeText(getContext(), getContext().getString(R.string.alert_record, mMinDurationTime), Toast.LENGTH_SHORT).show();
+                        ToastUtils.s(getContext(), getContext().getString(R.string.alert_record, mMinDurationTime));
                     } else if (mCaptureListener != null) {
                         mCaptureListener.recordEnd(mRecordedTime);
                     }
                     mRecordedTime = 0;
                 } else {
-                    Toast.makeText(getContext(), getContext().getString(R.string.press_to_record), Toast.LENGTH_SHORT).show();
+                    ToastUtils.s(getContext(), getContext().getString(R.string.press_to_record));
                     mHandler.removeMessages(LONG_PRESS);
                     mHandler.removeMessages(TIMER);
                 }
