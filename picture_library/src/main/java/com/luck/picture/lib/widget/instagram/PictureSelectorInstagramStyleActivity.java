@@ -91,7 +91,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private InstagramPreviewContainer mPreviewContainer;
     private int mPreviewPosition;
     private InstagramViewPager mInstagramViewPager;
-    private Handler mHandler;
     private boolean isRunningBind;
     private String mTitle;
     private List<Page> mList;
@@ -161,7 +160,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mTvPictureRight = findViewById(R.id.picture_right);
         mIvArrow = findViewById(R.id.ivArrow);
 
-        mHandler = new Handler(getMainLooper());
         config.isCamera = false;
         config.selectionMode = PictureConfig.SINGLE;
         config.isSingleDirectReturn = true;
@@ -261,7 +259,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     }
                 }
                 if (isRunningBind) {
-                    mHandler.removeCallbacksAndMessages(null);
+                    mHandler.removeCallbacks(mBindRunnable);
                     isRunningBind = false;
                 }
                 if (position == 1) {
@@ -912,6 +910,14 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         }
     };
 
+    public Runnable mBindRunnable = new Runnable() {
+        @Override
+        public void run() {
+            ((PagePhoto) mList.get(1)).bindToLifecycle();
+            isRunningBind = false;
+        }
+    };
+
     /**
      * 初始化音频播放组件
      *
@@ -1089,10 +1095,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         if (!((PagePhoto) mList.get(1)).isBindCamera()) {
             ((PagePhoto) mList.get(1)).setEmptyViewVisibility(View.INVISIBLE);
             isRunningBind = true;
-            mHandler.postDelayed(() -> {
-                ((PagePhoto) mList.get(1)).bindToLifecycle();
-                isRunningBind = false;
-            }, 500);
+            mHandler.postDelayed(mBindRunnable, 500);
         }
     }
 
@@ -1755,6 +1758,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         super.onDestroy();
         if (mediaPlayer != null && mHandler != null) {
             mHandler.removeCallbacks(mRunnable);
+            mHandler.removeCallbacks(mBindRunnable);
             mediaPlayer.release();
             mediaPlayer = null;
         }
