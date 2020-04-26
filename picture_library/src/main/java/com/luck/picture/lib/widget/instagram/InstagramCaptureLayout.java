@@ -34,7 +34,7 @@ public class InstagramCaptureLayout extends FrameLayout {
     private InstagramRecordProgressBar mRecordProgressBar;
     private InstagramRecordIndicator mRecordIndicator;
     private InstagramCaptureListener mCaptureListener;
-    private final Handler mHandler;
+    private Handler mHandler;
     private int mCameraState = InstagramCameraView.STATE_CAPTURE;
     boolean click;
     int startClickX;
@@ -288,5 +288,23 @@ public class InstagramCaptureLayout extends FrameLayout {
         mRecordIndicator.playIndicatorAnimation();
         mRecordProgressBar.startRecord();
         mHandler.sendEmptyMessageDelayed(TIMER, 1000);
+    }
+
+    public void release() {
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+        }
+        if (mRecordProgressBar != null) {
+            mRecordProgressBar.release();
+        }
+        if (mRecordIndicator != null) {
+            mRecordIndicator.release();
+        }
+        mRecordProgressBar = null;
+        mRecordIndicator = null;
+        mHandler = null;
+        mCaptureListener = null;
+        mCaptureButton = null;
+        mRecordButton = null;
     }
 }

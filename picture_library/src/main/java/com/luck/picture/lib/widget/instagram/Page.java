@@ -16,6 +16,9 @@ public interface Page {
     View getView(Context context);
     void refreshData(Context context);
     void init(int position, ViewGroup parent);
+    default void onResume() {}
+    default void onPause() {}
+    default void onDestroy() {}
     String getTitle(Context context);
     default Rect disallowInterceptTouchRect() {
         return null;

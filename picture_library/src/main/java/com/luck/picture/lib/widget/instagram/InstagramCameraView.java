@@ -29,6 +29,7 @@ import java.lang.ref.WeakReference;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.VideoCapture;
@@ -50,11 +51,11 @@ public class InstagramCameraView extends FrameLayout {
     private static final int TYPE_FLASH_OFF = 0x023;
     private int mTypeFlash = TYPE_FLASH_OFF;
     private PictureSelectionConfig mConfig;
-    private AppCompatActivity mActivity;
-    private final CameraView mCameraView;
+    private WeakReference<AppCompatActivity> mActivity;
+    private CameraView mCameraView;
     private final ImageView mSwitchView;
     private final ImageView mFlashView;
-    private final InstagramCaptureLayout mCaptureLayout;
+    private InstagramCaptureLayout mCaptureLayout;
     private boolean isBind;
     private int mCameraState = STATE_CAPTURE;
     private boolean isFront;
@@ -64,7 +65,7 @@ public class InstagramCameraView extends FrameLayout {
 
     public InstagramCameraView(@NonNull Context context, AppCompatActivity activity, PictureSelectionConfig config) {
         super(context);
-        mActivity = activity;
+        mActivity = new WeakReference<>(activity);
         mConfig = config;
 
         mCameraView = new CameraView(context);
@@ -261,7 +262,7 @@ public class InstagramCameraView extends FrameLayout {
     public void bindToLifecycle() {
         if (!isBind) {
             isBind = true;
-            mCameraView.bindToLifecycle(new WeakReference<>(mActivity).get());
+            mCameraView.bindToLifecycle(mActivity.get());
         }
     }
 
@@ -360,5 +361,19 @@ public class InstagramCameraView extends FrameLayout {
 
     public void setEmptyViewVisibility(int visibility) {
         InstagramUtils.setViewVisibility(mCameraEmptyView, visibility);
+    }
+
+    @SuppressLint("RestrictedApi")
+    public void release() {
+        CameraX.unbindAll();
+        if (mCaptureLayout != null) {
+            mCaptureLayout.release();
+        }
+        mCameraView = null;
+        mCaptureLayout = null;
+        mConfig = null;
+        mActivity.clear();
+        mActivity = null;
+        mCameraListener = null;
     }
 }

@@ -91,6 +91,13 @@ public class InstagramRecordIndicator extends FrameLayout {
         }
     }
 
+    public void release() {
+        if (mIndicationrAnimation != null && mIndicationrAnimation.isRunning()) {
+            mIndicationrAnimation.cancel();
+        }
+        mIndicationrAnimation = null;
+    }
+
     private class IndicatorView extends View {
         private Paint mPaint;
         private int mRadius;

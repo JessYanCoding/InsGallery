@@ -25,6 +25,13 @@ public class InstagramRecordProgressBar extends View {
     private float progress;
     private final GradientDrawable defaultIndicator;
     private ValueAnimator mValueAnimator;
+    private ValueAnimator.AnimatorUpdateListener mUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            defaultIndicator.setAlpha((int) animation.getAnimatedValue());
+            invalidate();
+        }
+    };
 
     public InstagramRecordProgressBar(Context context) {
         super(context);
@@ -67,10 +74,7 @@ public class InstagramRecordProgressBar extends View {
     public void startRecordAnimation() {
         if (mValueAnimator == null) {
             mValueAnimator = ValueAnimator.ofInt(0, 255);
-            mValueAnimator.addUpdateListener(animation -> {
-                defaultIndicator.setAlpha((int) animation.getAnimatedValue());
-                invalidate();
-            });
+            mValueAnimator.addUpdateListener(mUpdateListener);
             mValueAnimator.setDuration(500);
             mValueAnimator.setRepeatMode(ValueAnimator.REVERSE);
             mValueAnimator.setRepeatCount(ValueAnimator.INFINITE);
@@ -87,6 +91,21 @@ public class InstagramRecordProgressBar extends View {
     private void updateProgress(long millisUntilFinished) {
         progress = (mMaxTime - millisUntilFinished) * 1.0f / mMaxTime * getMeasuredWidth();
         invalidate();
+    }
+
+    public void release() {
+        if (mValueAnimator != null) {
+            mValueAnimator.removeUpdateListener(mUpdateListener);
+            if (mValueAnimator.isRunning()) {
+                mValueAnimator.cancel();
+            }
+        }
+        if (mTimer != null) {
+            mTimer.cancel();
+        }
+        mUpdateListener = null;
+        mTimer = null;
+        mValueAnimator = null;
     }
 
     private class RecordCountDownTimer extends CountDownTimer {

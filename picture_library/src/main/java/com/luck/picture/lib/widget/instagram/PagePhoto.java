@@ -54,6 +54,17 @@ public class PagePhoto implements Page {
     }
 
     @Override
+    public void onDestroy() {
+        if (mInstagramCameraView != null) {
+            mInstagramCameraView.release();
+        }
+        mInstagramCameraView = null;
+        mConfig = null;
+        mCameraListener = null;
+        mParentActivity = null;
+    }
+
+    @Override
     public String getTitle(Context context) {
         return context.getString(R.string.photo);
     }
