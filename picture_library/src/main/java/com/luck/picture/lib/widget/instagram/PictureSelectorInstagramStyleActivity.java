@@ -114,6 +114,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         if (mPreviewContainer != null) {
             mPreviewContainer.onResume();
         }
+        if (mInstagramViewPager != null) {
+            mInstagramViewPager.onResume();
+        }
         // 这里只针对权限被手动拒绝后进入设置页面重新获取权限后的操作
         if (isEnterSetting) {
             if (PermissionChecker
@@ -142,6 +145,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         super.onPause();
         if (mPreviewContainer != null) {
             mPreviewContainer.onPause();
+        }
+        if (mInstagramViewPager != null) {
+            mInstagramViewPager.onPause();
         }
     }
 
@@ -1761,6 +1767,12 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             mHandler.removeCallbacks(mBindRunnable);
             mediaPlayer.release();
             mediaPlayer = null;
+        }
+        if (mPreviewContainer != null) {
+            mPreviewContainer.onDestroy();
+        }
+        if (mInstagramViewPager != null) {
+            mInstagramViewPager.onDestroy();
         }
     }
 

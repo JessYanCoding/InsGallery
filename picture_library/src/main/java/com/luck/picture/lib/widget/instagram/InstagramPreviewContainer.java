@@ -479,6 +479,24 @@ public class InstagramPreviewContainer extends FrameLayout {
         }
     }
 
+    public void onDestroy() {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
+        if (mThumbAnimator != null && mThumbAnimator.isRunning()) {
+            mThumbAnimator.cancel();
+            mThumbAnimator = null;
+        }
+        mListener = null;
+        mHandler.removeCallbacksAndMessages(null);
+        mHandler = null;
+        mVideoView = null;
+        mUCropView = null;
+        mGestureCropImageView = null;
+        mOverlayView = null;
+    }
+
     public interface onSelectionModeChangedListener {
         void onSelectionModeChange(boolean isMulti);
         void onRatioChange(boolean isOneToOne);

@@ -86,6 +86,18 @@ public class InstagramViewPager extends FrameLayout {
         }
     }
 
+    public void onResume() {
+
+    }
+
+    public void onPause() {
+
+    }
+
+    public void onDestroy() {
+
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
