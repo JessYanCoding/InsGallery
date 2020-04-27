@@ -52,7 +52,7 @@ public class InstagramRecordProgressBar extends View {
 
     public void setMaxTime(long maxTime) {
         mMaxTime = maxTime;
-        mTimer = new RecordCountDownTimer(mMaxTime, 10);
+        mTimer = new RecordCountDownTimer(mMaxTime, 10, this);
     }
 
     public void startRecord() {
@@ -104,14 +104,20 @@ public class InstagramRecordProgressBar extends View {
         mValueAnimator = null;
     }
 
-    private class RecordCountDownTimer extends CountDownTimer {
-        RecordCountDownTimer(long millisInFuture, long countDownInterval) {
+    private static class RecordCountDownTimer extends CountDownTimer {
+        private WeakReference<InstagramRecordProgressBar> mRecordProgressBar;
+
+        RecordCountDownTimer(long millisInFuture, long countDownInterval, InstagramRecordProgressBar recordProgressBar) {
             super(millisInFuture, countDownInterval);
+            mRecordProgressBar = new WeakReference<>(recordProgressBar);
         }
 
         @Override
         public void onTick(long millisUntilFinished) {
-            updateProgress(millisUntilFinished);
+            InstagramRecordProgressBar recordProgressBar = mRecordProgressBar.get();
+            if (recordProgressBar != null) {
+                recordProgressBar.updateProgress(millisUntilFinished);
+            }
         }
 
         @Override

@@ -262,7 +262,11 @@ public class InstagramCameraView extends FrameLayout {
     public void bindToLifecycle() {
         if (!isBind) {
             isBind = true;
-            mCameraView.bindToLifecycle(mActivity.get());
+            AppCompatActivity activity = mActivity.get();
+            if (activity == null) {
+                return;
+            }
+            mCameraView.bindToLifecycle(activity);
         }
     }
 
