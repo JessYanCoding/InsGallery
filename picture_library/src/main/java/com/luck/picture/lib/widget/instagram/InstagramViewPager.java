@@ -87,15 +87,21 @@ public class InstagramViewPager extends FrameLayout {
     }
 
     public void onResume() {
-
+        for (Page item : mItems) {
+            item.onResume();
+        }
     }
 
     public void onPause() {
-
+        for (Page item : mItems) {
+            item.onPause();
+        }
     }
 
     public void onDestroy() {
-
+        for (Page item : mItems) {
+            item.onDestroy();
+        }
     }
 
     @Override

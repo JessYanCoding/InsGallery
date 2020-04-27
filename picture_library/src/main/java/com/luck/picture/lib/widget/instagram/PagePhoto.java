@@ -71,23 +71,35 @@ public class PagePhoto implements Page {
 
     @Override
     public Rect disallowInterceptTouchRect() {
+        if (mInstagramCameraView == null) {
+            return null;
+        }
         return mInstagramCameraView.disallowInterceptTouchRect();
     }
 
     public void bindToLifecycle() {
-        mInstagramCameraView.bindToLifecycle();
+        if (mInstagramCameraView != null) {
+            mInstagramCameraView.bindToLifecycle();
+        }
     }
 
     public boolean isBindCamera() {
+        if (mInstagramCameraView == null) {
+            return false;
+        }
         return mInstagramCameraView.isBind();
     }
 
     public void setCaptureButtonTranslationX(float translationX) {
-        mInstagramCameraView.setCaptureButtonTranslationX(translationX);
+        if (mInstagramCameraView != null) {
+            mInstagramCameraView.setCaptureButtonTranslationX(translationX);
+        }
     }
 
     public void setCameraState(int cameraState) {
-        mInstagramCameraView.setCameraState(cameraState);
+        if (mInstagramCameraView != null) {
+            mInstagramCameraView.setCameraState(cameraState);
+        }
     }
 
     public void setCameraListener(CameraListener cameraListener) {
@@ -98,6 +110,8 @@ public class PagePhoto implements Page {
     }
 
     public void setEmptyViewVisibility(int visibility) {
-        mInstagramCameraView.setEmptyViewVisibility(visibility);
+        if (mInstagramCameraView != null) {
+            mInstagramCameraView.setEmptyViewVisibility(visibility);
+        }
     }
 }

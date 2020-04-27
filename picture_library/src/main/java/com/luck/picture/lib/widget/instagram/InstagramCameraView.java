@@ -29,7 +29,6 @@ import java.lang.ref.WeakReference;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.VideoCapture;
@@ -96,6 +95,9 @@ public class InstagramCameraView extends FrameLayout {
         mCaptureLayout.setCaptureListener(new InstagramCaptureListener() {
             @Override
             public void takePictures() {
+                if (mCameraView == null) {
+                    return;
+                }
                 mCameraView.setCaptureMode(androidx.camera.view.CameraView.CaptureMode.IMAGE);
                 File imageOutFile = createImageFile();
                 mCameraView.takePicture(imageOutFile, ContextCompat.getMainExecutor(getContext().getApplicationContext()), new OnImageSavedCallbackImpl(InstagramCameraView.this, imageOutFile));
@@ -103,18 +105,27 @@ public class InstagramCameraView extends FrameLayout {
 
             @Override
             public void recordStart() {
+                if (mCameraView == null) {
+                    return;
+                }
                 mCameraView.setCaptureMode(androidx.camera.view.CameraView.CaptureMode.VIDEO);
                 mCameraView.startRecording(createVideoFile(), ContextCompat.getMainExecutor(getContext().getApplicationContext()), new OnVideoSavedCallbackImpl(InstagramCameraView.this));
             }
 
             @Override
             public void recordEnd(long time) {
+                if (mCameraView == null) {
+                    return;
+                }
                 mRecordTime = time;
                 mCameraView.stopRecording();
             }
 
             @Override
             public void recordShort(long time) {
+                if (mCameraView == null) {
+                    return;
+                }
                 mRecordTime = time;
                 mCameraView.stopRecording();
             }
@@ -198,7 +209,7 @@ public class InstagramCameraView extends FrameLayout {
 
     @SuppressLint("MissingPermission")
     public void bindToLifecycle() {
-        if (!isBind) {
+        if (!isBind && mCameraView != null) {
             isBind = true;
             AppCompatActivity activity = mActivity.get();
             if (activity == null) {
@@ -246,11 +257,13 @@ public class InstagramCameraView extends FrameLayout {
     }
 
     public void setCaptureButtonTranslationX(float translationX) {
-        mCaptureLayout.setCaptureButtonTranslationX(translationX);
+        if (mCaptureLayout != null) {
+            mCaptureLayout.setCaptureButtonTranslationX(translationX);
+        }
     }
 
     public void setCameraState(int cameraState) {
-        if (mCameraState == cameraState) {
+        if (mCameraState == cameraState || mCaptureLayout == null) {
             return;
         }
         mCameraState = cameraState;
@@ -267,6 +280,9 @@ public class InstagramCameraView extends FrameLayout {
     }
 
     private void setFlashRes() {
+        if (mCameraView == null) {
+            return;
+        }
         switch (mTypeFlash) {
             case TYPE_FLASH_AUTO:
                 mFlashView.setImageResource(R.drawable.discover_flash_a);
@@ -286,15 +302,22 @@ public class InstagramCameraView extends FrameLayout {
     }
 
     public Rect disallowInterceptTouchRect() {
+        if (mCaptureLayout == null) {
+            return null;
+        }
         return mCaptureLayout.disallowInterceptTouchRect();
     }
 
     public void setRecordVideoMaxTime(int maxDurationTime) {
-        mCaptureLayout.setRecordVideoMaxTime(maxDurationTime);
+        if (mCaptureLayout != null) {
+            mCaptureLayout.setRecordVideoMaxTime(maxDurationTime);
+        }
     }
 
     public void setRecordVideoMinTime(int minDurationTime) {
-        mCaptureLayout.setRecordVideoMinTime(minDurationTime);
+        if (mCaptureLayout != null) {
+            mCaptureLayout.setRecordVideoMinTime(minDurationTime);
+        }
     }
 
     public void setCameraListener(CameraListener cameraListener) {
@@ -307,14 +330,12 @@ public class InstagramCameraView extends FrameLayout {
 
     @SuppressLint("RestrictedApi")
     public void release() {
-        CameraX.unbindAll();
         if (mCaptureLayout != null) {
             mCaptureLayout.release();
         }
         mCameraView = null;
         mCaptureLayout = null;
         mConfig = null;
-        mActivity.clear();
         mActivity = null;
         mCameraListener = null;
     }
