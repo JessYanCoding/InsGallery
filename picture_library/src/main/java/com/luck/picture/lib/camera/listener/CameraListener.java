@@ -1,8 +1,8 @@
 package com.luck.picture.lib.camera.listener;
 
-import androidx.annotation.NonNull;
-
 import java.io.File;
+
+import androidx.annotation.NonNull;
 
 /**
  * @author：luck
@@ -27,7 +27,7 @@ public interface CameraListener {
     /**
      * 使用相机出错
      *
-     * @param file
+     *
      */
     void onError(int videoCaptureError, String message, Throwable cause);
 }

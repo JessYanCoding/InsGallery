@@ -104,40 +104,7 @@ public class InstagramCameraView extends FrameLayout {
             @Override
             public void recordStart() {
                 mCameraView.setCaptureMode(androidx.camera.view.CameraView.CaptureMode.VIDEO);
-                mCameraView.startRecording(createVideoFile(), ContextCompat.getMainExecutor(getContext().getApplicationContext()),
-                        new VideoCapture.OnVideoSavedCallback() {
-                            @Override
-                            public void onVideoSaved(@NonNull File file) {
-                                if (mRecordTime < mConfig.recordVideoMinSecond && file.exists() && file.delete()) {
-                                    return;
-                                }
-                                if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(mConfig.cameraPath)) {
-                                    PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<Boolean>() {
-
-                                        @Override
-                                        public Boolean doInBackground() {
-                                            return AndroidQTransformUtils.copyPathToDCIM(getContext(),
-                                                    file, Uri.parse(mConfig.cameraPath));
-                                        }
-
-                                        @Override
-                                        public void onSuccess(Boolean result) {
-                                            PictureThreadUtils.cancel(PictureThreadUtils.getSinglePool());
-                                        }
-                                    });
-                                }
-                                if (file != null && file.exists() && mCameraListener != null) {
-                                    mCameraListener.onRecordSuccess(file);
-                                }
-                            }
-
-                            @Override
-                            public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause) {
-                                if (mCameraListener != null) {
-                                    mCameraListener.onError(videoCaptureError, message, cause);
-                                }
-                            }
-                        });
+                mCameraView.startRecording(createVideoFile(), ContextCompat.getMainExecutor(getContext().getApplicationContext()), new OnVideoSavedCallbackImpl(InstagramCameraView.this));
             }
 
             @Override
@@ -392,6 +359,51 @@ public class InstagramCameraView extends FrameLayout {
             InstagramCameraView cameraView = mCameraView.get();
             if (cameraView != null && cameraView.mCameraListener != null) {
                 cameraView.mCameraListener.onError(exception.getImageCaptureError(), exception.getMessage(), exception.getCause());
+            }
+        }
+    }
+
+    private static class OnVideoSavedCallbackImpl implements VideoCapture.OnVideoSavedCallback {
+        private WeakReference<InstagramCameraView> mCameraView;
+
+        public OnVideoSavedCallbackImpl(InstagramCameraView cameraView) {
+            mCameraView = new WeakReference<>(cameraView);
+        }
+
+        @Override
+        public void onVideoSaved(@NonNull File file) {
+            InstagramCameraView cameraView = mCameraView.get();
+            if (cameraView == null) {
+                return;
+            }
+            if (cameraView.mRecordTime < cameraView.mConfig.recordVideoMinSecond && file.exists() && file.delete()) {
+                return;
+            }
+            if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(cameraView.mConfig.cameraPath)) {
+                PictureThreadUtils.executeBySingle(new PictureThreadUtils.SimpleTask<Boolean>() {
+
+                    @Override
+                    public Boolean doInBackground() {
+                        return AndroidQTransformUtils.copyPathToDCIM(cameraView.getContext(),
+                                file, Uri.parse(cameraView.mConfig.cameraPath));
+                    }
+
+                    @Override
+                    public void onSuccess(Boolean result) {
+                        PictureThreadUtils.cancel(PictureThreadUtils.getSinglePool());
+                    }
+                });
+            }
+            if (file != null && file.exists() && cameraView.mCameraListener != null) {
+                cameraView.mCameraListener.onRecordSuccess(file);
+            }
+        }
+
+        @Override
+        public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause) {
+            InstagramCameraView cameraView = mCameraView.get();
+            if (cameraView != null && cameraView.mCameraListener != null) {
+                cameraView.mCameraListener.onError(videoCaptureError, message, cause);
             }
         }
     }
