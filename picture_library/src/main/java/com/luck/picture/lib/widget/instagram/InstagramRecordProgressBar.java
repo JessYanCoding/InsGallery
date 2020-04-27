@@ -129,7 +129,7 @@ public class InstagramRecordProgressBar extends View {
     private static class UpdateListener implements ValueAnimator.AnimatorUpdateListener {
         private WeakReference<InstagramRecordProgressBar> mRecordProgressBar;
 
-        public UpdateListener(InstagramRecordProgressBar recordProgressBar) {
+        UpdateListener(InstagramRecordProgressBar recordProgressBar) {
             mRecordProgressBar = new WeakReference<>(recordProgressBar);
         }
 

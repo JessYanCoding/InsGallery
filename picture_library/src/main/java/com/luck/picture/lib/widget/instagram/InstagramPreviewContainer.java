@@ -73,6 +73,7 @@ public class InstagramPreviewContainer extends FrameLayout {
     private boolean isLoadingVideo;
     private int mPositionWhenPaused = -1;
     private PlayVideoRunnable mPlayVideoRunnable;
+    private ShowGridRunnable mShowGridRunnable;
 
     private TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
         @Override
@@ -160,17 +161,14 @@ public class InstagramPreviewContainer extends FrameLayout {
                     mOverlayView.setShowCropGrid(true);
                     mOverlayView.invalidate();
                     mCropGridShowing = true;
-                } else {
-                    mHandler.removeCallbacksAndMessages(null);
+                } else if (mShowGridRunnable != null){
+                    mHandler.removeCallbacks(mShowGridRunnable);
                 }
             } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-                mHandler.postDelayed(() -> {
-                    if (mCropGridShowing) {
-                        mOverlayView.setShowCropGrid(false);
-                        mOverlayView.invalidate();
-                        mCropGridShowing = false;
-                    }
-                }, 800);
+                if (mShowGridRunnable == null) {
+                    mShowGridRunnable = new ShowGridRunnable(this);
+                }
+                mHandler.postDelayed(mShowGridRunnable, 800);
             }
             return false;
         });
@@ -499,7 +497,7 @@ public class InstagramPreviewContainer extends FrameLayout {
         private WeakReference<InstagramPreviewContainer> mPreviewContainer;
         private LocalMedia mMedia;
 
-        public PlayVideoRunnable(InstagramPreviewContainer previewContainer, LocalMedia media) {
+        PlayVideoRunnable(InstagramPreviewContainer previewContainer, LocalMedia media) {
             mPreviewContainer = new WeakReference<>(previewContainer);
             this.mMedia = media;
         }
@@ -518,6 +516,27 @@ public class InstagramPreviewContainer extends FrameLayout {
             previewContainer.mVideoView.start();
             previewContainer.isPause = false;
             previewContainer.isLoadingVideo = true;
+        }
+    }
+
+    private static class ShowGridRunnable implements Runnable {
+        private WeakReference<InstagramPreviewContainer> mPreviewContainer;
+
+        ShowGridRunnable(InstagramPreviewContainer previewContainer) {
+            mPreviewContainer = new WeakReference<>(previewContainer);
+        }
+
+        @Override
+        public void run() {
+            InstagramPreviewContainer previewContainer = mPreviewContainer.get();
+            if (previewContainer == null) {
+                return;
+            }
+            if (previewContainer.mCropGridShowing) {
+                previewContainer.mOverlayView.setShowCropGrid(false);
+                previewContainer.mOverlayView.invalidate();
+                previewContainer.mCropGridShowing = false;
+            }
         }
     }
 

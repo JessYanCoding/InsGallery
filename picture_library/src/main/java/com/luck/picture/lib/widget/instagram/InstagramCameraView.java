@@ -344,7 +344,7 @@ public class InstagramCameraView extends FrameLayout {
         private WeakReference<InstagramCameraView> mCameraView;
         private File mImageOutFile;
 
-        public OnImageSavedCallbackImpl(InstagramCameraView cameraView, File imageOutFile) {
+        OnImageSavedCallbackImpl(InstagramCameraView cameraView, File imageOutFile) {
             mCameraView = new WeakReference<>(cameraView);
             mImageOutFile = imageOutFile;
         }
@@ -387,7 +387,7 @@ public class InstagramCameraView extends FrameLayout {
     private static class OnVideoSavedCallbackImpl implements VideoCapture.OnVideoSavedCallback {
         private WeakReference<InstagramCameraView> mCameraView;
 
-        public OnVideoSavedCallbackImpl(InstagramCameraView cameraView) {
+        OnVideoSavedCallbackImpl(InstagramCameraView cameraView) {
             mCameraView = new WeakReference<>(cameraView);
         }
 
