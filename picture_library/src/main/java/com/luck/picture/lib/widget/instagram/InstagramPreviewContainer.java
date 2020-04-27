@@ -35,6 +35,7 @@ import com.yalantis.ucrop.view.OverlayView;
 import com.yalantis.ucrop.view.TransformImageView;
 import com.yalantis.ucrop.view.UCropView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +72,7 @@ public class InstagramPreviewContainer extends FrameLayout {
     private ImageView mPlayButton;
     private boolean isLoadingVideo;
     private int mPositionWhenPaused = -1;
+    private PlayVideoRunnable mPlayVideoRunnable;
 
     private TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
         @Override
@@ -287,7 +289,9 @@ public class InstagramPreviewContainer extends FrameLayout {
         if (mThumbAnimator != null && mThumbAnimator.isRunning()) {
             mThumbAnimator.cancel();
         }
-        mHandler.removeCallbacksAndMessages(null);
+        if (mPlayVideoRunnable != null) {
+            mHandler.removeCallbacks(mPlayVideoRunnable);
+        }
         Drawable drawable = null;
         if (holder != null && holder instanceof InstagramImageGridAdapter.ViewHolder) {
             drawable = ((InstagramImageGridAdapter.ViewHolder) holder).ivPicture.getDrawable();
@@ -299,16 +303,8 @@ public class InstagramPreviewContainer extends FrameLayout {
         }
         mPlayButton.setVisibility(GONE);
         isLoadingVideo = false;
-        mHandler.postDelayed(() -> {
-            if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(media.getPath())) {
-                mVideoView.setVideoURI(Uri.parse(media.getPath()));
-            } else {
-                mVideoView.setVideoPath(media.getPath());
-            }
-            mVideoView.start();
-            isPause = false;
-            isLoadingVideo = true;
-        }, 600);
+        mPlayVideoRunnable = new PlayVideoRunnable(this, media);
+        mHandler.postDelayed(mPlayVideoRunnable, 600);
     }
 
     public void checkModel(int mode) {
@@ -488,13 +484,41 @@ public class InstagramPreviewContainer extends FrameLayout {
             mThumbAnimator.cancel();
             mThumbAnimator = null;
         }
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+            mHandler = null;
+        }
         mListener = null;
-        mHandler.removeCallbacksAndMessages(null);
-        mHandler = null;
         mVideoView = null;
         mUCropView = null;
         mGestureCropImageView = null;
         mOverlayView = null;
+    }
+
+    private static class PlayVideoRunnable implements Runnable {
+        private WeakReference<InstagramPreviewContainer> mPreviewContainer;
+        private LocalMedia mMedia;
+
+        public PlayVideoRunnable(InstagramPreviewContainer previewContainer, LocalMedia media) {
+            mPreviewContainer = new WeakReference<>(previewContainer);
+            this.mMedia = media;
+        }
+
+        @Override
+        public void run() {
+            InstagramPreviewContainer previewContainer = mPreviewContainer.get();
+            if (previewContainer == null) {
+                return;
+            }
+            if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(mMedia.getPath())) {
+                previewContainer.mVideoView.setVideoURI(Uri.parse(mMedia.getPath()));
+            } else {
+                previewContainer.mVideoView.setVideoPath(mMedia.getPath());
+            }
+            previewContainer.mVideoView.start();
+            previewContainer.isPause = false;
+            previewContainer.isLoadingVideo = true;
+        }
     }
 
     public interface onSelectionModeChangedListener {
