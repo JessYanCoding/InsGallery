@@ -17,6 +17,8 @@ import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.ToastUtils;
 
+import java.lang.ref.WeakReference;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -48,7 +50,7 @@ public class InstagramCaptureLayout extends FrameLayout {
 
     public InstagramCaptureLayout(@NonNull Context context) {
         super(context);
-        mHandler = new GestureHandler(context.getMainLooper());
+        mHandler = new GestureHandler(context.getMainLooper(), this);
 
         mRecordProgressBar = new InstagramRecordProgressBar(context);
         addView(mRecordProgressBar);
@@ -233,34 +235,40 @@ public class InstagramCaptureLayout extends FrameLayout {
         mMinDurationTime = minDurationTime;
     }
 
-    private class GestureHandler extends Handler {
+    private static class GestureHandler extends Handler {
+        private WeakReference<InstagramCaptureLayout> mCaptureLayout;
 
-        public GestureHandler(Looper looper) {
+        public GestureHandler(Looper looper, InstagramCaptureLayout captureLayout) {
             super(looper);
+            mCaptureLayout = new WeakReference<>(captureLayout);
         }
 
         @Override
         public void handleMessage(Message msg) {
+            InstagramCaptureLayout captureLayout = mCaptureLayout.get();
+            if (captureLayout == null) {
+                return;
+            }
             switch (msg.what) {
                 case LONG_PRESS:
-                    dispatchLongPress();
+                    captureLayout.dispatchLongPress();
                     break;
                 case TIMER:
-                    if (mInLongPress) {
-                        mRecordedTime++;
-                        mRecordIndicator.setRecordedTime(mRecordedTime);
-                        if (mRecordedTime < mMaxDurationTime) {
-                            mHandler.sendEmptyMessageDelayed(TIMER, 1000);
+                    if (captureLayout.mInLongPress) {
+                        captureLayout.mRecordedTime++;
+                        captureLayout.mRecordIndicator.setRecordedTime(captureLayout.mRecordedTime);
+                        if (captureLayout.mRecordedTime < captureLayout.mMaxDurationTime) {
+                            captureLayout.mHandler.sendEmptyMessageDelayed(TIMER, 1000);
                         } else {
-                            mInLongPress = false;
-                            mIsRecordEnd = true;
-                            mRecordIndicator.stopIndicatorAnimation();
-                            mRecordIndicator.setVisibility(View.INVISIBLE);
-                            mRecordProgressBar.stopRecord();
-                            if (mCaptureListener != null) {
-                                mCaptureListener.recordEnd(mRecordedTime);
+                            captureLayout.mInLongPress = false;
+                            captureLayout.mIsRecordEnd = true;
+                            captureLayout.mRecordIndicator.stopIndicatorAnimation();
+                            captureLayout.mRecordIndicator.setVisibility(View.INVISIBLE);
+                            captureLayout.mRecordProgressBar.stopRecord();
+                            if (captureLayout.mCaptureListener != null) {
+                                captureLayout.mCaptureListener.recordEnd(captureLayout.mRecordedTime);
                             }
-                            mRecordedTime = 0;
+                            captureLayout.mRecordedTime = 0;
                         }
                     }
                     break;
