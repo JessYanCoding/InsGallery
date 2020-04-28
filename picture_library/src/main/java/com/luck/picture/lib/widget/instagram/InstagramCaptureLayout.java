@@ -131,6 +131,9 @@ public class InstagramCaptureLayout extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (mCaptureButton == null || mRecordButton == null) {
+            return super.onTouchEvent(event);
+        }
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (mCameraState == InstagramCameraView.STATE_CAPTURE) {
                 click = true;
