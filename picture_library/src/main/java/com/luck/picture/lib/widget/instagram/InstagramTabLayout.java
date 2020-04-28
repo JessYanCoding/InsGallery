@@ -14,11 +14,13 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.luck.picture.lib.R;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 
@@ -44,11 +46,18 @@ public class InstagramTabLayout extends FrameLayout {
         super(context);
         fillTitles(items);
         installTabView(context, titles);
-        setBackgroundColor(Color.WHITE);
         setWillNotDraw(false);
         selectedIndicatorPaint = new Paint();
         defaultSelectionIndicator = new GradientDrawable();
         selectedIndicatorHeight = ScreenUtils.dip2px(context, 1);
+
+        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+            selectedIndicatorPaint.setColor(ContextCompat.getColor(context, R.color.picture_color_white));
+        } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+            selectedIndicatorPaint.setColor(Color.parseColor("#2FA6FF"));
+        } else {
+            selectedIndicatorPaint.setColor(ContextCompat.getColor(context, R.color.picture_color_black));
+        }
 
         selectTab(0);
     }
@@ -57,7 +66,13 @@ public class InstagramTabLayout extends FrameLayout {
         for (int i = 0; i < titles.size(); i++) {
             TextView tabView = new TextView(context);
             tabView.setTextSize(15);
-            tabView.setTextColor(Color.GRAY);
+            if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+                tabView.setTextColor(Color.parseColor("#9B9B9D"));
+            } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+                tabView.setTextColor(Color.parseColor("#7E93A0"));
+            } else {
+                tabView.setTextColor(Color.parseColor("#92979F"));
+            }
             tabView.setGravity(Gravity.CENTER);
             tabView.setText(titles.get(i));
             addView(tabView);
@@ -164,9 +179,21 @@ public class InstagramTabLayout extends FrameLayout {
         for (int i = 0; i < tabViews.size(); i++) {
             View tabView = tabViews.get(i);
             if (position == i) {
-                ((TextView) tabView).setTextColor(Color.BLACK);
+                if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+                    ((TextView) tabView).setTextColor(ContextCompat.getColor(getContext(), R.color.picture_color_white));
+                } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+                    ((TextView) tabView).setTextColor(ContextCompat.getColor(getContext(), R.color.picture_color_white));
+                } else {
+                    ((TextView) tabView).setTextColor(ContextCompat.getColor(getContext(), R.color.picture_color_black));
+                }
             } else {
-                ((TextView) tabView).setTextColor(Color.GRAY);
+                if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+                    ((TextView) tabView).setTextColor(Color.parseColor("#9B9B9D"));
+                } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+                    ((TextView) tabView).setTextColor(Color.parseColor("#7E93A0"));
+                } else {
+                    ((TextView) tabView).setTextColor(Color.parseColor("#92979F"));
+                }
             }
         }
     }

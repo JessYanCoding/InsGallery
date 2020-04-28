@@ -21,15 +21,6 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.broadcast.BroadcastAction;
 import com.luck.picture.lib.broadcast.BroadcastManager;
@@ -56,6 +47,15 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * @author：luck
@@ -879,9 +879,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 相册列表标题栏背景色
         mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#FFFFFF");
         // 相册列表标题栏右侧上拉箭头
-        mPictureParameterStyle.pictureTitleUpResId = R.drawable.ic_arrow_up;
+        mPictureParameterStyle.pictureTitleUpResId = R.drawable.picture_arrow_up;
         // 相册列表标题栏右侧下拉箭头
-        mPictureParameterStyle.pictureTitleDownResId = R.drawable.ic_arrow_down;
+        mPictureParameterStyle.pictureTitleDownResId = R.drawable.picture_arrow_down;
         // 相册文件夹列表选中圆点
         mPictureParameterStyle.pictureFolderCheckedDotStyle = R.drawable.picture_orange_oval;
         // 相册返回箭头

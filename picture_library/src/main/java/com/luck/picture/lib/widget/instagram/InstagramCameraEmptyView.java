@@ -1,6 +1,7 @@
 package com.luck.picture.lib.widget.instagram;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
@@ -25,7 +26,14 @@ public class InstagramCameraEmptyView extends FrameLayout {
 
     public InstagramCameraEmptyView(@NonNull Context context) {
         super(context);
-        setBackgroundColor(ContextCompat.getColor(context, R.color.picture_color_262626));
+
+        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+            setBackgroundColor(Color.parseColor("#1C1C1E"));
+        } else if(InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE) {
+            setBackgroundColor(Color.parseColor("#213040"));
+        } else {
+            setBackgroundColor(ContextCompat.getColor(context, R.color.picture_color_262626));
+        }
 
         mTitleView = new TextView(context);
         mTitleView.setTextSize(20);

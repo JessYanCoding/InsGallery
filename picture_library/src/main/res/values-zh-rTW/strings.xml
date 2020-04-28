@@ -58,4 +58,13 @@
     <string name="picture_choose_min_seconds">不能選擇低於 %1$ds 內的視頻</string>
     <string name="picture_choose_limit_seconds">只能選擇 %1$ds 至 %2$ds內的視頻</string>
     <string name="picture_go_setting">去設置</string>
+    <string name="gallery">圖庫</string>
+    <string name="photo">照片</string>
+    <string name="video">視頻</string>
+    <string name="press_to_record">按住錄製視頻。</string>
+    <string name="alert_record">視頻錄製至少需要%d秒。</string>
+    <string name="camera_access">啟用相機訪問權限</string>
+    <string name="camera_access_content">允許訪問即可拍攝照片和視頻。</string>
+    <string name="enable">啟用</string>
+    <string name="done">完成</string>
 </resources>

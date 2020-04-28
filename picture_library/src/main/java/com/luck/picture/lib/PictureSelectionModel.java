@@ -351,7 +351,7 @@ public class PictureSelectionModel {
      * @return
      */
     public PictureSelectionModel maxVideoSelectNum(int maxVideoSelectNum) {
-        selectionConfig.maxVideoSelectNum = selectionConfig.isWithVideoImage ? maxVideoSelectNum : 0;
+        selectionConfig.maxVideoSelectNum = maxVideoSelectNum;
         return this;
     }
 
@@ -448,6 +448,11 @@ public class PictureSelectionModel {
      */
     public PictureSelectionModel recordVideoSecond(int recordVideoSecond) {
         selectionConfig.recordVideoSecond = recordVideoSecond;
+        return this;
+    }
+
+    public PictureSelectionModel recordVideoMinSecond(int recordVideoMinSecond) {
+        selectionConfig.recordVideoMinSecond = recordVideoMinSecond;
         return this;
     }
 

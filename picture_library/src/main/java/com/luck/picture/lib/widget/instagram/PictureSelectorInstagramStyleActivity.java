@@ -3,6 +3,8 @@ package com.luck.picture.lib.widget.instagram;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -169,11 +171,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         config.isCamera = false;
         config.selectionMode = PictureConfig.SINGLE;
         config.isSingleDirectReturn = true;
-        config.isWithVideoImage = false;
-        config.maxVideoSelectNum = 1;
+//        config.isWithVideoImage = false;
+//        config.maxVideoSelectNum = 1;
         config.aspect_ratio_x = 1;
         config.aspect_ratio_y = 1;
-        config.recordVideoMinSecond = 3;
+//        config.recordVideoMinSecond = 3;
 
         mPictureRecycler = new GalleryViewImpl(getContext());
         mPreviewContainer = new InstagramPreviewContainer(getContext());
@@ -291,6 +293,14 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
         mTvEmpty = mInstagramGallery.getEmptyView();
         isNumComplete(numComplete);
+
+        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DEFAULT) {
+            mIvPictureLeftBack.setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.picture_color_black), PorterDuff.Mode.MULTIPLY));
+        }
+        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DEFAULT) {
+            mIvArrow.setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.picture_color_black), PorterDuff.Mode.MULTIPLY));
+        }
+
         mIvPictureLeftBack.setOnClickListener(this);
         mTvPictureRight.setOnClickListener(this);
         mTvPictureTitle.setOnClickListener(this);

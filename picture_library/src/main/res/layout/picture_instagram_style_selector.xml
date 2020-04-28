@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/picture_color_white"
     android:fitsSystemWindows="true"
-    tools:context="com.luck.picture.lib.PictureSelectorActivity">
+    tools:context="com.luck.picture.lib.widget.instagram.PictureSelectorInstagramStyleActivity">
 
     <include layout="@layout/picture_title_bar" />
 

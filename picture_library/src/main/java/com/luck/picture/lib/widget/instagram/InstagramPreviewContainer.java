@@ -41,6 +41,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -154,6 +155,14 @@ public class InstagramPreviewContainer extends FrameLayout {
 
         mOverlayView.setPadding(0, 0, 0, 0);
         mOverlayView.setShowCropGrid(false);
+        mOverlayView.setShowCropFrame(false);
+        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+            mOverlayView.setCropGridColor(ContextCompat.getColor(context, R.color.picture_color_black));
+        } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+            mOverlayView.setCropGridColor(Color.parseColor("#18222D"));
+        } else {
+            mOverlayView.setCropGridColor(ContextCompat.getColor(context, R.color.picture_color_white));
+        }
 
         mGestureCropImageView.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -223,7 +232,13 @@ public class InstagramPreviewContainer extends FrameLayout {
         });
 
         View divider = new View(getContext());
-        divider.setBackgroundColor(Color.WHITE);
+        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+            divider.setBackgroundColor(ContextCompat.getColor(context, R.color.picture_color_black));
+        } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+            divider.setBackgroundColor(Color.parseColor("#18222D"));
+        } else {
+            divider.setBackgroundColor(ContextCompat.getColor(context, R.color.picture_color_white));
+        }
         FrameLayout.LayoutParams dividerParms = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(getContext(), 2), Gravity.BOTTOM);
         addView(divider, dividerParms);
     }
@@ -297,7 +312,13 @@ public class InstagramPreviewContainer extends FrameLayout {
         if (drawable != null) {
             mThumbView.setImageDrawable(drawable);
         } else {
-            mThumbView.setBackgroundColor(Color.WHITE);
+            if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+                mThumbView.setBackgroundColor(Color.BLACK);
+            } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+                mThumbView.setBackgroundColor(Color.parseColor("#18222D"));
+            } else {
+                mThumbView.setBackgroundColor(Color.WHITE);
+            }
         }
         mPlayButton.setVisibility(GONE);
         isLoadingVideo = false;

@@ -66,4 +66,5 @@
     <string name="camera_access">启用相机访问权限</string>
     <string name="camera_access_content">允许访问即可拍摄照片和视频。</string>
     <string name="enable">启用</string>
+    <string name="done">完成</string>
 </resources>

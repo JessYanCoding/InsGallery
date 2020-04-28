@@ -32,8 +32,13 @@ public class InstagramRecordProgressBar extends View {
     public InstagramRecordProgressBar(Context context) {
         super(context);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setColor(Color.BLACK);
-        defaultIndicator = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{Color.WHITE, Color.BLACK});
+        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK || InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE) {
+            mPaint.setColor(Color.WHITE);
+            defaultIndicator = new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT, new int[]{Color.WHITE, Color.BLACK});
+        } else {
+            mPaint.setColor(Color.BLACK);
+            defaultIndicator = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{Color.WHITE, Color.BLACK});
+        }
     }
 
     @Override

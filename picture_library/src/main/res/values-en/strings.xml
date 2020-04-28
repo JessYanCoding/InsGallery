@@ -67,4 +67,5 @@
     <string name="camera_access">Enable camera access</string>
     <string name="camera_access_content">Allow access to take photos and videos.</string>
     <string name="enable">Enable</string>
+    <string name="done">done</string>
 </resources>
