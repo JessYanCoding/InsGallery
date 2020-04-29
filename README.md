@@ -16,8 +16,7 @@
 🖥 Preview Photo/Video
 🔢 Multiple Selection
 ✂️ Crop
-⚡️ Flash
-📁 Albums
+🌙 Dark Mode
 And many more...
 
 
