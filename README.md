@@ -1,4 +1,3 @@
-![Logo](art/insgallery_banner.jpg)
 ![Logo](art/banner.jpg)
 
 # InsGallery
