@@ -1198,7 +1198,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     }
 
     private void setPreviewPosition(int position) {
-        if (mPreviewPosition != position && mAdapter != null) {
+        if (mPreviewPosition != position && mAdapter != null && position < mAdapter.getItemCount()) {
             int previousPosition = mPreviewPosition;
             mPreviewPosition = position;
             mAdapter.setPreviewPosition(position);
@@ -1503,7 +1503,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             }
             mAdapter.notifyItemInserted(config.isCamera ? 1 : 0);
             mAdapter.notifyItemRangeChanged(config.isCamera ? 1 : 0, images.size());
-            if (config.selectionMode != PictureConfig.SINGLE && isPreview) {
+            if (images.size() == 1 || (config.selectionMode != PictureConfig.SINGLE && isPreview)) {
                 startPreview(images, 0);
             } else {
                 setPreviewPosition(mPreviewPosition + 1);
@@ -1517,7 +1517,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     removeMedia(lastImageId);
                 }
             }
-            mTvEmpty.setVisibility(images.size() > 0 || config.isSingleDirectReturn ? View.INVISIBLE : View.VISIBLE);
+            mTvEmpty.setVisibility(images.size() > 0 ? View.INVISIBLE : View.VISIBLE);
+            mInstagramGallery.setViewVisibility(images.size() > 0 ? View.VISIBLE : View.INVISIBLE);
+            boolean enabled = images.size() > 0 || config.returnEmpty;
+            mTvPictureRight.setEnabled(enabled);
+            mTvPictureRight.setTextColor(enabled ? config.style.pictureRightDefaultTextColor : ContextCompat.getColor(getContext(), R.color.picture_color_9B9B9D));
         }
     }
 
