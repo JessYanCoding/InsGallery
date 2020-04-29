@@ -153,7 +153,6 @@ public class InstagramCaptureLayout extends FrameLayout {
                 if (recordRect.contains((int) (event.getX()), (int) (event.getY()))) {
                     mRecordButton.pressButton(true);
                     mInLongPress = false;
-                    mIsRecordEnd = false;
                     mHandler.removeMessages(TIMER);
                     mHandler.removeMessages(LONG_PRESS);
                     mHandler.sendMessageAtTime(
@@ -173,7 +172,7 @@ public class InstagramCaptureLayout extends FrameLayout {
                 mCaptureButton.getHitRect(rect);
                 if (rect.contains((int) (event.getX()), (int) (event.getY()))) {
                     long elapsedRealtime = SystemClock.elapsedRealtime();
-                    if (elapsedRealtime - time > 300) {
+                    if (elapsedRealtime - time > 1000) {
                         time = elapsedRealtime;
                         click = false;
                         if (mCaptureListener != null) {
@@ -195,7 +194,6 @@ public class InstagramCaptureLayout extends FrameLayout {
 
                 if (mInLongPress) {
                     mInLongPress = false;
-                    mIsRecordEnd = true;
                     mHandler.removeMessages(TIMER);
                     mRecordIndicator.stopIndicatorAnimation();
                     mRecordIndicator.setVisibility(View.INVISIBLE);
@@ -206,6 +204,7 @@ public class InstagramCaptureLayout extends FrameLayout {
                         }
                         ToastUtils.s(getContext(), getContext().getString(R.string.alert_record, mMinDurationTime));
                     } else if (mCaptureListener != null) {
+                        mIsRecordEnd = true;
                         mCaptureListener.recordEnd(mRecordedTime);
                     }
                     mRecordedTime = 0;
@@ -288,6 +287,9 @@ public class InstagramCaptureLayout extends FrameLayout {
             if (mCaptureListener != null) {
                 mCaptureListener.recordError();
             }
+            return;
+        }
+        if (mIsRecordEnd) {
             return;
         }
         mInLongPress = true;
