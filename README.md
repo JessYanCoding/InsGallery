@@ -10,14 +10,14 @@
 
 ## Notable Features
 
-🌅 Library
-📷 Photo
-🎥 Video
-🖥 Preview Photo/Video
-🔢 Multiple Selection
-✂️ Crop
-🌙 Dark Mode
-And many more...
+🌅 Library  
+📷 Photo  
+🎥 Video  
+🖥 Preview Photo/Video  
+🔢 Multiple Selection  
+✂️ Crop  
+🌙 Dark Mode  
+And many more...  
 
 
 ## Overview
