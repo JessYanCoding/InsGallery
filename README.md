@@ -1,4 +1,5 @@
 ![Logo](art/insgallery_banner.jpg)
+![Logo](art/banner.jpg)
 
 # InsGallery
 📸 Instagram-like image picker for Android
