@@ -8,6 +8,19 @@
   <b>Instagram-like image picker for Android (一款 UI 炫酷高仿 Instagram 的图片、视频选择器)</b>
 </p>
 
+## Notable Features
+
+🌅 Library
+📷 Photo
+🎥 Video
+🖥 Preview Photo/Video
+🔢 Multiple Selection
+✂️ Crop
+⚡️ Flash
+📁 Albums
+And many more...
+
+
 ## Overview
 ### Feature
 <p>
