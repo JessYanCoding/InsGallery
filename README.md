@@ -1,10 +1,12 @@
 ![Logo](art/banner.jpg)
 
 <p align="center">
-   <b>InsGallery</b>
+  <b>InsGallery</b>
 </p>
 
-Instagram-like image picker for Android (一款 UI 炫酷高仿 Instagram 的图片、视频选择器)
+<p align="center">
+  <b>Instagram-like image picker for Android (一款 UI 炫酷高仿 Instagram 的图片、视频选择器)</b>
+</p>
 
 ## Overview
 ### Feature
