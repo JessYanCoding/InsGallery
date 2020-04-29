@@ -17,6 +17,7 @@
 🔢 Multiple Selection  
 ✂️ Crop  
 🌙 Dark Mode  
+
 And many more...  
 
 
