@@ -14,8 +14,6 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -28,10 +26,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.decoration.GridSpacingItemDecoration;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.luck.picture.lib.language.LanguageConfig;
-import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
-import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
 import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.style.PictureCropParameterStyle;
 import com.luck.picture.lib.style.PictureParameterStyle;
@@ -40,6 +35,7 @@ import com.luck.picture.lib.tools.PictureFileUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.ToastUtils;
 import com.luck.picture.lib.tools.ValueOf;
+import com.luck.picture.lib.widget.instagram.InsGallery;
 import com.luck.pictureselector.adapter.GridImageAdapter;
 import com.luck.pictureselector.listener.DragListener;
 
@@ -64,32 +60,18 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
-        RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
+        RadioGroup.OnCheckedChangeListener {
     private final static String TAG = MainActivity.class.getSimpleName();
     private RecyclerView mRecyclerView;
     private GridImageAdapter mAdapter;
     private int maxSelectNum = 9;
     private TextView tv_select_num;
-    private TextView tv_original_tips;
     private TextView tvDeleteText;
     private ImageView left_back, minus, plus;
-    private RadioGroup rgb_crop, rgb_style, rgb_photo_mode, rgb_langue, rgb_animation;
-    private int aspect_ratio_x, aspect_ratio_y;
-    private CheckBox cb_voice, cb_choose_mode, cb_isCamera, cb_isGif,
-            cb_preview_img, cb_preview_video, cb_crop, cb_compress,
-            cb_mode, cb_hide, cb_crop_circular, cb_styleCrop, cb_showCropGrid,
-            cb_showCropFrame, cb_preview_audio, cb_original, cb_single_back, cb_custom_camera;
-    private int themeId;
-    private int chooseMode = PictureMimeType.ofAll();
-    private boolean isWeChatStyle;
-    private boolean isInstagramStyle;
+    private RadioGroup rgb_style;
     private boolean isUpward;
     private boolean needScaleBig = true;
     private boolean needScaleSmall = true;
-    private int language = -1;
-    private PictureParameterStyle mPictureParameterStyle;
-    private PictureCropParameterStyle mCropParameterStyle;
-    private PictureWindowAnimationStyle mWindowAnimationStyle;
     private ItemTouchHelper mItemTouchHelper;
     private DragListener mDragListener;
 
@@ -102,49 +84,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             clearCache();
         }
         setContentView(R.layout.activity_main);
-        themeId = R.style.picture_default_style;
-        getDefaultStyle();
         minus = findViewById(R.id.minus);
         plus = findViewById(R.id.plus);
         tvDeleteText = findViewById(R.id.tv_delete_text);
         tv_select_num = findViewById(R.id.tv_select_num);
-        tv_original_tips = findViewById(R.id.tv_original_tips);
-        rgb_crop = findViewById(R.id.rgb_crop);
         rgb_style = findViewById(R.id.rgb_style);
-        rgb_animation = findViewById(R.id.rgb_animation);
-        rgb_photo_mode = findViewById(R.id.rgb_photo_mode);
-        rgb_langue = findViewById(R.id.rgb_langue);
-        cb_voice = findViewById(R.id.cb_voice);
-        cb_choose_mode = findViewById(R.id.cb_choose_mode);
-        cb_isCamera = findViewById(R.id.cb_isCamera);
-        cb_isGif = findViewById(R.id.cb_isGif);
-        cb_preview_img = findViewById(R.id.cb_preview_img);
-        cb_preview_video = findViewById(R.id.cb_preview_video);
-        cb_crop = findViewById(R.id.cb_crop);
-        cb_styleCrop = findViewById(R.id.cb_styleCrop);
-        cb_compress = findViewById(R.id.cb_compress);
-        cb_mode = findViewById(R.id.cb_mode);
-        cb_showCropGrid = findViewById(R.id.cb_showCropGrid);
-        cb_showCropFrame = findViewById(R.id.cb_showCropFrame);
-        cb_preview_audio = findViewById(R.id.cb_preview_audio);
-        cb_original = findViewById(R.id.cb_original);
-        cb_single_back = findViewById(R.id.cb_single_back);
-        cb_custom_camera = findViewById(R.id.cb_custom_camera);
-        cb_hide = findViewById(R.id.cb_hide);
-        cb_crop_circular = findViewById(R.id.cb_crop_circular);
-        rgb_crop.setOnCheckedChangeListener(this);
         rgb_style.setOnCheckedChangeListener(this);
-        rgb_animation.setOnCheckedChangeListener(this);
-        rgb_photo_mode.setOnCheckedChangeListener(this);
-        rgb_langue.setOnCheckedChangeListener(this);
         mRecyclerView = findViewById(R.id.recycler);
         left_back = findViewById(R.id.left_back);
         left_back.setOnClickListener(this);
         minus.setOnClickListener(this);
         plus.setOnClickListener(this);
-        cb_crop.setOnCheckedChangeListener(this);
-        cb_crop_circular.setOnCheckedChangeListener(this);
-        cb_compress.setOnCheckedChangeListener(this);
         tv_select_num.setText(ValueOf.toString(maxSelectNum));
         FullyGridLayoutManager manager = new FullyGridLayoutManager(this,
                 4, GridLayoutManager.VERTICAL, false);
@@ -168,12 +118,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mAdapter.setSelectMax(maxSelectNum);
         mRecyclerView.setAdapter(mAdapter);
-        cb_original.setOnCheckedChangeListener((buttonView, isChecked) ->
-                tv_original_tips.setVisibility(isChecked ? View.VISIBLE : View.GONE));
-        cb_choose_mode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            cb_single_back.setVisibility(isChecked ? View.GONE : View.VISIBLE);
-            cb_single_back.setChecked(!isChecked && cb_single_back.isChecked());
-        });
         mAdapter.setOnItemClickListener((position, v) -> {
             List<LocalMedia> selectList = mAdapter.getData();
             if (selectList.size() > 0) {
@@ -185,7 +129,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         // 预览视频
                         PictureSelector.create(MainActivity.this)
                                 .themeStyle(R.style.picture_default_style)
-                                .setPictureStyle(mPictureParameterStyle)// 动态自定义相册主题
                                 .externalPictureVideo(media.getPath());
                         break;
                     case PictureConfig.TYPE_AUDIO:
@@ -200,7 +143,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                        animationStyle.activityPreviewExitAnimation = R.anim.picture_anim_down_out;
                         PictureSelector.create(MainActivity.this)
                                 .themeStyle(R.style.picture_default_style) // xml设置主题
-                                .setPictureStyle(mPictureParameterStyle)// 动态自定义相册主题
                                 //.setPictureWindowAnimationStyle(animationStyle)// 自定义页面启动动画
                                 .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)// 设置相册Activity方向，不设置默认使用系统
                                 .isNotPreviewDownload(true)// 预览图片长按是否可以下载
@@ -414,190 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GridImageAdapter.onAddPicClickListener onAddPicClickListener = new GridImageAdapter.onAddPicClickListener() {
         @Override
         public void onAddPicClick() {
-            boolean mode = cb_mode.isChecked();
-            if (mode) {
-                // 进入相册 以下是例子：不需要的api可以不写
-                PictureSelector.create(MainActivity.this)
-                        .openGallery(chooseMode)// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
-                        .loadImageEngine(GlideEngine.createGlideEngine())// 外部传入图片加载引擎，必传项
-                        .theme(themeId)// 主题样式设置 具体参考 values/styles   用法：R.style.picture.white.style v2.3.3后 建议使用setPictureStyle()动态方式
-                        .isWeChatStyle(isWeChatStyle)// 是否开启微信图片选择风格
-                        .isInstagramStyle(isInstagramStyle)
-                        .isUseCustomCamera(cb_custom_camera.isChecked())// 是否使用自定义相机
-                        .setLanguage(language)// 设置语言，默认中文
-                        .setPictureStyle(mPictureParameterStyle)// 动态自定义相册主题
-                        .setPictureCropStyle(mCropParameterStyle)// 动态自定义裁剪主题
-                        .setPictureWindowAnimationStyle(mWindowAnimationStyle)// 自定义相册启动退出动画
-                        .isWithVideoImage(true)// 图片和视频是否可以同选,只在ofAll模式下有效
-                        .loadCacheResourcesCallback(new GlideCacheResourcesManager())// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
-                        //.setOutputCameraPath()// 自定义相机输出目录，只针对Android Q以下，例如 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) +  File.separator + "Camera" + File.separator;
-                        //.setButtonFeatures(CustomCameraView.BUTTON_STATE_BOTH)// 设置自定义相机按钮状态
-                        .maxSelectNum(maxSelectNum)// 最大图片选择数量
-                        .minSelectNum(1)// 最小选择数量
-                        .maxVideoSelectNum(1) // 视频最大选择数量，如果没有单独设置的需求则可以不设置，同用maxSelectNum字段
-                        //.minVideoSelectNum(1)// 视频最小选择数量，如果没有单独设置的需求则可以不设置，同用minSelectNum字段
-                        .imageSpanCount(4)// 每行显示个数
-                        .isReturnEmpty(false)// 未选择数据时点击按钮是否可以返回
-                        //.isAndroidQTransform(false)// 是否需要处理Android Q 拷贝至应用沙盒的操作，只针对compress(false); && enableCrop(false);有效,默认处理
-                        .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)// 设置相册Activity方向，不设置默认使用系统
-                        .isOriginalImageControl(cb_original.isChecked())// 是否显示原图控制按钮，如果设置为true则用户可以自由选择是否使用原图，压缩、裁剪功能将会失效
-                        //.bindCustomPlayVideoCallback(callback)// 自定义视频播放回调控制，用户可以使用自己的视频播放界面
-                        //.bindPictureSelectorInterfaceListener(interfaceListener)// 提供给用户的一些额外的自定义操作回调
-                        //.cameraFileName(System.currentTimeMillis() +".jpg")    // 重命名拍照文件名、如果是相册拍照则内部会自动拼上当前时间戳防止重复，注意这个只在使用相机时可以使用，如果使用相机又开启了压缩或裁剪 需要配合压缩和裁剪文件名api
-                        //.renameCompressFile(System.currentTimeMillis() +".jpg")// 重命名压缩文件名、 注意这个不要重复，只适用于单张图压缩使用
-                        //.renameCropFileName(System.currentTimeMillis() + ".jpg")// 重命名裁剪文件名、 注意这个不要重复，只适用于单张图裁剪使用
-                        .selectionMode(cb_choose_mode.isChecked() ?
-                                PictureConfig.MULTIPLE : PictureConfig.SINGLE)// 多选 or 单选
-                        .isSingleDirectReturn(cb_single_back.isChecked())// 单选模式下是否直接返回，PictureConfig.SINGLE模式下有效
-                        .previewImage(cb_preview_img.isChecked())// 是否可预览图片
-                        .previewVideo(cb_preview_video.isChecked())// 是否可预览视频
-                        //.querySpecifiedFormatSuffix(PictureMimeType.ofJPEG())// 查询指定后缀格式资源
-                        .enablePreviewAudio(cb_preview_audio.isChecked()) // 是否可播放音频
-                        .isCamera(cb_isCamera.isChecked())// 是否显示拍照按钮
-                        //.isMultipleSkipCrop(false)// 多图裁剪时是否支持跳过，默认支持
-                        //.isMultipleRecyclerAnimation(false)// 多图裁剪底部列表显示动画效果
-                        .isZoomAnim(true)// 图片列表点击 缩放效果 默认true
-                        //.imageFormat(PictureMimeType.PNG)// 拍照保存图片格式后缀,默认jpeg
-                        .enableCrop(cb_crop.isChecked())// 是否裁剪
-                        //.basicUCropConfig()//对外提供所有UCropOptions参数配制，但如果PictureSelector原本支持设置的还是会使用原有的设置
-                        .compress(cb_compress.isChecked())// 是否压缩
-                        //.compressQuality(80)// 图片压缩后输出质量 0~ 100
-                        .synOrAsy(true)//同步true或异步false 压缩 默认同步
-                        //.queryMaxFileSize(10)// 只查多少M以内的图片、视频、音频  单位M
-                        //.compressSavePath(getPath())//压缩图片保存地址
-                        //.sizeMultiplier(0.5f)// glide 加载图片大小 0~1之间 如设置 .glideOverride()无效 注：已废弃
-                        //.glideOverride(160, 160)// glide 加载宽高，越小图片列表越流畅，但会影响列表图片浏览的清晰度 注：已废弃
-                        .withAspectRatio(aspect_ratio_x, aspect_ratio_y)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
-                        .hideBottomControls(!cb_hide.isChecked())// 是否显示uCrop工具栏，默认不显示
-                        .isGif(cb_isGif.isChecked())// 是否显示gif图片
-                        .freeStyleCropEnabled(cb_styleCrop.isChecked())// 裁剪框是否可拖拽
-                        .circleDimmedLayer(cb_crop_circular.isChecked())// 是否圆形裁剪
-                        //.setCircleDimmedColor(ContextCompat.getColor(getContext(), R.color.app_color_white))// 设置圆形裁剪背景色值
-                        //.setCircleDimmedBorderColor(ContextCompat.getColor(getApplicationContext(), R.color.app_color_white))// 设置圆形裁剪边框色值
-                        //.setCircleStrokeWidth(3)// 设置圆形裁剪边框粗细
-                        .showCropFrame(cb_showCropFrame.isChecked())// 是否显示裁剪矩形边框 圆形裁剪时建议设为false
-                        .showCropGrid(cb_showCropGrid.isChecked())// 是否显示裁剪矩形网格 圆形裁剪时建议设为false
-                        .openClickSound(cb_voice.isChecked())// 是否开启点击声音
-                        .selectionMedia(mAdapter.getData())// 是否传入已选图片
-                        //.isDragFrame(false)// 是否可拖动裁剪框(固定)
-                        //.videoMinSecond(10)
-                        .videoMaxSecond(120)
-                        //.recordVideoSecond(10)//录制视频秒数 默认60s
-                        //.previewEggs(false)// 预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
-                        //.cropCompressQuality(90)// 注：已废弃 改用cutOutQuality()
-                        .cutOutQuality(90)// 裁剪输出质量 默认100
-                        .minimumCompressSize(100)// 小于100kb的图片不压缩
-                        //.cropWH()// 裁剪宽高比，设置如果大于图片本身宽高则无效
-                        //.cropImageWideHigh()// 裁剪宽高比，设置如果大于图片本身宽高则无效
-                        //.rotateEnabled(false) // 裁剪是否可旋转图片
-                        //.scaleEnabled(false)// 裁剪是否可放大缩小图片
-                        //.videoQuality()// 视频录制质量 0 or 1
-                        //.videoSecond()//显示多少秒以内的视频or音频也可适用
-                        //.forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-                        .forResult(new OnResultCallbackListenerImpl(MainActivity.this));
-            } else {
-                // 单独拍照
-                PictureSelector.create(MainActivity.this)
-                        .openCamera(chooseMode)// 单独拍照，也可录像或也可音频 看你传入的类型是图片or视频
-                        .theme(themeId)// 主题样式设置 具体参考 values/styles
-                        .loadImageEngine(GlideEngine.createGlideEngine())// 外部传入图片加载引擎，必传项
-                        .setPictureStyle(mPictureParameterStyle)// 动态自定义相册主题
-                        .setPictureCropStyle(mCropParameterStyle)// 动态自定义裁剪主题
-                        .setPictureWindowAnimationStyle(mWindowAnimationStyle)// 自定义相册启动退出动画
-                        .maxSelectNum(maxSelectNum)// 最大图片选择数量
-                        .isUseCustomCamera(cb_custom_camera.isChecked())// 是否使用自定义相机
-                        //.setOutputCameraPath()// 自定义相机输出目录，只针对Android Q以下，例如 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) +  File.separator + "Camera" + File.separator;
-                        .minSelectNum(1)// 最小选择数量
-                        //.querySpecifiedFormatSuffix(PictureMimeType.ofPNG())// 查询指定后缀格式资源
-                        .selectionMode(cb_choose_mode.isChecked() ?
-                                PictureConfig.MULTIPLE : PictureConfig.SINGLE)// 多选 or 单选
-                        //.cameraFileName(System.currentTimeMillis() + ".jpg")// 使用相机时保存至本地的文件名称,注意这个只在拍照时可以使用
-                        //.renameCompressFile(System.currentTimeMillis() + ".jpg")// 重命名压缩文件名、 注意这个不要重复，只适用于单张图压缩使用
-                        //.renameCropFileName(System.currentTimeMillis() + ".jpg")// 重命名裁剪文件名、 注意这个不要重复，只适用于单张图裁剪使用
-                        .loadCacheResourcesCallback(new GlideCacheResourcesManager())// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
-                        .previewImage(cb_preview_img.isChecked())// 是否可预览图片
-                        .previewVideo(cb_preview_video.isChecked())// 是否可预览视频
-                        .enablePreviewAudio(cb_preview_audio.isChecked()) // 是否可播放音频
-                        .isCamera(cb_isCamera.isChecked())// 是否显示拍照按钮
-                        .enableCrop(cb_crop.isChecked())// 是否裁剪
-                        //.basicUCropConfig()//对外提供所有UCropOptions参数配制，但如果PictureSelector原本支持设置的还是会使用原有的设置
-                        .compress(cb_compress.isChecked())// 是否压缩
-                        .compressQuality(60)// 图片压缩后输出质量
-                        .glideOverride(160, 160)// glide 加载宽高，越小图片列表越流畅，但会影响列表图片浏览的清晰度
-                        .withAspectRatio(aspect_ratio_x, aspect_ratio_y)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
-                        .hideBottomControls(!cb_hide.isChecked())// 是否显示uCrop工具栏，默认不显示
-                        .isGif(cb_isGif.isChecked())// 是否显示gif图片
-                        .freeStyleCropEnabled(cb_styleCrop.isChecked())// 裁剪框是否可拖拽
-                        .circleDimmedLayer(cb_crop_circular.isChecked())// 是否圆形裁剪
-                        //.setCircleDimmedColor(ContextCompat.getColor(this, R.color.app_color_white))// 设置圆形裁剪背景色值
-                        //.setCircleDimmedBorderColor(ContextCompat.getColor(this, R.color.app_color_white))// 设置圆形裁剪边框色值
-                        //.setCircleStrokeWidth(3)// 设置圆形裁剪边框粗细
-                        .showCropFrame(cb_showCropFrame.isChecked())// 是否显示裁剪矩形边框 圆形裁剪时建议设为false
-                        .showCropGrid(cb_showCropGrid.isChecked())// 是否显示裁剪矩形网格 圆形裁剪时建议设为false
-                        .openClickSound(cb_voice.isChecked())// 是否开启点击声音
-                        .selectionMedia(mAdapter.getData())// 是否传入已选图片
-                        //.previewEggs(false)// 预览图片时 是否增强左右滑动图片体验(图片滑动一半即可看到上一张是否选中)
-                        //.cropCompressQuality(90)// 废弃 改用cutOutQuality()
-                        .cutOutQuality(90)// 裁剪输出质量 默认100
-                        .minimumCompressSize(100)// 小于100kb的图片不压缩
-                        //.cropWH()// 裁剪宽高比，设置如果大于图片本身宽高则无效
-                        //.cropImageWideHigh()// 裁剪宽高比，设置如果大于图片本身宽高则无效
-                        //.rotateEnabled() // 裁剪是否可旋转图片
-                        //.scaleEnabled()// 裁剪是否可放大缩小图片
-                        //.videoQuality()// 视频录制质量 0 or 1
-                        //.videoSecond()////显示多少秒以内的视频or音频也可适用
-                        .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-//                        .forResult(new OnResultCallbackListener() {
-//                            @Override
-//                            public void onResult(List<LocalMedia> result) {
-//                                for (LocalMedia media : result) {
-//                                    Log.i(TAG, "是否压缩:" + media.isCompressed());
-//                                    Log.i(TAG, "压缩:" + media.getCompressPath());
-//                                    Log.i(TAG, "原图:" + media.getPath());
-//                                    Log.i(TAG, "是否裁剪:" + media.isCut());
-//                                    Log.i(TAG, "裁剪:" + media.getCutPath());
-//                                    Log.i(TAG, "是否开启原图:" + media.isOriginal());
-//                                    Log.i(TAG, "原图路径:" + media.getOriginalPath());
-//                                    Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
-//                                }
-//                                mAdapter.setList(result);
-//                                mAdapter.notifyDataSetChanged();
-//                            }
-//
-//                            @Override
-//                            public void onCancel() {
-//                                Log.i(TAG, "PictureSelector Cancel");
-//                            }
-//                        });
-            }
-        }
-    };
-
-    /**
-     * 自定义播放逻辑处理，用户可以自己实现播放界面
-     */
-    private OnVideoSelectedPlayCallback callback = media -> ToastUtils.s(getContext(), media.getPath());
-
-    /**
-     * PictureSelector自定义的一些回调接口
-     */
-    private OnPictureSelectorInterfaceListener interfaceListener = (context, type) -> {
-        // 必须使用.startActivityForResult(this,PictureConfig.REQUEST_CAMERA);
-        switch (type) {
-            case PictureConfig.TYPE_IMAGE:
-                // 拍照
-                ToastUtils.s(getContext(), "Click Camera Image");
-                break;
-            case PictureConfig.TYPE_VIDEO:
-                // 录视频
-                ToastUtils.s(getContext(), "Click Camera Video");
-                break;
-            case PictureConfig.TYPE_AUDIO:
-                // 录音
-                ToastUtils.s(getContext(), "Click Camera Recording");
-                break;
-            default:
-                break;
+            InsGallery.openGallery(MainActivity.this, GlideEngine.createGlideEngine(), GlideCacheEngine.createCacheEngine(), mAdapter.getData(), new OnResultCallbackListenerImpl(mAdapter));
         }
     };
 
@@ -658,586 +417,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
         switch (checkedId) {
-            case R.id.rb_all:
-                chooseMode = PictureMimeType.ofAll();
-                cb_preview_img.setChecked(true);
-                cb_preview_video.setChecked(true);
-                cb_isGif.setChecked(false);
-                cb_preview_video.setChecked(true);
-                cb_preview_img.setChecked(true);
-                cb_preview_video.setVisibility(View.VISIBLE);
-                cb_preview_img.setVisibility(View.VISIBLE);
-                cb_compress.setVisibility(View.VISIBLE);
-                cb_crop.setVisibility(View.VISIBLE);
-                cb_isGif.setVisibility(View.VISIBLE);
-                cb_preview_audio.setVisibility(View.GONE);
-                break;
-            case R.id.rb_image:
-                chooseMode = PictureMimeType.ofImage();
-                cb_preview_img.setChecked(true);
-                cb_preview_video.setChecked(false);
-                cb_isGif.setChecked(false);
-                cb_preview_video.setChecked(false);
-                cb_preview_video.setVisibility(View.GONE);
-                cb_preview_img.setChecked(true);
-                cb_preview_audio.setVisibility(View.GONE);
-                cb_preview_img.setVisibility(View.VISIBLE);
-                cb_compress.setVisibility(View.VISIBLE);
-                cb_crop.setVisibility(View.VISIBLE);
-                cb_isGif.setVisibility(View.VISIBLE);
-                break;
-            case R.id.rb_video:
-                chooseMode = PictureMimeType.ofVideo();
-                cb_preview_img.setChecked(false);
-                cb_preview_video.setChecked(true);
-                cb_isGif.setChecked(false);
-                cb_isGif.setVisibility(View.GONE);
-                cb_preview_video.setChecked(true);
-                cb_preview_video.setVisibility(View.VISIBLE);
-                cb_preview_img.setVisibility(View.GONE);
-                cb_preview_img.setChecked(false);
-                cb_compress.setVisibility(View.GONE);
-                cb_preview_audio.setVisibility(View.GONE);
-                cb_crop.setVisibility(View.GONE);
-                break;
-            case R.id.rb_audio:
-                chooseMode = PictureMimeType.ofAudio();
-                cb_preview_audio.setVisibility(View.VISIBLE);
-                break;
-            case R.id.rb_jpan:
-                language = LanguageConfig.JAPAN;
-                break;
-            case R.id.rb_tw:
-                language = LanguageConfig.TRADITIONAL_CHINESE;
-                break;
-            case R.id.rb_us:
-                language = LanguageConfig.ENGLISH;
-                break;
-            case R.id.rb_ka:
-                language = LanguageConfig.KOREA;
-                break;
-            case R.id.rb_de:
-                language = LanguageConfig.GERMANY;
-                break;
-            case R.id.rb_fr:
-                language = LanguageConfig.FRANCE;
-                break;
-            case R.id.rb_crop_default:
-                aspect_ratio_x = 0;
-                aspect_ratio_y = 0;
-                break;
-            case R.id.rb_crop_1to1:
-                aspect_ratio_x = 1;
-                aspect_ratio_y = 1;
-                break;
-            case R.id.rb_crop_3to4:
-                aspect_ratio_x = 3;
-                aspect_ratio_y = 4;
-                break;
-            case R.id.rb_crop_3to2:
-                aspect_ratio_x = 3;
-                aspect_ratio_y = 2;
-                break;
-            case R.id.rb_crop_16to9:
-                aspect_ratio_x = 16;
-                aspect_ratio_y = 9;
-                break;
-            case R.id.rb_photo_default_animation:
-                mWindowAnimationStyle = new PictureWindowAnimationStyle();
-                break;
-            case R.id.rb_photo_up_animation:
-                mWindowAnimationStyle = new PictureWindowAnimationStyle();
-                mWindowAnimationStyle.ofAllAnimation(R.anim.picture_anim_up_in, R.anim.picture_anim_down_out);
-                break;
             case R.id.rb_default_style:
-                themeId = R.style.picture_default_style;
-                isWeChatStyle = false;
-                isInstagramStyle = false;
-                getDefaultStyle();
+                InsGallery.setCurrentTheme(InsGallery.THEME_STYLE_DEFAULT);
                 break;
-            case R.id.rb_white_style:
-                themeId = R.style.picture_white_style;
-                isInstagramStyle = true;
-                isWeChatStyle = false;
-                getWhiteStyle();
+            case R.id.rb_dark_style:
+                InsGallery.setCurrentTheme(InsGallery.THEME_STYLE_DARK);
                 break;
-            case R.id.rb_num_style:
-                themeId = R.style.picture_QQ_style;
-                isWeChatStyle = false;
-                isInstagramStyle = false;
-                getNumStyle();
-                break;
-            case R.id.rb_sina_style:
-                themeId = R.style.picture_Sina_style;
-                isWeChatStyle = false;
-                isInstagramStyle = false;
-                getSinaStyle();
-                break;
-            case R.id.rb_we_chat_style:
-                themeId = R.style.picture_WeChat_style;
-                isWeChatStyle = true;
-                isInstagramStyle = false;
-                getWeChatStyle();
-                break;
-        }
-    }
-
-
-    private void getDefaultStyle() {
-        // 相册主题
-        mPictureParameterStyle = new PictureParameterStyle();
-        // 是否改变状态栏字体颜色(黑白切换)
-        mPictureParameterStyle.isChangeStatusBarFontColor = false;
-        // 是否开启右下角已完成(0/9)风格
-        mPictureParameterStyle.isOpenCompletedNumStyle = false;
-        // 是否开启类似QQ相册带数字选择风格
-        mPictureParameterStyle.isOpenCheckNumStyle = false;
-        // 相册状态栏背景色
-        mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#393a3e");
-        // 相册列表标题栏背景色
-        mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#393a3e");
-        // 相册列表标题栏右侧上拉箭头
-        mPictureParameterStyle.pictureTitleUpResId = R.drawable.picture_icon_arrow_up;
-        // 相册列表标题栏右侧下拉箭头
-        mPictureParameterStyle.pictureTitleDownResId = R.drawable.picture_icon_arrow_down;
-        // 相册文件夹列表选中圆点
-        mPictureParameterStyle.pictureFolderCheckedDotStyle = R.drawable.picture_orange_oval;
-        // 相册返回箭头
-        mPictureParameterStyle.pictureLeftBackIcon = R.drawable.picture_icon_back;
-        // 标题栏字体颜色
-        mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_white);
-        // 相册右侧取消按钮字体颜色  废弃 改用.pictureRightDefaultTextColor和.pictureRightDefaultTextColor
-        mPictureParameterStyle.pictureCancelTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_white);
-        // 相册列表勾选图片样式
-        mPictureParameterStyle.pictureCheckedStyle = R.drawable.picture_checkbox_selector;
-        // 相册列表底部背景色
-        mPictureParameterStyle.pictureBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_grey);
-        // 已选数量圆点背景样式
-        mPictureParameterStyle.pictureCheckNumBgStyle = R.drawable.picture_num_oval;
-        // 相册列表底下预览文字色值(预览按钮可点击时的色值)
-        mPictureParameterStyle.picturePreviewTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa632d);
-        // 相册列表底下不可预览文字色值(预览按钮不可点击时的色值)
-        mPictureParameterStyle.pictureUnPreviewTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_white);
-        // 相册列表已完成色值(已完成 可点击色值)
-        mPictureParameterStyle.pictureCompleteTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa632d);
-        // 相册列表未完成色值(请选择 不可点击色值)
-        mPictureParameterStyle.pictureUnCompleteTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_white);
-        // 预览界面底部背景色
-        mPictureParameterStyle.picturePreviewBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_grey);
-        // 外部预览界面删除按钮样式
-        mPictureParameterStyle.pictureExternalPreviewDeleteStyle = R.drawable.picture_icon_delete;
-        // 原图按钮勾选样式  需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalControlStyle = R.drawable.picture_original_wechat_checkbox;
-        // 原图文字颜色 需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalFontColor = ContextCompat.getColor(getContext(), R.color.app_color_white);
-        // 外部预览界面是否显示删除按钮
-        mPictureParameterStyle.pictureExternalPreviewGonePreviewDelete = true;
-        // 设置NavBar Color SDK Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP有效
-        mPictureParameterStyle.pictureNavBarColor = Color.parseColor("#393a3e");
-//        // 自定义相册右侧文本内容设置
-//        mPictureParameterStyle.pictureRightDefaultText = "";
-//        // 自定义相册未完成文本内容
-//        mPictureParameterStyle.pictureUnCompleteText = "";
-//        // 自定义相册完成文本内容
-//        mPictureParameterStyle.pictureCompleteText = "";
-//        // 自定义相册列表不可预览文字
-//        mPictureParameterStyle.pictureUnPreviewText = "";
-//        // 自定义相册列表预览文字
-//        mPictureParameterStyle.picturePreviewText = "";
-//
-//        // 自定义相册标题字体大小
-//        mPictureParameterStyle.pictureTitleTextSize = 18;
-//        // 自定义相册右侧文字大小
-//        mPictureParameterStyle.pictureRightTextSize = 14;
-//        // 自定义相册预览文字大小
-//        mPictureParameterStyle.picturePreviewTextSize = 14;
-//        // 自定义相册完成文字大小
-//        mPictureParameterStyle.pictureCompleteTextSize = 14;
-//        // 自定义原图文字大小
-//        mPictureParameterStyle.pictureOriginalTextSize = 14;
-
-        // 裁剪主题
-        mCropParameterStyle = new PictureCropParameterStyle(
-                ContextCompat.getColor(getContext(), R.color.app_color_grey),
-                ContextCompat.getColor(getContext(), R.color.app_color_grey),
-                Color.parseColor("#393a3e"),
-                ContextCompat.getColor(getContext(), R.color.app_color_white),
-                mPictureParameterStyle.isChangeStatusBarFontColor);
-    }
-
-    private void getWhiteStyle() {
-        // 相册主题
-        mPictureParameterStyle = new PictureParameterStyle();
-        // 是否改变状态栏字体颜色(黑白切换)
-        mPictureParameterStyle.isChangeStatusBarFontColor = true;
-        // 是否开启右下角已完成(0/9)风格
-        mPictureParameterStyle.isOpenCompletedNumStyle = false;
-        // 是否开启类似QQ相册带数字选择风格
-        mPictureParameterStyle.isOpenCheckNumStyle = true;
-        // 相册状态栏背景色
-        mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#FFFFFF");
-        // 相册列表标题栏背景色
-        mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#FFFFFF");
-        // 相册列表标题栏右侧上拉箭头
-        mPictureParameterStyle.pictureTitleUpResId = R.drawable.picture_arrow_up;
-        // 相册列表标题栏右侧下拉箭头
-        mPictureParameterStyle.pictureTitleDownResId = R.drawable.picture_arrow_down;
-        // 相册文件夹列表选中圆点
-        mPictureParameterStyle.pictureFolderCheckedDotStyle = R.drawable.picture_orange_oval;
-        // 相册返回箭头
-        mPictureParameterStyle.pictureLeftBackIcon = R.drawable.ic_back_arrow;
-        // 标题栏字体颜色
-        mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
-        // 相册右侧取消按钮字体颜色  废弃 改用.pictureRightDefaultTextColor和.pictureRightDefaultTextColor
-        mPictureParameterStyle.pictureRightDefaultTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_1766FF);
-        // 相册列表勾选图片样式
-        mPictureParameterStyle.pictureCheckedStyle = R.drawable.picture_instagram_num_selector;
-        // 相册列表底部背景色
-        mPictureParameterStyle.pictureBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa);
-        // 已选数量圆点背景样式
-        mPictureParameterStyle.pictureCheckNumBgStyle = R.drawable.picture_num_oval;
-        // 相册列表底下预览文字色值(预览按钮可点击时的色值)
-        mPictureParameterStyle.picturePreviewTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa632d);
-        // 相册列表底下不可预览文字色值(预览按钮不可点击时的色值)
-        mPictureParameterStyle.pictureUnPreviewTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_9b);
-        // 相册列表已完成色值(已完成 可点击色值)
-        mPictureParameterStyle.pictureCompleteTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa632d);
-        // 相册列表未完成色值(请选择 不可点击色值)
-        mPictureParameterStyle.pictureUnCompleteTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_9b);
-        // 预览界面底部背景色
-        mPictureParameterStyle.picturePreviewBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_white);
-        // 原图按钮勾选样式  需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalControlStyle = R.drawable.picture_original_checkbox;
-        // 原图文字颜色 需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalFontColor = ContextCompat.getColor(getContext(), R.color.app_color_53575e);
-        // 外部预览界面删除按钮样式
-        mPictureParameterStyle.pictureExternalPreviewDeleteStyle = R.drawable.picture_icon_black_delete;
-        // 外部预览界面是否显示删除按钮
-        mPictureParameterStyle.pictureExternalPreviewGonePreviewDelete = true;
-//        // 自定义相册右侧文本内容设置
-        mPictureParameterStyle.pictureRightDefaultText = "完成";
-//        // 自定义相册未完成文本内容
-//        mPictureParameterStyle.pictureUnCompleteText = "";
-//        // 自定义相册完成文本内容
-//        mPictureParameterStyle.pictureCompleteText = "";
-//        // 自定义相册列表不可预览文字
-//        mPictureParameterStyle.pictureUnPreviewText = "";
-//        // 自定义相册列表预览文字
-//        mPictureParameterStyle.picturePreviewText = "";
-
-//        // 自定义相册标题字体大小
-//        mPictureParameterStyle.pictureTitleTextSize = 18;
-//        // 自定义相册右侧文字大小
-//        mPictureParameterStyle.pictureRightTextSize = 14;
-//        // 自定义相册预览文字大小
-//        mPictureParameterStyle.picturePreviewTextSize = 14;
-//        // 自定义相册完成文字大小
-//        mPictureParameterStyle.pictureCompleteTextSize = 14;
-//        // 自定义原图文字大小
-//        mPictureParameterStyle.pictureOriginalTextSize = 14;
-
-        // 裁剪主题
-        mCropParameterStyle = new PictureCropParameterStyle(
-                ContextCompat.getColor(getContext(), R.color.app_color_white),
-                ContextCompat.getColor(getContext(), R.color.app_color_white),
-                ContextCompat.getColor(getContext(), R.color.app_color_black),
-                mPictureParameterStyle.isChangeStatusBarFontColor);
-    }
-
-    private void getNumStyle() {
-        // 相册主题
-        mPictureParameterStyle = new PictureParameterStyle();
-        // 是否改变状态栏字体颜色(黑白切换)
-        mPictureParameterStyle.isChangeStatusBarFontColor = false;
-        // 是否开启右下角已完成(0/9)风格
-        mPictureParameterStyle.isOpenCompletedNumStyle = false;
-        // 是否开启类似QQ相册带数字选择风格
-        mPictureParameterStyle.isOpenCheckNumStyle = true;
-        // 相册状态栏背景色
-        mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#7D7DFF");
-        // 相册列表标题栏背景色
-        mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#7D7DFF");
-        // 相册列表标题栏右侧上拉箭头
-        mPictureParameterStyle.pictureTitleUpResId = R.drawable.picture_icon_arrow_up;
-        // 相册列表标题栏右侧下拉箭头
-        mPictureParameterStyle.pictureTitleDownResId = R.drawable.picture_icon_arrow_down;
-        // 相册文件夹列表选中圆点
-        mPictureParameterStyle.pictureFolderCheckedDotStyle = R.drawable.picture_orange_oval;
-        // 相册返回箭头
-        mPictureParameterStyle.pictureLeftBackIcon = R.drawable.picture_icon_back;
-        // 标题栏字体颜色
-        mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(getContext(), R.color.app_color_white);
-        // 相册右侧取消按钮字体颜色  废弃 改用.pictureRightDefaultTextColor和.pictureRightDefaultTextColor
-        mPictureParameterStyle.pictureCancelTextColor = ContextCompat.getColor(getContext(), R.color.app_color_white);
-        // 相册列表勾选图片样式
-        mPictureParameterStyle.pictureCheckedStyle = R.drawable.checkbox_num_selector;
-        // 相册列表底部背景色
-        mPictureParameterStyle.pictureBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa);
-        // 已选数量圆点背景样式
-        mPictureParameterStyle.pictureCheckNumBgStyle = R.drawable.num_oval_blue;
-        // 相册列表底下预览文字色值(预览按钮可点击时的色值)
-        mPictureParameterStyle.picturePreviewTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_blue);
-        // 相册列表底下不可预览文字色值(预览按钮不可点击时的色值)
-        mPictureParameterStyle.pictureUnPreviewTextColor = ContextCompat.getColor(getContext(), R.color.app_color_blue);
-        // 相册列表已完成色值(已完成 可点击色值)
-        mPictureParameterStyle.pictureCompleteTextColor = ContextCompat.getColor(getContext(), R.color.app_color_blue);
-        // 相册列表未完成色值(请选择 不可点击色值)
-        mPictureParameterStyle.pictureUnCompleteTextColor = ContextCompat.getColor(getContext(), R.color.app_color_blue);
-        // 预览界面底部背景色
-        mPictureParameterStyle.picturePreviewBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa);
-        // 原图按钮勾选样式  需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalControlStyle = R.drawable.picture_original_blue_checkbox;
-        // 原图文字颜色 需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalFontColor = ContextCompat.getColor(getContext(), R.color.app_color_blue);
-        // 外部预览界面删除按钮样式
-        mPictureParameterStyle.pictureExternalPreviewDeleteStyle = R.drawable.picture_icon_delete;
-        // 外部预览界面是否显示删除按钮
-        mPictureParameterStyle.pictureExternalPreviewGonePreviewDelete = true;
-//        // 自定义相册右侧文本内容设置
-//        mPictureParameterStyle.pictureRightDefaultText = "";
-//        // 自定义相册未完成文本内容
-//        mPictureParameterStyle.pictureUnCompleteText = "";
-//        // 自定义相册完成文本内容
-//        mPictureParameterStyle.pictureCompleteText = "";
-//        // 自定义相册列表不可预览文字
-//        mPictureParameterStyle.pictureUnPreviewText = "";
-//        // 自定义相册列表预览文字
-//        mPictureParameterStyle.picturePreviewText = "";
-
-//        // 自定义相册标题字体大小
-//        mPictureParameterStyle.pictureTitleTextSize = 18;
-//        // 自定义相册右侧文字大小
-//        mPictureParameterStyle.pictureRightTextSize = 14;
-//        // 自定义相册预览文字大小
-//        mPictureParameterStyle.picturePreviewTextSize = 14;
-//        // 自定义相册完成文字大小
-//        mPictureParameterStyle.pictureCompleteTextSize = 14;
-//        // 自定义原图文字大小
-//        mPictureParameterStyle.pictureOriginalTextSize = 14;
-
-        // 裁剪主题
-        mCropParameterStyle = new PictureCropParameterStyle(
-                ContextCompat.getColor(getContext(), R.color.app_color_blue),
-                ContextCompat.getColor(getContext(), R.color.app_color_blue),
-                ContextCompat.getColor(getContext(), R.color.app_color_white),
-                mPictureParameterStyle.isChangeStatusBarFontColor);
-    }
-
-    private void getSinaStyle() {
-        // 相册主题
-        mPictureParameterStyle = new PictureParameterStyle();
-        // 是否改变状态栏字体颜色(黑白切换)
-        mPictureParameterStyle.isChangeStatusBarFontColor = true;
-        // 是否开启右下角已完成(0/9)风格
-        mPictureParameterStyle.isOpenCompletedNumStyle = true;
-        // 是否开启类似QQ相册带数字选择风格
-        mPictureParameterStyle.isOpenCheckNumStyle = false;
-        // 相册状态栏背景色
-        mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#FFFFFF");
-        // 相册列表标题栏背景色
-        mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#FFFFFF");
-        // 相册列表标题栏右侧上拉箭头
-        mPictureParameterStyle.pictureTitleUpResId = R.drawable.ic_orange_arrow_up;
-        // 相册列表标题栏右侧下拉箭头
-        mPictureParameterStyle.pictureTitleDownResId = R.drawable.ic_orange_arrow_down;
-        // 相册文件夹列表选中圆点
-        mPictureParameterStyle.pictureFolderCheckedDotStyle = R.drawable.picture_orange_oval;
-        // 相册返回箭头
-        mPictureParameterStyle.pictureLeftBackIcon = R.drawable.ic_back_arrow;
-        // 标题栏字体颜色
-        mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
-        // 相册右侧取消按钮字体颜色  废弃 改用.pictureRightDefaultTextColor和.pictureRightDefaultTextColor
-        mPictureParameterStyle.pictureCancelTextColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
-        // 相册列表勾选图片样式
-        mPictureParameterStyle.pictureCheckedStyle = R.drawable.picture_checkbox_selector;
-        // 相册列表底部背景色
-        mPictureParameterStyle.pictureBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa);
-        // 已选数量圆点背景样式
-        mPictureParameterStyle.pictureCheckNumBgStyle = R.drawable.picture_num_oval;
-        // 相册列表底下预览文字色值(预览按钮可点击时的色值)
-        mPictureParameterStyle.picturePreviewTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa632d);
-        // 相册列表底下不可预览文字色值(预览按钮不可点击时的色值)
-        mPictureParameterStyle.pictureUnPreviewTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_9b);
-        // 相册列表已完成色值(已完成 可点击色值)
-        mPictureParameterStyle.pictureCompleteTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa632d);
-        // 相册列表未完成色值(请选择 不可点击色值)
-        mPictureParameterStyle.pictureUnCompleteTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_9b);
-        // 预览界面底部背景色
-        mPictureParameterStyle.picturePreviewBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_fa);
-        // 原图按钮勾选样式  需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalControlStyle = R.drawable.picture_original_checkbox;
-        // 原图文字颜色 需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalFontColor = ContextCompat.getColor(getContext(), R.color.app_color_53575e);
-        // 外部预览界面删除按钮样式
-        mPictureParameterStyle.pictureExternalPreviewDeleteStyle = R.drawable.picture_icon_black_delete;
-        // 外部预览界面是否显示删除按钮
-        mPictureParameterStyle.pictureExternalPreviewGonePreviewDelete = true;
-//        // 自定义相册右侧文本内容设置
-//        mPictureParameterStyle.pictureRightDefaultText = "";
-        // 完成文案是否采用(%1$d/%2$d)的字符串，只允许俩个占位符哟
-//        mPictureParameterStyle.isCompleteReplaceNum = true;
-//        // 自定义相册未完成文本内容
-//        mPictureParameterStyle.pictureUnCompleteText = "请选择";
-        // 自定义相册完成文本内容，已经支持两个占位符String 但isCompleteReplaceNum必须为true
-//        mPictureParameterStyle.pictureCompleteText = getString(R.string.app_wechat_send_num);
-//        // 自定义相册列表不可预览文字
-//        mPictureParameterStyle.pictureUnPreviewText = "";
-//        // 自定义相册列表预览文字
-//        mPictureParameterStyle.picturePreviewText = "";
-
-//        // 自定义相册标题字体大小
-//        mPictureParameterStyle.pictureTitleTextSize = 18;
-//        // 自定义相册右侧文字大小
-//        mPictureParameterStyle.pictureRightTextSize = 14;
-//        // 自定义相册预览文字大小
-//        mPictureParameterStyle.picturePreviewTextSize = 14;
-//        // 自定义相册完成文字大小
-//        mPictureParameterStyle.pictureCompleteTextSize = 14;
-//        // 自定义原图文字大小
-//        mPictureParameterStyle.pictureOriginalTextSize = 14;
-        // 裁剪主题
-        mCropParameterStyle = new PictureCropParameterStyle(
-                ContextCompat.getColor(getContext(), R.color.app_color_white),
-                ContextCompat.getColor(getContext(), R.color.app_color_white),
-                ContextCompat.getColor(getContext(), R.color.app_color_black),
-                mPictureParameterStyle.isChangeStatusBarFontColor);
-    }
-
-
-    private void getWeChatStyle() {
-        // 相册主题
-        mPictureParameterStyle = new PictureParameterStyle();
-        // 是否改变状态栏字体颜色(黑白切换)
-        mPictureParameterStyle.isChangeStatusBarFontColor = false;
-        // 是否开启右下角已完成(0/9)风格
-        mPictureParameterStyle.isOpenCompletedNumStyle = false;
-        // 是否开启类似QQ相册带数字选择风格
-        mPictureParameterStyle.isOpenCheckNumStyle = true;
-        // 状态栏背景色
-        mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#393a3e");
-        // 相册列表标题栏背景色
-        mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#393a3e");
-        // 相册父容器背景色
-        mPictureParameterStyle.pictureContainerBackgroundColor = ContextCompat.getColor(getContext(), R.color.app_color_black);
-        // 相册列表标题栏右侧上拉箭头
-        mPictureParameterStyle.pictureTitleUpResId = R.drawable.picture_icon_wechat_up;
-        // 相册列表标题栏右侧下拉箭头
-        mPictureParameterStyle.pictureTitleDownResId = R.drawable.picture_icon_wechat_down;
-        // 相册文件夹列表选中圆点
-        mPictureParameterStyle.pictureFolderCheckedDotStyle = R.drawable.picture_orange_oval;
-        // 相册返回箭头
-        mPictureParameterStyle.pictureLeftBackIcon = R.drawable.picture_icon_close;
-        // 标题栏字体颜色
-        mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_white);
-        // 相册右侧按钮字体颜色  废弃 改用.pictureRightDefaultTextColor和.pictureRightDefaultTextColor
-        mPictureParameterStyle.pictureCancelTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_53575e);
-        // 相册右侧按钮字体默认颜色
-        mPictureParameterStyle.pictureRightDefaultTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_53575e);
-        // 相册右侧按可点击字体颜色,只针对isWeChatStyle 为true时有效果
-        mPictureParameterStyle.pictureRightSelectedTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_white);
-        // 相册右侧按钮背景样式,只针对isWeChatStyle 为true时有效果
-        mPictureParameterStyle.pictureUnCompleteBackgroundStyle = R.drawable.picture_send_button_default_bg;
-        // 相册右侧按钮可点击背景样式,只针对isWeChatStyle 为true时有效果
-        mPictureParameterStyle.pictureCompleteBackgroundStyle = R.drawable.picture_send_button_bg;
-        // 相册列表勾选图片样式
-        mPictureParameterStyle.pictureCheckedStyle = R.drawable.picture_wechat_num_selector;
-        // 相册标题背景样式 ,只针对isWeChatStyle 为true时有效果
-        mPictureParameterStyle.pictureWeChatTitleBackgroundStyle = R.drawable.picture_album_bg;
-        // 微信样式 预览右下角样式 ,只针对isWeChatStyle 为true时有效果
-        mPictureParameterStyle.pictureWeChatChooseStyle = R.drawable.picture_wechat_select_cb;
-        // 相册返回箭头 ,只针对isWeChatStyle 为true时有效果
-        mPictureParameterStyle.pictureWeChatLeftBackStyle = R.drawable.picture_icon_back;
-        // 相册列表底部背景色
-        mPictureParameterStyle.pictureBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_grey);
-        // 已选数量圆点背景样式
-        mPictureParameterStyle.pictureCheckNumBgStyle = R.drawable.picture_num_oval;
-        // 相册列表底下预览文字色值(预览按钮可点击时的色值)
-        mPictureParameterStyle.picturePreviewTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_white);
-        // 相册列表底下不可预览文字色值(预览按钮不可点击时的色值)
-        mPictureParameterStyle.pictureUnPreviewTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_9b);
-        // 相册列表已完成色值(已完成 可点击色值)
-        mPictureParameterStyle.pictureCompleteTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_white);
-        // 相册列表未完成色值(请选择 不可点击色值)
-        mPictureParameterStyle.pictureUnCompleteTextColor = ContextCompat.getColor(getContext(), R.color.picture_color_53575e);
-        // 预览界面底部背景色
-        mPictureParameterStyle.picturePreviewBottomBgColor = ContextCompat.getColor(getContext(), R.color.picture_color_half_grey);
-        // 外部预览界面删除按钮样式
-        mPictureParameterStyle.pictureExternalPreviewDeleteStyle = R.drawable.picture_icon_delete;
-        // 原图按钮勾选样式  需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalControlStyle = R.drawable.picture_original_wechat_checkbox;
-        // 原图文字颜色 需设置.isOriginalImageControl(true); 才有效
-        mPictureParameterStyle.pictureOriginalFontColor = ContextCompat.getColor(getContext(), R.color.app_color_white);
-        // 外部预览界面是否显示删除按钮
-        mPictureParameterStyle.pictureExternalPreviewGonePreviewDelete = true;
-        // 设置NavBar Color SDK Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP有效
-        mPictureParameterStyle.pictureNavBarColor = Color.parseColor("#393a3e");
-
-        // 完成文案是否采用(%1$d/%2$d)的字符串，只允许两个占位符哟
-//        mPictureParameterStyle.isCompleteReplaceNum = true;
-        // 自定义相册右侧文本内容设置
-//        mPictureParameterStyle.pictureUnCompleteText = getString(R.string.app_wechat_send);
-        //自定义相册右侧已选中时文案 支持占位符String 但只支持两个 必须isCompleteReplaceNum为true
-//        mPictureParameterStyle.pictureCompleteText = getString(R.string.app_wechat_send_num);
-//        // 自定义相册列表不可预览文字
-//        mPictureParameterStyle.pictureUnPreviewText = "";
-//        // 自定义相册列表预览文字
-//        mPictureParameterStyle.picturePreviewText = "";
-//        // 自定义预览页右下角选择文字文案
-//        mPictureParameterStyle.pictureWeChatPreviewSelectedText = "";
-
-//        // 自定义相册标题文字大小
-//        mPictureParameterStyle.pictureTitleTextSize = 9;
-//        // 自定义相册右侧文字大小
-//        mPictureParameterStyle.pictureRightTextSize = 9;
-//        // 自定义相册预览文字大小
-//        mPictureParameterStyle.picturePreviewTextSize = 9;
-//        // 自定义相册完成文字大小
-//        mPictureParameterStyle.pictureCompleteTextSize = 9;
-//        // 自定义原图文字大小
-//        mPictureParameterStyle.pictureOriginalTextSize = 9;
-//        // 自定义预览页右下角选择文字大小
-//        mPictureParameterStyle.pictureWeChatPreviewSelectedTextSize = 9;
-
-        // 裁剪主题
-        mCropParameterStyle = new PictureCropParameterStyle(
-                ContextCompat.getColor(getContext(), R.color.app_color_grey),
-                ContextCompat.getColor(getContext(), R.color.app_color_grey),
-                Color.parseColor("#393a3e"),
-                ContextCompat.getColor(getContext(), R.color.app_color_white),
-                mPictureParameterStyle.isChangeStatusBarFontColor);
-    }
-
-    private int x = 0, y = 0;
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        switch (buttonView.getId()) {
-            case R.id.cb_crop:
-                rgb_crop.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-                cb_hide.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-                cb_crop_circular.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-                cb_styleCrop.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-                cb_showCropFrame.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-                cb_showCropGrid.setVisibility(isChecked ? View.VISIBLE : View.GONE);
-                break;
-            case R.id.cb_crop_circular:
-                if (isChecked) {
-                    x = aspect_ratio_x;
-                    y = aspect_ratio_y;
-                    aspect_ratio_x = 1;
-                    aspect_ratio_y = 1;
-                } else {
-                    aspect_ratio_x = x;
-                    aspect_ratio_y = y;
-                }
-                rgb_crop.setVisibility(isChecked ? View.GONE : View.VISIBLE);
-                if (isChecked) {
-                    cb_showCropFrame.setChecked(false);
-                    cb_showCropGrid.setChecked(false);
-                } else {
-                    cb_showCropFrame.setChecked(true);
-                    cb_showCropGrid.setChecked(true);
-                }
+            case R.id.rb_dark_blue_style:
+                InsGallery.setCurrentTheme(InsGallery.THEME_STYLE_DARK_BLUE);
                 break;
         }
     }
@@ -1303,10 +490,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private static class OnResultCallbackListenerImpl implements OnResultCallbackListener<LocalMedia> {
-        private WeakReference<MainActivity> mMainActivity;
+        private WeakReference<GridImageAdapter> mAdapter;
 
-        public OnResultCallbackListenerImpl(MainActivity mainActivity) {
-            mMainActivity = new WeakReference<>(mainActivity);
+        public OnResultCallbackListenerImpl(GridImageAdapter adapter) {
+            mAdapter = new WeakReference<>(adapter);
         }
 
         @Override
@@ -1322,10 +509,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "Android Q 特有Path:" + media.getAndroidQToPath());
                 Log.i(TAG, "Size: " + media.getSize());
             }
-            MainActivity mainActivity = mMainActivity.get();
-            if (mainActivity != null) {
-                mainActivity.mAdapter.setList(result);
-                mainActivity.mAdapter.notifyDataSetChanged();
+            GridImageAdapter adapter = mAdapter.get();
+            if (adapter != null) {
+                adapter.setList(result);
+                adapter.notifyDataSetChanged();
             }
         }
 

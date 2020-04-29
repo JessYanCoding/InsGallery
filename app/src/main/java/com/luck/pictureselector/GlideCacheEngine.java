@@ -11,7 +11,7 @@ import java.io.File;
  * @date：2020-03-24 09:48
  * @describe：GlideCacheResources管理类
  */
-public class GlideCacheResourcesManager implements CacheResourcesEngine {
+public class GlideCacheEngine implements CacheResourcesEngine {
     /**
      * glide版本号,请根据用户集成为准 这里只是模拟
      */
