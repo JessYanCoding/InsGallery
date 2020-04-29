@@ -193,16 +193,19 @@ public final class InsGallery {
             return new PictureCropParameterStyle(
                     Color.parseColor("#1C1C1E"),
                     Color.parseColor("#1C1C1E"),
+                    Color.parseColor("#1C1C1E"),
                     ContextCompat.getColor(context, R.color.picture_color_white),
                     false);
         } else if (currentTheme == THEME_STYLE_DARK_BLUE){
             return new PictureCropParameterStyle(
                     Color.parseColor("#213040"),
                     Color.parseColor("#213040"),
+                    Color.parseColor("#213040"),
                     ContextCompat.getColor(context, R.color.picture_color_white),
                     false);
         }
         return new PictureCropParameterStyle(
+                ContextCompat.getColor(context, R.color.picture_color_white),
                 ContextCompat.getColor(context, R.color.picture_color_white),
                 ContextCompat.getColor(context, R.color.picture_color_white),
                 ContextCompat.getColor(context, R.color.picture_color_black),
