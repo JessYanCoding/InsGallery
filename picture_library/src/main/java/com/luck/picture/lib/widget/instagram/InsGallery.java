@@ -33,10 +33,14 @@ public final class InsGallery {
     public static final int THEME_STYLE_DEFAULT = 0;
     public static final int THEME_STYLE_DARK = 1;
     public static final int THEME_STYLE_DARK_BLUE = 2;
-    public static int currentTheme = THEME_STYLE_DARK;
+    public static int currentTheme = THEME_STYLE_DEFAULT;
 
     private InsGallery() {
         throw new IllegalStateException("you can't instantiate me!");
+    }
+
+    public static void openGallery(Activity activity, ImageEngine engine, OnResultCallbackListener listener) {
+        openGallery(activity, engine, null, null, listener);
     }
 
     public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, OnResultCallbackListener listener) {

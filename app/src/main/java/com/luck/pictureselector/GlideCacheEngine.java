@@ -29,4 +29,20 @@ public class GlideCacheResourcesManager implements CacheResourcesEngine {
         }
         return cacheFile != null ? cacheFile.getAbsolutePath() : "";
     }
+
+    private GlideCacheEngine() {
+    }
+
+    private static GlideCacheEngine instance;
+
+    public static GlideCacheEngine createCacheEngine() {
+        if (null == instance) {
+            synchronized (GlideCacheEngine.class) {
+                if (null == instance) {
+                    instance = new GlideCacheEngine();
+                }
+            }
+        }
+        return instance;
+    }
 }
