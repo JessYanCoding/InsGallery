@@ -1,6 +1,9 @@
 ![Logo](art/banner.jpg)
 
-# InsGallery
+<p align="center">
+   <b>InsGallery</b>
+</p>
+
 Instagram-like image picker for Android (一款 UI 炫酷高仿 Instagram 的图片、视频选择器)
 
 ## Overview
@@ -31,6 +34,7 @@ Instagram-like image picker for Android (一款 UI 炫酷高仿 Instagram 的图
    <img src="art/style_dark_blue_photo.jpg" width="30%" height="30%">
    <img src="art/style_dark_blue_video.jpg" width="30%" height="30%">
 </p>
+
   
  ## About Me
  * **微信公众号**: **JessYan**
