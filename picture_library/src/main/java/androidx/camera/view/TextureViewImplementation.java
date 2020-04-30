@@ -88,6 +88,9 @@ public class TextureViewImplementation implements PreviewView.Implementation {
     }
 
     private TextureView getTextureView() {
+        if (mWeakReferenceTextureView == null) {
+            return null;
+        }
         return mWeakReferenceTextureView.get();
     }
 
