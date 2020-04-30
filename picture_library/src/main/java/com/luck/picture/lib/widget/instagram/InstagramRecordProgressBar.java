@@ -91,7 +91,7 @@ public class InstagramRecordProgressBar extends View {
 
     private void updateProgress(long millisUntilFinished) {
         progress = (mMaxTime - millisUntilFinished) * 1.0f / mMaxTime * getMeasuredWidth();
-        invalidate();
+//        invalidate();
     }
 
     public void release() {
