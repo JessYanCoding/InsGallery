@@ -17,6 +17,8 @@
 
 
 ## Overview
+![gif](art/overview.gif)
+
 ### Feature
 <p>
    <img src="art/feature_crop_photo.jpg" width="30%" height="30%">
@@ -55,7 +57,7 @@
 
  ## License
  ```
-  Copyright 2020, jessyan
+  Copyright 2020, JessYan
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
