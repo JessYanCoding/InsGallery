@@ -328,6 +328,16 @@ public class InstagramCameraView extends FrameLayout {
         InstagramUtils.setViewVisibility(mCameraEmptyView, visibility);
     }
 
+    public void onResume() {
+        if (mCameraView != null && mCameraView.isRecording()) {
+            mCameraView.stopRecording();
+        }
+    }
+
+    public void onPause() {
+
+    }
+
     @SuppressLint("RestrictedApi")
     public void release() {
         if (mCaptureLayout != null) {

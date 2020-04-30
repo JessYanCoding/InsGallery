@@ -220,8 +220,14 @@ public class InstagramCaptureLayout extends FrameLayout {
             }
             if (mCameraState == InstagramCameraView.STATE_RECORDER) {
                 mRecordButton.pressButton(false);
-                mHandler.removeMessages(TIMER);
                 mHandler.removeMessages(LONG_PRESS);
+                if (mInLongPress && !mIsRecordEnd) {
+                    mHandler.removeMessages(TIMER);
+                    mRecordIndicator.stopIndicatorAnimation();
+                    mRecordIndicator.setVisibility(View.INVISIBLE);
+                    mRecordProgressBar.stopRecord();
+                    mRecordedTime = 0;
+                }
                 mInLongPress = false;
             }
         }

@@ -54,6 +54,20 @@ public class PagePhoto implements Page {
     }
 
     @Override
+    public void onResume() {
+        if (mInstagramCameraView != null) {
+            mInstagramCameraView.onResume();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (mInstagramCameraView != null) {
+            mInstagramCameraView.onPause();
+        }
+    }
+
+    @Override
     public void onDestroy() {
         if (mInstagramCameraView != null) {
             mInstagramCameraView.release();
