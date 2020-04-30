@@ -1,4 +1,13 @@
 ![Logo](art/banner.jpg)
+<p align="center">
+  <img src="https://img.shields.io/badge/%F0%9F%93%81-Albums-brightgreen.svg?style=?style=flat-square"/>
+  <img src="https://img.shields.io/badge/%F0%9F%93%B7-Photo-brightgreen.svg?style=?style=flat-square"/>
+  <img src="https://img.shields.io/badge/%F0%9F%8E%A5-Video-brightgreen.svg?style=?style=flat-square"/>
+  <img src="https://img.shields.io/badge/%F0%9F%96%A5-Preview%20Photo/Video-brightgreen.svg?style=?style=flat-square"/>
+  <img src="https://img.shields.io/badge/%E2%9C%82-Crop-brightgreen.svg?style=?style=flat-square"/>
+  <img src="https://img.shields.io/badge/%F0%9F%8C%99-Dark%20Mode-brightgreen.svg?style=?style=flat-square"/>
+  <img src="https://img.shields.io/badge/%F0%9F%94%A2-Multiple%20Selection-brightgreen.svg?style=?style=flat-square"/>
+</p>
 
 <p align="center">
   <b>InsGallery</b>
@@ -7,18 +16,6 @@
 <p align="center">
   <b>Instagram-like image picker for Android (一款 UI 炫酷高仿 Instagram 的图片、视频选择器)</b>
 </p>
-
-## Notable Features
-
-🌅 Library  
-📷 Photo  
-🎥 Video  
-🖥 Preview Photo/Video  
-🔢 Multiple Selection  
-✂️ Crop  
-🌙 Dark Mode  
-
-And many more...  
 
 
 ## Overview
