@@ -5,8 +5,8 @@
   <img src="https://img.shields.io/badge/%F0%9F%8E%A5-Video-brightgreen.svg?style=?style=flat-square"/>
   <img src="https://img.shields.io/badge/%F0%9F%96%A5-Preview%20Photo/Video-brightgreen.svg?style=?style=flat-square"/>
   <img src="https://img.shields.io/badge/%E2%9C%82-Crop-brightgreen.svg?style=?style=flat-square"/>
-  <img src="https://img.shields.io/badge/%F0%9F%8C%99-Dark%20Mode-brightgreen.svg?style=?style=flat-square"/>
   <img src="https://img.shields.io/badge/%F0%9F%94%A2-Multiple%20Selection-brightgreen.svg?style=?style=flat-square"/>
+  <img src="https://img.shields.io/badge/%F0%9F%8C%99-Dark%20Mode-brightgreen.svg?style=?style=flat-square"/>
 </p>
 
 <h2 align="center">InsGallery</h1>
