@@ -15,10 +15,11 @@
   <b>Instagram-like image picker for Android (一款 UI 炫酷高仿 Instagram 的图片、视频选择器)</b>
 </p>
 
+<p align="center">
+  <img src="art/overview.gif"/>
+</p>
 
 ## Overview
-![gif](art/overview.gif)
-
 ### Feature
 <p>
    <img src="art/feature_crop_photo.jpg" width="30%" height="30%">
