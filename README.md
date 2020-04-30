@@ -9,7 +9,7 @@
   <img src="https://img.shields.io/badge/%F0%9F%94%A2-Multiple%20Selection-brightgreen.svg?style=?style=flat-square"/>
 </p>
 
-<h1 align="center">InsGallery</h1>
+<h2 align="center">InsGallery</h1>
 
 <p align="center">
   <b>Instagram-like image picker for Android (一款 UI 炫酷高仿 Instagram 的图片、视频选择器)</b>
