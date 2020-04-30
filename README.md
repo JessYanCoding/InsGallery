@@ -19,11 +19,14 @@
 ⇣
 </p>
 
-
 <p align="center">
   <img src="art/overview.gif"/>
 </p>
 
+## Usage
+```java
+InsGallery.openGallery(Activity, GlideEngine.createGlideEngine(), new OnResultCallbackListenerImpl(mAdapter));
+```
 
 ## Overview
 ### Feature
