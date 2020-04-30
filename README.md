@@ -25,9 +25,7 @@
 
 ## Usage
 ```java
-InsGallery.openGallery(Activity,
-        GlideEngine.createGlideEngine(),
-        new OnResultCallbackListenerImpl(mAdapter));
+InsGallery.openGallery(Activity, GlideEngine.createGlideEngine(), new OnResultCallbackListenerImpl(mAdapter));
 ```
 
 ## Overview
