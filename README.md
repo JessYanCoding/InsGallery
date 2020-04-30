@@ -17,7 +17,9 @@
 
 
 ## Overview
-![gif](art/overview.gif)
+<p align="center">
+  <img src="art/overview.gif"/>
+</p>
 
 ### Feature
 <p>
