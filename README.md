@@ -16,9 +16,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/LuckSiege/PictureSelector">
-    <b>Powered by the PictureSelector</b>
-  </a>
+  <b>Powered by <a href="https://github.com/LuckSiege/PictureSelector">PictureSelector</a></b>
 </p>
 
 <p align="center">
