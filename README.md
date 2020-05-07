@@ -29,6 +29,11 @@
   <img src="art/overview.gif"/>
 </p>
 
+## Download
+``` gradle
+ implementation 'me.jessyan:insgallery:0.1.5'
+```
+
 ## Usage
 ```java
 InsGallery.openGallery(Activity, GlideEngine.createGlideEngine(), new OnResultCallbackListenerImpl(mAdapter));
