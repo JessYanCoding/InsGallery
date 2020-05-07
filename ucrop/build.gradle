@@ -24,10 +24,9 @@ android {
     }
     lintOptions {
         abortOnError false
+        warning 'InvalidPackage'
     }
-
     resourcePrefix 'ucrop_'
-
 }
 
 dependencies {
@@ -36,3 +35,5 @@ dependencies {
     implementation "androidx.transition:transition:${cfgs.androidx_transition_version}"
     implementation "androidx.recyclerview:recyclerview:${cfgs.version_recyclerview}"
 }
+
+apply from: 'bintray.gradle'

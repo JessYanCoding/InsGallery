@@ -16,16 +16,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        abortOnError false
+        warning 'InvalidPackage'
     }
 }
 
 dependencies {
     implementation project(':picture_library')
+//    implementation 'me.jessyan:insgallery:0.1.5'
     //noinspection GradleCompatible
     implementation "androidx.appcompat:appcompat:${cfgs.version_appcompat}"
     //noinspection GradleCompatible

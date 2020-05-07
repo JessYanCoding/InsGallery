@@ -1,0 +1,21 @@
+apply plugin: 'com.novoda.bintray-release'
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+    tasks.withType(Javadoc) {
+        enabled = false
+    }
+}
+
+def siteUrl = 'https://github.com/Yalantis/uCrop'   // 项目的主页
+
+publish {
+    userOrg = 'jessyancoding'      //bintray注册的用户名
+    groupId = 'me.jessyan'         //compile引用时的第1部分groupId
+    artifactId = 'ucrop'     //compile引用时的第2部分项目名
+    publishVersion = cfgs.ucropVersionName    //compile引用时的第3部分版本号
+    desc = 'Image Cropping Library for Android.'
+    website = siteUrl
+}
