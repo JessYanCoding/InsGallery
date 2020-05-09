@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 
+import com.luck.picture.lib.PictureSelectionModel;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureConfig;
@@ -47,17 +48,23 @@ public final class InsGallery {
         openGallery(activity, engine, cacheResourcesEngine, null, listener);
     }
 
-    @SuppressLint("SourceLockedOrientationActivity")
     public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, List<LocalMedia> selectionMedia, OnResultCallbackListener listener) {
-        PictureSelector.create(activity)
-                .openGallery(PictureMimeType.ofAll())// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
+        applyInstagramOptions(activity.getApplicationContext(), PictureSelector.create(activity)
+                .openGallery(PictureMimeType.ofAll()))// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
                 .loadImageEngine(engine)// 外部传入图片加载引擎，必传项
+                .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
+                .selectionMedia(selectionMedia)// 是否传入已选图片
+                .forResult(listener);
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    public static PictureSelectionModel applyInstagramOptions(Context context, PictureSelectionModel selectionModel) {
+        return selectionModel
                 .isInstagramStyle(true)
-                .setPictureStyle(createInstagramStyle(activity.getApplicationContext()))// 动态自定义相册主题
-                .setPictureCropStyle(createInstagramCropStyle(activity.getApplicationContext()))// 动态自定义裁剪主题
+                .setPictureStyle(createInstagramStyle(context))// 动态自定义相册主题
+                .setPictureCropStyle(createInstagramCropStyle(context))// 动态自定义裁剪主题
                 .setPictureWindowAnimationStyle(new PictureWindowAnimationStyle())// 自定义相册启动退出动画
                 .isWithVideoImage(false)// 图片和视频是否可以同选,只在ofAll模式下有效
-                .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
                 .maxSelectNum(9)// 最大图片选择数量
                 .minSelectNum(1)// 最小选择数量
                 .maxVideoSelectNum(1) // 视频最大选择数量，如果没有单独设置的需求则可以不设置，同用maxSelectNum字段
@@ -88,7 +95,6 @@ public final class InsGallery {
                 .showCropFrame(true)// 是否显示裁剪矩形边框 圆形裁剪时建议设为false
                 .showCropGrid(true)// 是否显示裁剪矩形网格 圆形裁剪时建议设为false
                 .openClickSound(true)// 是否开启点击声音
-                .selectionMedia(selectionMedia)// 是否传入已选图片
                 //.isDragFrame(false)// 是否可拖动裁剪框(固定)
                 //.videoMinSecond(10)
                 .videoMaxSecond(120)
@@ -101,7 +107,7 @@ public final class InsGallery {
                 //.videoQuality()// 视频录制质量 0 or 1
                 //.videoSecond()//显示多少秒以内的视频or音频也可适用
                 //.forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
-                .forResult(listener);
+                ;
     }
 
     public static PictureParameterStyle createInstagramStyle(Context context) {
