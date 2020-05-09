@@ -57,6 +57,24 @@ public final class InsGallery {
                 .forResult(listener);
     }
 
+    public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, List<LocalMedia> selectionMedia) {
+        applyInstagramOptions(activity.getApplicationContext(), PictureSelector.create(activity)
+                .openGallery(PictureMimeType.ofAll()))// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
+                .loadImageEngine(engine)// 外部传入图片加载引擎，必传项
+                .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
+                .selectionMedia(selectionMedia)// 是否传入已选图片
+                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+    }
+
+    public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, List<LocalMedia> selectionMedia, int requestCode) {
+        applyInstagramOptions(activity.getApplicationContext(), PictureSelector.create(activity)
+                .openGallery(PictureMimeType.ofAll()))// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
+                .loadImageEngine(engine)// 外部传入图片加载引擎，必传项
+                .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
+                .selectionMedia(selectionMedia)// 是否传入已选图片
+                .forResult(requestCode);//结果回调onActivityResult code
+    }
+
     @SuppressLint("SourceLockedOrientationActivity")
     public static PictureSelectionModel applyInstagramOptions(Context context, PictureSelectionModel selectionModel) {
         return selectionModel
@@ -106,7 +124,6 @@ public final class InsGallery {
                 //.scaleEnabled(false)// 裁剪是否可放大缩小图片
                 //.videoQuality()// 视频录制质量 0 or 1
                 //.videoSecond()//显示多少秒以内的视频or音频也可适用
-                //.forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
                 ;
     }
 
