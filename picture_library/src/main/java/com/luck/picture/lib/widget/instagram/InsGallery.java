@@ -25,6 +25,14 @@ import androidx.core.content.ContextCompat;
 
 /**
  * ================================================
+ * 此类只是作为 InsGallery 的快捷入口, 帮助开发者快速上手,
+ * 如果你需要更多的自定义功能还是需要调用 PictureSelector 的接口传入需要自定义的参数,
+ * 使用 {@link #applyInstagramOptions(Context, PictureSelectionModel)} 方法即可快速应用 InsGallery 需要的所有设置
+ * <p>
+ * 你可以理解为 InsGallery 就是依赖于 PictureSelector 创建的一套皮肤, 所以我不会大改他的代码, 尽量沿用他本身的设计
+ * 依赖于强大的开源社区后, InsGallery 就可以在保证稳定性的情况下, 拥有更多的精力去实现 UI 效果, 尽量还原一个产品级的 Instagram Gallery
+ * InsGallery 使用纯编码, 0 xml 的方式构建, 所有父容器都是使用 FrameLayout 自定义完成, 在保证效率的同时，拥有高度的灵活性。
+ * <p>
  * Created by JessYan on 2020/4/27 18:07
  * <a href="mailto:jess.yan.effort@gmail.com">Contact me</a>
  * <a href="https://github.com/JessYanCoding">Follow me</a>
@@ -143,7 +151,7 @@ public final class InsGallery {
         // 相册状态栏背景色
         if (currentTheme == THEME_STYLE_DARK) {
             mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#1C1C1E");
-        } else if (currentTheme == THEME_STYLE_DARK_BLUE){
+        } else if (currentTheme == THEME_STYLE_DARK_BLUE) {
             mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#213040");
         } else {
             mPictureParameterStyle.pictureStatusBarColor = Color.parseColor("#FFFFFF");
@@ -151,7 +159,7 @@ public final class InsGallery {
         // 相册列表标题栏背景色
         if (currentTheme == THEME_STYLE_DARK) {
             mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#1C1C1E");
-        } else if (currentTheme == THEME_STYLE_DARK_BLUE){
+        } else if (currentTheme == THEME_STYLE_DARK_BLUE) {
             mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#213040");
         } else {
             mPictureParameterStyle.pictureTitleBarBackgroundColor = Color.parseColor("#FFFFFF");
@@ -167,7 +175,7 @@ public final class InsGallery {
         // 标题栏字体颜色
         if (currentTheme == THEME_STYLE_DARK) {
             mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(context, R.color.picture_color_white);
-        } else if (currentTheme == THEME_STYLE_DARK_BLUE){
+        } else if (currentTheme == THEME_STYLE_DARK_BLUE) {
             mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(context, R.color.picture_color_white);
         } else {
             mPictureParameterStyle.pictureTitleTextColor = ContextCompat.getColor(context, R.color.picture_color_black);
@@ -175,7 +183,7 @@ public final class InsGallery {
         // 相册右侧取消按钮字体颜色  废弃 改用.pictureRightDefaultTextColor和.pictureRightDefaultTextColor
         if (currentTheme == THEME_STYLE_DARK) {
             mPictureParameterStyle.pictureRightDefaultTextColor = ContextCompat.getColor(context, R.color.picture_color_white);
-        } else if (currentTheme == THEME_STYLE_DARK_BLUE){
+        } else if (currentTheme == THEME_STYLE_DARK_BLUE) {
             mPictureParameterStyle.pictureRightDefaultTextColor = Color.parseColor("#2FA6FF");
         } else {
             mPictureParameterStyle.pictureRightDefaultTextColor = ContextCompat.getColor(context, R.color.picture_color_1766FF);
@@ -183,7 +191,7 @@ public final class InsGallery {
         // 相册父容器背景色
         if (currentTheme == THEME_STYLE_DARK) {
             mPictureParameterStyle.pictureContainerBackgroundColor = ContextCompat.getColor(context, R.color.picture_color_black);
-        } else if (currentTheme == THEME_STYLE_DARK_BLUE){
+        } else if (currentTheme == THEME_STYLE_DARK_BLUE) {
             mPictureParameterStyle.pictureContainerBackgroundColor = Color.parseColor("#18222D");
         } else {
             mPictureParameterStyle.pictureContainerBackgroundColor = ContextCompat.getColor(context, R.color.picture_color_white);
@@ -219,7 +227,7 @@ public final class InsGallery {
                     Color.parseColor("#1C1C1E"),
                     ContextCompat.getColor(context, R.color.picture_color_white),
                     false);
-        } else if (currentTheme == THEME_STYLE_DARK_BLUE){
+        } else if (currentTheme == THEME_STYLE_DARK_BLUE) {
             return new PictureCropParameterStyle(
                     Color.parseColor("#213040"),
                     Color.parseColor("#213040"),
