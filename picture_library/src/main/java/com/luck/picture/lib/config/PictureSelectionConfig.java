@@ -4,6 +4,9 @@ import android.content.pm.ActivityInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.StyleRes;
+
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.camera.CustomCameraView;
 import com.luck.picture.lib.engine.CacheResourcesEngine;
@@ -19,16 +22,13 @@ import com.luck.picture.lib.style.PictureWindowAnimationStyle;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.StyleRes;
-
 /**
  * @author：luck
  * @date：2017-05-24 17:02
  * @describe：PictureSelector Config
  */
 
-public final class PictureSelectionConfig implements Parcelable {
+public class PictureSelectionConfig implements Parcelable {
     public int chooseMode;
     public boolean camera;
     public boolean isSingleDirectReturn;
@@ -70,7 +70,6 @@ public final class PictureSelectionConfig implements Parcelable {
     public boolean isMultipleRecyclerAnimation;
     public boolean isMultipleSkipCrop;
     public boolean isWeChatStyle;
-    public boolean isInstagramStyle;
     public boolean isUseCustomCamera;
     public boolean zoomAnim;
     public boolean isCompress;
@@ -194,7 +193,6 @@ public final class PictureSelectionConfig implements Parcelable {
         isFallbackVersion3 = true;
         enableCrop = false;
         isWeChatStyle = false;
-        isInstagramStyle = false;
         isUseCustomCamera = false;
         isMultipleSkipCrop = true;
         isMultipleRecyclerAnimation = true;
@@ -312,7 +310,6 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeByte(this.isMultipleRecyclerAnimation ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isMultipleSkipCrop ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isWeChatStyle ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isInstagramStyle ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isUseCustomCamera ? (byte) 1 : (byte) 0);
         dest.writeByte(this.zoomAnim ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isCompress ? (byte) 1 : (byte) 0);
@@ -407,7 +404,6 @@ public final class PictureSelectionConfig implements Parcelable {
         this.isMultipleRecyclerAnimation = in.readByte() != 0;
         this.isMultipleSkipCrop = in.readByte() != 0;
         this.isWeChatStyle = in.readByte() != 0;
-        this.isInstagramStyle = in.readByte() != 0;
         this.isUseCustomCamera = in.readByte() != 0;
         this.zoomAnim = in.readByte() != 0;
         this.isCompress = in.readByte() != 0;

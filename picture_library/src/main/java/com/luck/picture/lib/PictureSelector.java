@@ -211,7 +211,7 @@ public final class PictureSelector {
      * @return Activity.
      */
     @Nullable
-    Activity getActivity() {
+    public Activity getActivity() {
         return mActivity.get();
     }
 
@@ -219,7 +219,7 @@ public final class PictureSelector {
      * @return Fragment.
      */
     @Nullable
-    Fragment getFragment() {
+    public Fragment getFragment() {
         return mFragment != null ? mFragment.get() : null;
     }
 
