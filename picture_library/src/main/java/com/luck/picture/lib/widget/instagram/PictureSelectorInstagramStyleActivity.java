@@ -398,7 +398,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     }
 
     public boolean containsMedia(List<LocalMedia> selectedImages, LocalMedia media) {
-        if(selectedImages != null && media != null) {
+        if (selectedImages != null && media != null) {
             for (LocalMedia selectedImage : selectedImages) {
                 if (selectedImage.getPath().equals(media.getPath())) {
                     return true;
@@ -775,27 +775,28 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         }
 
         // 如果没选并且设置了可以空返回则直接回到结果页
-        if (config.returnEmpty && size == 0) {
-            if (config.selectionMode == PictureConfig.MULTIPLE) {
-                if (config.minSelectNum > 0 && size < config.minSelectNum) {
-                    String str = getString(R.string.picture_min_img_num, config.minSelectNum);
-                    ToastUtils.s(getContext(), str);
-                    return;
+        if (size == 0) {
+            if (config.returnEmpty) {
+                if (PictureSelectionConfig.listener != null) {
+                    PictureSelectionConfig.listener.onResult(result);
+                } else {
+                    Intent intent = PictureSelector.putIntentResult(result);
+                    setResult(RESULT_OK, intent);
                 }
-                if (config.minVideoSelectNum > 0 && size < config.minVideoSelectNum) {
-                    String str = getString(R.string.picture_min_video_num, config.minVideoSelectNum);
-                    ToastUtils.s(getContext(), str);
-                    return;
-                }
+                closeActivity();
+                return;
             }
-            if (PictureSelectionConfig.listener != null) {
-                PictureSelectionConfig.listener.onResult(result);
-            } else {
-                Intent intent = PictureSelector.putIntentResult(result);
-                setResult(RESULT_OK, intent);
+
+            if (config.minSelectNum > 0 && size < config.minSelectNum) {
+                String str = getString(R.string.picture_min_img_num, config.minSelectNum);
+                ToastUtils.s(getContext(), str);
+                return;
             }
-            closeActivity();
-            return;
+            if (config.minVideoSelectNum > 0 && size < config.minVideoSelectNum) {
+                String str = getString(R.string.picture_min_video_num, config.minVideoSelectNum);
+                ToastUtils.s(getContext(), str);
+                return;
+            }
         }
 
         if (config.isCheckOriginalImage) {
@@ -1173,15 +1174,15 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     }
 
     private void takeAudioPermissions() {
-            if (PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)) {
+        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)) {
 
-            } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
-                showPermissionsDialog(true, getString(R.string.picture_audio));
-            } else {
-                PermissionChecker
-                        .requestPermissions(this,
-                                new String[]{Manifest.permission.RECORD_AUDIO}, PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE);
-            }
+        } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
+            showPermissionsDialog(true, getString(R.string.picture_audio));
+        } else {
+            PermissionChecker
+                    .requestPermissions(this,
+                            new String[]{Manifest.permission.RECORD_AUDIO}, PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE);
+        }
     }
 
     private void initCamera() {
