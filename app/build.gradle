@@ -28,7 +28,7 @@ android {
 
 dependencies {
     implementation project(':picture_library')
-//    implementation 'me.jessyan:insgallery:0.1.5'
+//    implementation 'me.jessyan:insgallery:0.1.6'
     //noinspection GradleCompatible
     implementation "androidx.appcompat:appcompat:${cfgs.version_appcompat}"
     //noinspection GradleCompatible
