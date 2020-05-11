@@ -193,6 +193,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                         mInstagramViewPager.setScrollEnable(false);
                         mInstagramViewPager.displayTabLayout(false);
                     }
+                    bindPreviewPosition();
                 } else {
                     config.selectionMode = PictureConfig.SINGLE;
                     config.isSingleDirectReturn = true;
@@ -329,6 +330,82 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mAdapter = new InstagramImageGridAdapter(getContext(), config);
         mAdapter.setOnPhotoSelectChangedListener(this);
         mPictureRecycler.setAdapter(mAdapter);
+    }
+
+    private void bindPreviewPosition() {
+        if (mAdapter != null) {
+            List<LocalMedia> selectedImages = mAdapter.getSelectedImages();
+            int size = selectedImages.size();
+            String mimeType = size > 0 ? selectedImages.get(0).getMimeType() : "";
+            LocalMedia previewMedia = images.get(mPreviewPosition);
+
+            if (selectedImages.contains(previewMedia) || containsMedia(selectedImages, previewMedia)) {
+                return;
+            }
+
+            if (!TextUtils.isEmpty(mimeType)) {
+                boolean mimeTypeSame = PictureMimeType.isMimeTypeSame(mimeType, previewMedia.getMimeType());
+                if (!mimeTypeSame) {
+                    ToastUtils.s(getContext(), getString(R.string.picture_rule));
+                    return;
+                }
+            }
+
+            if (PictureMimeType.eqVideo(mimeType) && config.maxVideoSelectNum > 0) {
+                if (size >= config.maxVideoSelectNum) {
+                    // 如果先选择的是视频
+                    ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), mimeType, config.maxVideoSelectNum));
+                    return;
+                }
+                if (config.videoMinSecond > 0 && previewMedia.getDuration() < config.videoMinSecond) {
+                    // 视频小于最低指定的长度
+                    ToastUtils.s(getContext(),
+                            getContext().getString(R.string.picture_choose_min_seconds, config.videoMinSecond / 1000));
+                    return;
+                }
+
+                if (config.videoMaxSecond > 0 && previewMedia.getDuration() > config.videoMaxSecond) {
+                    // 视频时长超过了指定的长度
+                    ToastUtils.s(getContext(),
+                            getContext().getString(R.string.picture_choose_max_seconds, config.videoMaxSecond / 1000));
+                    return;
+                }
+            } else {
+                if (size >= config.maxSelectNum) {
+                    ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), mimeType, config.maxSelectNum));
+                    return;
+                }
+                if (PictureMimeType.eqVideo(previewMedia.getMimeType())) {
+                    if (config.videoMinSecond > 0 && previewMedia.getDuration() < config.videoMinSecond) {
+                        // 视频小于最低指定的长度
+                        ToastUtils.s(getContext(),
+                                getContext().getString(R.string.picture_choose_min_seconds, config.videoMinSecond / 1000));
+                        return;
+                    }
+
+                    if (config.videoMaxSecond > 0 && previewMedia.getDuration() > config.videoMaxSecond) {
+                        // 视频时长超过了指定的长度
+                        ToastUtils.s(getContext(),
+                                getContext().getString(R.string.picture_choose_max_seconds, config.videoMaxSecond / 1000));
+                        return;
+                    }
+                }
+            }
+
+            selectedImages.add(previewMedia);
+            mAdapter.bindSelectImages(selectedImages);
+        }
+    }
+
+    public boolean containsMedia(List<LocalMedia> selectedImages, LocalMedia media) {
+        if(selectedImages != null && media != null) {
+            for (LocalMedia selectedImage : selectedImages) {
+                if (selectedImage.getPath().equals(media.getPath())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void changeTabState(int position) {
