@@ -47,6 +47,7 @@ public class InstagramCaptureLayout extends FrameLayout {
     private int mRecordedTime;
     private int mMaxDurationTime;
     private int mMinDurationTime;
+    private boolean isCameraBind;
 
     public InstagramCaptureLayout(@NonNull Context context) {
         super(context);
@@ -129,11 +130,26 @@ public class InstagramCaptureLayout extends FrameLayout {
         }
     }
 
+    public void setCameraBind(boolean cameraBind) {
+        isCameraBind = cameraBind;
+    }
+
+    public void resetRecordEnd() {
+        mIsRecordEnd = false;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (mCaptureButton == null || mRecordButton == null) {
             return super.onTouchEvent(event);
         }
+
+        if (!isCameraBind) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                ToastUtils.s(getContext(), getContext().getString(R.string.camera_init));
+            }
+        }
+
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (mCameraState == InstagramCameraView.STATE_CAPTURE) {
                 click = true;

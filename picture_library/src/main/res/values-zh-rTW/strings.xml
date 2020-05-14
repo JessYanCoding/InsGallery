@@ -67,4 +67,5 @@
     <string name="camera_access_content">允許訪問即可拍攝照片和視頻。</string>
     <string name="enable">啟用</string>
     <string name="done">完成</string>
+    <string name="camera_init">相機初始化中...</string>
 </resources>

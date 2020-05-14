@@ -211,6 +211,9 @@ public class InstagramCameraView extends FrameLayout {
     public void bindToLifecycle() {
         if (!isBind && mCameraView != null) {
             isBind = true;
+            if (mCaptureLayout != null) {
+                mCaptureLayout.setCameraBind(true);
+            }
             AppCompatActivity activity = mActivity.get();
             if (activity == null) {
                 return;
@@ -407,7 +410,10 @@ public class InstagramCameraView extends FrameLayout {
             if (cameraView == null) {
                 return;
             }
-            if (cameraView.mRecordTime < cameraView.mConfig.recordVideoMinSecond && file.exists() && file.delete()) {
+            if (cameraView.mRecordTime < cameraView.mConfig.recordVideoMinSecond) {
+                if (file.exists()) {
+                    file.delete();
+                }
                 return;
             }
             if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(cameraView.mConfig.cameraPath)) {
@@ -425,7 +431,7 @@ public class InstagramCameraView extends FrameLayout {
                     }
                 });
             }
-            if (file != null && file.exists() && cameraView.mCameraListener != null) {
+            if (file.exists() && cameraView.mCameraListener != null) {
                 cameraView.mCameraListener.onRecordSuccess(file);
             }
         }
@@ -433,8 +439,11 @@ public class InstagramCameraView extends FrameLayout {
         @Override
         public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause) {
             InstagramCameraView cameraView = mCameraView.get();
-            if (cameraView != null && cameraView.mCameraListener != null) {
-                cameraView.mCameraListener.onError(videoCaptureError, message, cause);
+            if (cameraView != null) {
+                cameraView.mCaptureLayout.resetRecordEnd();
+                if (cameraView.mCameraListener != null) {
+                    cameraView.mCameraListener.onError(videoCaptureError, message, cause);
+                }
             }
         }
     }
