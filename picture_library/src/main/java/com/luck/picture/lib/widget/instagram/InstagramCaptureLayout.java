@@ -144,12 +144,6 @@ public class InstagramCaptureLayout extends FrameLayout {
             return super.onTouchEvent(event);
         }
 
-        if (!isCameraBind) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                ToastUtils.s(getContext(), getContext().getString(R.string.camera_init));
-            }
-        }
-
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             if (mCameraState == InstagramCameraView.STATE_CAPTURE) {
                 click = true;
@@ -159,6 +153,11 @@ public class InstagramCaptureLayout extends FrameLayout {
                 Rect rect = new Rect();
                 mCaptureButton.getHitRect(rect);
                 if (rect.contains((int) (event.getX()), (int) (event.getY()))) {
+                    if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.CAMERA) && !isCameraBind) {
+                        ToastUtils.s(getContext(), getContext().getString(R.string.camera_init));
+                        return super.onTouchEvent(event);
+                    }
+
                     mCaptureButton.pressButton(true);
                 }
             }
@@ -167,6 +166,11 @@ public class InstagramCaptureLayout extends FrameLayout {
                 Rect recordRect = new Rect();
                 mRecordButton.getHitRect(recordRect);
                 if (recordRect.contains((int) (event.getX()), (int) (event.getY()))) {
+                    if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.CAMERA) && !isCameraBind) {
+                        ToastUtils.s(getContext(), getContext().getString(R.string.camera_init));
+                        return super.onTouchEvent(event);
+                    }
+
                     mRecordButton.pressButton(true);
                     mInLongPress = false;
                     mHandler.removeMessages(TIMER);
