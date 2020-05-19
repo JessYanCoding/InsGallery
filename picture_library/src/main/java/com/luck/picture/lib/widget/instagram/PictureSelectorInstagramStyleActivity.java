@@ -43,6 +43,7 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.tools.MediaUtils;
 import com.luck.picture.lib.tools.PictureFileUtils;
+import com.luck.picture.lib.tools.SPUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.StringUtils;
@@ -72,6 +73,7 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
 public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity implements View.OnClickListener,
         PictureAlbumDirectoryAdapter.OnItemClickListener,
         InstagramImageGridAdapter.OnPhotoSelectChangedListener, PhotoItemSelectedDialog.OnItemClickListener {
+    private static final String RECORD_AUDIO_PERMISSION = "RECORD_AUDIO_PERMISSION";
     protected ImageView mIvPictureLeftBack;
     protected ImageView mIvArrow;
     protected View titleViewBg;
@@ -1176,9 +1178,10 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private void takeAudioPermissions() {
         if (PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)) {
 
-        } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
+        } else if (SPUtils.getPictureSpUtils().getBoolean(RECORD_AUDIO_PERMISSION) && !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
             showPermissionsDialog(true, getString(R.string.picture_audio));
         } else {
+            SPUtils.getPictureSpUtils().put(RECORD_AUDIO_PERMISSION, true);
             PermissionChecker
                     .requestPermissions(this,
                             new String[]{Manifest.permission.RECORD_AUDIO}, PictureConfig.APPLY_RECORD_AUDIO_PERMISSIONS_CODE);
