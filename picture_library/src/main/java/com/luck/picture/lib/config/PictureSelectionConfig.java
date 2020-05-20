@@ -9,6 +9,7 @@ import com.luck.picture.lib.camera.CustomCameraView;
 import com.luck.picture.lib.engine.CacheResourcesEngine;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.instagram.InstagramSelectionConfig;
 import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
@@ -35,6 +36,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public PictureParameterStyle style;
     public PictureCropParameterStyle cropStyle;
     public PictureWindowAnimationStyle windowAnimationStyle;
+    public InstagramSelectionConfig instagramSelectionConfig;
     public String compressSavePath;
     public String suffixType;
     public boolean focusAlpha;
@@ -70,7 +72,6 @@ public final class PictureSelectionConfig implements Parcelable {
     public boolean isMultipleRecyclerAnimation;
     public boolean isMultipleSkipCrop;
     public boolean isWeChatStyle;
-    public boolean isInstagramStyle;
     public boolean isUseCustomCamera;
     public boolean zoomAnim;
     public boolean isCompress;
@@ -194,7 +195,6 @@ public final class PictureSelectionConfig implements Parcelable {
         isFallbackVersion3 = true;
         enableCrop = false;
         isWeChatStyle = false;
-        isInstagramStyle = false;
         isUseCustomCamera = false;
         isMultipleSkipCrop = true;
         isMultipleRecyclerAnimation = true;
@@ -245,6 +245,7 @@ public final class PictureSelectionConfig implements Parcelable {
         overrideHeight = 0;
         originalPath = "";
         cameraPath = "";
+        instagramSelectionConfig = null;
     }
 
     public static PictureSelectionConfig getInstance() {
@@ -278,6 +279,7 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeParcelable(this.style, flags);
         dest.writeParcelable(this.cropStyle, flags);
         dest.writeParcelable(this.windowAnimationStyle, flags);
+        dest.writeParcelable(this.instagramSelectionConfig, flags);
         dest.writeString(this.compressSavePath);
         dest.writeString(this.suffixType);
         dest.writeByte(this.focusAlpha ? (byte) 1 : (byte) 0);
@@ -312,7 +314,6 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeByte(this.isMultipleRecyclerAnimation ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isMultipleSkipCrop ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isWeChatStyle ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isInstagramStyle ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isUseCustomCamera ? (byte) 1 : (byte) 0);
         dest.writeByte(this.zoomAnim ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isCompress ? (byte) 1 : (byte) 0);
@@ -373,6 +374,7 @@ public final class PictureSelectionConfig implements Parcelable {
         this.style = in.readParcelable(PictureParameterStyle.class.getClassLoader());
         this.cropStyle = in.readParcelable(PictureCropParameterStyle.class.getClassLoader());
         this.windowAnimationStyle = in.readParcelable(PictureWindowAnimationStyle.class.getClassLoader());
+        this.instagramSelectionConfig = in.readParcelable(InstagramSelectionConfig.class.getClassLoader());
         this.compressSavePath = in.readString();
         this.suffixType = in.readString();
         this.focusAlpha = in.readByte() != 0;
@@ -407,7 +409,6 @@ public final class PictureSelectionConfig implements Parcelable {
         this.isMultipleRecyclerAnimation = in.readByte() != 0;
         this.isMultipleSkipCrop = in.readByte() != 0;
         this.isWeChatStyle = in.readByte() != 0;
-        this.isInstagramStyle = in.readByte() != 0;
         this.isUseCustomCamera = in.readByte() != 0;
         this.zoomAnim = in.readByte() != 0;
         this.isCompress = in.readByte() != 0;

@@ -10,6 +10,7 @@ import com.luck.picture.lib.config.UCropOptions;
 import com.luck.picture.lib.engine.CacheResourcesEngine;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.instagram.InstagramSelectionConfig;
 import com.luck.picture.lib.listener.OnPictureSelectorInterfaceListener;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.luck.picture.lib.listener.OnVideoSelectedPlayCallback;
@@ -18,7 +19,6 @@ import com.luck.picture.lib.style.PictureParameterStyle;
 import com.luck.picture.lib.style.PictureWindowAnimationStyle;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
-import com.luck.picture.lib.instagram.PictureSelectorInstagramStyleActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -130,11 +130,12 @@ public class PictureSelectionModel {
     }
 
     /**
-     * @param isInstagramStyle Select style with or without Instagram enabled
+     * 设置 Instagram 风格的配置参数
+     * @param instagramConfig Instagram 参数
      * @return
      */
-    public PictureSelectionModel isInstagramStyle(boolean isInstagramStyle) {
-        selectionConfig.isInstagramStyle = isInstagramStyle;
+    public PictureSelectionModel setInstagramConfig(InstagramSelectionConfig instagramConfig) {
+        selectionConfig.instagramSelectionConfig = instagramConfig;
         return this;
     }
 
@@ -986,8 +987,9 @@ public class PictureSelectionModel {
                 intent = new Intent(activity, selectionConfig.camera
                         ? PictureSelectorCameraEmptyActivity.class :
                         selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class
-                                : selectionConfig.isInstagramStyle ? PictureSelectorInstagramStyleActivity.class : PictureSelectorActivity.class);
+                                : PictureSelectorActivity.class);
             }
+            InstagramSelectionConfig.convertIntent(selectionConfig, intent);
             Fragment fragment = selector.getFragment();
             if (fragment != null) {
                 fragment.startActivityForResult(intent, requestCode);
@@ -1019,8 +1021,9 @@ public class PictureSelectionModel {
             }
             Intent intent = new Intent(activity, selectionConfig != null && selectionConfig.camera
                     ? PictureSelectorCameraEmptyActivity.class :
-                    selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class
-                            : selectionConfig.isInstagramStyle ? PictureSelectorInstagramStyleActivity.class : PictureSelectorActivity.class);
+                    selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class :
+                            PictureSelectorActivity.class);
+            InstagramSelectionConfig.convertIntent(selectionConfig, intent);
             Fragment fragment = selector.getFragment();
             if (fragment != null) {
                 fragment.startActivityForResult(intent, requestCode);
@@ -1053,8 +1056,9 @@ public class PictureSelectionModel {
                 intent = new Intent(activity, selectionConfig.camera
                         ? PictureSelectorCameraEmptyActivity.class :
                         selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class
-                                : selectionConfig.isInstagramStyle ? PictureSelectorInstagramStyleActivity.class : PictureSelectorActivity.class);
+                                : PictureSelectorActivity.class);
             }
+            InstagramSelectionConfig.convertIntent(selectionConfig, intent);
             Fragment fragment = selector.getFragment();
             if (fragment != null) {
                 fragment.startActivity(intent);
@@ -1090,8 +1094,9 @@ public class PictureSelectionModel {
                 intent = new Intent(activity, selectionConfig.camera
                         ? PictureSelectorCameraEmptyActivity.class :
                         selectionConfig.isWeChatStyle ? PictureSelectorWeChatStyleActivity.class
-                                : selectionConfig.isInstagramStyle ? PictureSelectorInstagramStyleActivity.class : PictureSelectorActivity.class);
+                                : PictureSelectorActivity.class);
             }
+            InstagramSelectionConfig.convertIntent(selectionConfig, intent);
             Fragment fragment = selector.getFragment();
             if (fragment != null) {
                 fragment.startActivityForResult(intent, requestCode);
