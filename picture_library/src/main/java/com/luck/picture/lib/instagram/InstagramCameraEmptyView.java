@@ -6,6 +6,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.tools.ScreenUtils;
 
@@ -24,12 +25,12 @@ public class InstagramCameraEmptyView extends FrameLayout {
     private TextView mContentView;
     private TextView mActionView;
 
-    public InstagramCameraEmptyView(@NonNull Context context) {
+    public InstagramCameraEmptyView(@NonNull Context context, PictureSelectionConfig config) {
         super(context);
 
-        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+        if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
             setBackgroundColor(Color.parseColor("#1C1C1E"));
-        } else if(InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE) {
+        } else if(config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE) {
             setBackgroundColor(Color.parseColor("#213040"));
         } else {
             setBackgroundColor(ContextCompat.getColor(context, R.color.picture_color_262626));

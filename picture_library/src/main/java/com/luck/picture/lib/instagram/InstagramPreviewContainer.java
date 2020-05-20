@@ -22,6 +22,7 @@ import android.widget.VideoView;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
@@ -56,6 +57,7 @@ public class InstagramPreviewContainer extends FrameLayout {
     public static final int PLAY_VIDEO_MODE = 1;
     private UCropView mUCropView;
     private VideoView mVideoView;
+    private PictureSelectionConfig config;
     private ImageView mThumbView;
     private GestureCropImageView mGestureCropImageView;
     private OverlayView mOverlayView;
@@ -104,8 +106,9 @@ public class InstagramPreviewContainer extends FrameLayout {
     private AnimatorSet mAnimatorSet;
     private ObjectAnimator mPlayAnimator;
 
-    public InstagramPreviewContainer(@NonNull Context context) {
+    public InstagramPreviewContainer(@NonNull Context context, PictureSelectionConfig config) {
         super(context);
+        this.config = config;
         mHandler = new Handler(context.getMainLooper());
 
         mVideoView = new VideoView(context);
@@ -156,9 +159,9 @@ public class InstagramPreviewContainer extends FrameLayout {
         mOverlayView.setPadding(0, 0, 0, 0);
         mOverlayView.setShowCropGrid(false);
         mOverlayView.setShowCropFrame(false);
-        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+        if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
             mOverlayView.setCropGridColor(ContextCompat.getColor(context, R.color.picture_color_black));
-        } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+        } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
             mOverlayView.setCropGridColor(Color.parseColor("#18222D"));
         } else {
             mOverlayView.setCropGridColor(ContextCompat.getColor(context, R.color.picture_color_white));
@@ -232,9 +235,9 @@ public class InstagramPreviewContainer extends FrameLayout {
         });
 
         View divider = new View(getContext());
-        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+        if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
             divider.setBackgroundColor(ContextCompat.getColor(context, R.color.picture_color_black));
-        } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+        } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
             divider.setBackgroundColor(Color.parseColor("#18222D"));
         } else {
             divider.setBackgroundColor(ContextCompat.getColor(context, R.color.picture_color_white));
@@ -312,9 +315,9 @@ public class InstagramPreviewContainer extends FrameLayout {
         if (drawable != null) {
             mThumbView.setImageDrawable(drawable);
         } else {
-            if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+            if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
                 mThumbView.setBackgroundColor(Color.BLACK);
-            } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+            } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
                 mThumbView.setBackgroundColor(Color.parseColor("#18222D"));
             } else {
                 mThumbView.setBackgroundColor(Color.WHITE);

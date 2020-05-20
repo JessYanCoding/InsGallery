@@ -86,7 +86,7 @@ public final class InsGallery {
     @SuppressLint("SourceLockedOrientationActivity")
     public static PictureSelectionModel applyInstagramOptions(Context context, PictureSelectionModel selectionModel) {
         return selectionModel
-                .setInstagramConfig(InstagramSelectionConfig.createConfig())
+                .setInstagramConfig(InstagramSelectionConfig.createConfig().setCurrentTheme(currentTheme))
                 .setPictureStyle(createInstagramStyle(context))// 动态自定义相册主题
                 .setPictureCropStyle(createInstagramCropStyle(context))// 动态自定义裁剪主题
                 .setPictureWindowAnimationStyle(new PictureWindowAnimationStyle())// 自定义相册启动退出动画

@@ -13,6 +13,7 @@ import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.ToastUtils;
@@ -49,18 +50,18 @@ public class InstagramCaptureLayout extends FrameLayout {
     private int mMinDurationTime;
     private boolean isCameraBind;
 
-    public InstagramCaptureLayout(@NonNull Context context) {
+    public InstagramCaptureLayout(@NonNull Context context, PictureSelectionConfig config) {
         super(context);
         mHandler = new GestureHandler(context.getMainLooper(), this);
 
-        mRecordProgressBar = new InstagramRecordProgressBar(context);
+        mRecordProgressBar = new InstagramRecordProgressBar(context, config);
         addView(mRecordProgressBar);
         mRecordProgressBar.setVisibility(View.INVISIBLE);
         mCaptureButton = new InstagramCaptureButton(context);
         addView(mCaptureButton);
         mRecordButton = new InstagramCaptureButton(context);
         addView(mRecordButton);
-        mRecordIndicator = new InstagramRecordIndicator(context);
+        mRecordIndicator = new InstagramRecordIndicator(context, config);
         addView(mRecordIndicator);
         mRecordIndicator.setVisibility(View.INVISIBLE);
     }

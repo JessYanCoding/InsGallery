@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 
+import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class InstagramViewPager extends FrameLayout {
         super(context);
     }
 
-    public InstagramViewPager(@NonNull Context context, List<Page> items) {
+    public InstagramViewPager(@NonNull Context context, List<Page> items, PictureSelectionConfig config) {
         super(context);
         if (items == null || items.isEmpty()) {
             throw new IllegalArgumentException("items is isEmpty!");
@@ -62,7 +63,7 @@ public class InstagramViewPager extends FrameLayout {
         mItems.get(0).init(0, this);
         mViews.get(0).setTag(true);
         mItems.get(0).refreshData(context);
-        mTabLayout = new InstagramTabLayout(context, items);
+        mTabLayout = new InstagramTabLayout(context, items, config);
         addView(mTabLayout);
     }
 

@@ -9,6 +9,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.CountDownTimer;
 import android.view.View;
 
+import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import java.lang.ref.WeakReference;
@@ -29,10 +30,10 @@ public class InstagramRecordProgressBar extends View {
     private ValueAnimator mValueAnimator;
     private ValueAnimator.AnimatorUpdateListener mUpdateListener = new UpdateListener(this);
 
-    public InstagramRecordProgressBar(Context context) {
+    public InstagramRecordProgressBar(Context context, PictureSelectionConfig config) {
         super(context);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK || InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE) {
+        if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK || config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE) {
             mPaint.setColor(Color.WHITE);
             defaultIndicator = new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT, new int[]{Color.WHITE, Color.BLACK});
         } else {

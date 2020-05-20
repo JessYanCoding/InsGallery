@@ -180,7 +180,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 //        config.recordVideoMinSecond = 3;
 
         mPictureRecycler = new GalleryViewImpl(getContext());
-        mPreviewContainer = new InstagramPreviewContainer(getContext());
+        mPreviewContainer = new InstagramPreviewContainer(getContext(), config);
         mInstagramGallery = new InstagramGallery(getContext(), mPreviewContainer, mPictureRecycler);
         mInstagramGallery.setPreviewBottomMargin(ScreenUtils.dip2px(getContext(), 2));
 
@@ -230,7 +230,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         PagePhoto pagePhoto = new PagePhoto(this, config);
         mList.add(pagePhoto);
         mList.add(new PageVideo(pagePhoto));
-        mInstagramViewPager = new InstagramViewPager(getContext(), mList);
+        mInstagramViewPager = new InstagramViewPager(getContext(), mList, config);
         ((RelativeLayout) container).addView(mInstagramViewPager, params);
 
         pagePhoto.setCameraListener(new CameraListener() {
@@ -297,10 +297,8 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mTvEmpty = mInstagramGallery.getEmptyView();
         isNumComplete(numComplete);
 
-        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DEFAULT) {
+        if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DEFAULT) {
             mIvPictureLeftBack.setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.picture_color_black), PorterDuff.Mode.MULTIPLY));
-        }
-        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DEFAULT) {
             mIvArrow.setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.picture_color_black), PorterDuff.Mode.MULTIPLY));
         }
 

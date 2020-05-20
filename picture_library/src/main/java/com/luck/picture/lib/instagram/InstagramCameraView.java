@@ -90,7 +90,7 @@ public class InstagramCameraView extends FrameLayout {
         });
         addView(mFlashView);
 
-        mCaptureLayout = new InstagramCaptureLayout(context);
+        mCaptureLayout = new InstagramCaptureLayout(context, config);
         addView(mCaptureLayout);
         mCaptureLayout.setCaptureListener(new InstagramCaptureListener() {
             @Override
@@ -138,7 +138,7 @@ public class InstagramCameraView extends FrameLayout {
             }
         });
 
-        mCameraEmptyView = new InstagramCameraEmptyView(context);
+        mCameraEmptyView = new InstagramCameraEmptyView(context, config);
         addView(mCameraEmptyView);
         mCameraEmptyView.setVisibility(View.INVISIBLE);
     }

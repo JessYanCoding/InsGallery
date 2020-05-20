@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import androidx.annotation.NonNull;
@@ -28,13 +29,13 @@ public class InstagramRecordIndicator extends FrameLayout {
     private final IndicatorView mIndicatorView;
     private ObjectAnimator mIndicationrAnimation;
 
-    public InstagramRecordIndicator(@NonNull Context context) {
+    public InstagramRecordIndicator(@NonNull Context context, PictureSelectionConfig config) {
         super(context);
 
         mTimeView = new TextView(context);
         mTimeView.setTextSize(14);
         mTimeView.setGravity(Gravity.CENTER_VERTICAL);
-        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK || InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE) {
+        if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK || config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE) {
             mTimeView.setTextColor(Color.WHITE);
         } else {
             mTimeView.setTextColor(Color.BLACK);

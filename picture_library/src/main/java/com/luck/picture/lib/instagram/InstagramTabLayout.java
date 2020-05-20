@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import java.util.ArrayList;
@@ -41,9 +42,11 @@ public class InstagramTabLayout extends FrameLayout {
     private int indicatorLeft = -1;
     private int indicatorRight = -1;
     private int tabWidth;
+    private PictureSelectionConfig config;
 
-    public InstagramTabLayout(Context context, List<Page> items) {
+    public InstagramTabLayout(Context context, List<Page> items, PictureSelectionConfig config) {
         super(context);
+        this.config = config;
         fillTitles(items);
         installTabView(context, titles);
         setWillNotDraw(false);
@@ -51,9 +54,9 @@ public class InstagramTabLayout extends FrameLayout {
         defaultSelectionIndicator = new GradientDrawable();
         selectedIndicatorHeight = ScreenUtils.dip2px(context, 1);
 
-        if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+        if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
             selectedIndicatorPaint.setColor(ContextCompat.getColor(context, R.color.picture_color_white));
-        } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+        } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
             selectedIndicatorPaint.setColor(Color.parseColor("#2FA6FF"));
         } else {
             selectedIndicatorPaint.setColor(ContextCompat.getColor(context, R.color.picture_color_black));
@@ -66,9 +69,9 @@ public class InstagramTabLayout extends FrameLayout {
         for (int i = 0; i < titles.size(); i++) {
             TextView tabView = new TextView(context);
             tabView.setTextSize(15);
-            if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+            if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
                 tabView.setTextColor(Color.parseColor("#9B9B9D"));
-            } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+            } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
                 tabView.setTextColor(Color.parseColor("#7E93A0"));
             } else {
                 tabView.setTextColor(Color.parseColor("#92979F"));
@@ -179,17 +182,17 @@ public class InstagramTabLayout extends FrameLayout {
         for (int i = 0; i < tabViews.size(); i++) {
             View tabView = tabViews.get(i);
             if (position == i) {
-                if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+                if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
                     ((TextView) tabView).setTextColor(ContextCompat.getColor(getContext(), R.color.picture_color_white));
-                } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+                } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
                     ((TextView) tabView).setTextColor(ContextCompat.getColor(getContext(), R.color.picture_color_white));
                 } else {
                     ((TextView) tabView).setTextColor(ContextCompat.getColor(getContext(), R.color.picture_color_black));
                 }
             } else {
-                if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK) {
+                if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
                     ((TextView) tabView).setTextColor(Color.parseColor("#9B9B9D"));
-                } else if (InsGallery.currentTheme == InsGallery.THEME_STYLE_DARK_BLUE){
+                } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
                     ((TextView) tabView).setTextColor(Color.parseColor("#7E93A0"));
                 } else {
                     ((TextView) tabView).setTextColor(Color.parseColor("#92979F"));

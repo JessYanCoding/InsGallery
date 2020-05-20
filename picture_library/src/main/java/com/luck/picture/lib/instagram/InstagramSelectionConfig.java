@@ -34,6 +34,10 @@ public final class InstagramSelectionConfig implements Parcelable {
         return this;
     }
 
+    public int getCurrentTheme() {
+        return currentTheme;
+    }
+
     @Override
     public int describeContents() {
         return 0;
