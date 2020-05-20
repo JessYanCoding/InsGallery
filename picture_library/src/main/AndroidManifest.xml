@@ -22,7 +22,7 @@
             android:configChanges="orientation|keyboardHidden|screenSize" />
 
         <activity
-            android:name=".widget.instagram.PictureSelectorInstagramStyleActivity"
+            android:name=".instagram.PictureSelectorInstagramStyleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
 
         <activity

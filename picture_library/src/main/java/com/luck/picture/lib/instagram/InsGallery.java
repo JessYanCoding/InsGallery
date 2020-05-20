@@ -1,4 +1,4 @@
-package com.luck.picture.lib.widget.instagram;
+package com.luck.picture.lib.instagram;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

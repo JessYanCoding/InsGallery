@@ -6,7 +6,7 @@
  * Copyright Nikolai Kudashov, 2013-2018.
  */
 
-package com.luck.picture.lib.widget.instagram;
+package com.luck.picture.lib.instagram;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;

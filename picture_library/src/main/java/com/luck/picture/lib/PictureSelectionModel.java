@@ -18,7 +18,7 @@ import com.luck.picture.lib.style.PictureParameterStyle;
 import com.luck.picture.lib.style.PictureWindowAnimationStyle;
 import com.luck.picture.lib.tools.DoubleUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
-import com.luck.picture.lib.widget.instagram.PictureSelectorInstagramStyleActivity;
+import com.luck.picture.lib.instagram.PictureSelectorInstagramStyleActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.List;

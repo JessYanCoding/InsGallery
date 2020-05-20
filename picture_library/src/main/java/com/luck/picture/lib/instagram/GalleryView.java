@@ -1,4 +1,4 @@
-package com.luck.picture.lib.widget.instagram;
+package com.luck.picture.lib.instagram;
 
 /**
  * ================================================
