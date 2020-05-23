@@ -59,27 +59,27 @@ public final class InsGallery {
     public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, List<LocalMedia> selectionMedia, OnResultCallbackListener listener) {
         applyInstagramOptions(activity.getApplicationContext(), PictureSelector.create(activity)
                 .openGallery(PictureMimeType.ofAll()))// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
-                .loadImageEngine(engine)// 外部传入图片加载引擎，必传项
+                .imageEngine(engine)// 外部传入图片加载引擎，必传项
                 .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
-                .selectionMedia(selectionMedia)// 是否传入已选图片
+                .selectionData(selectionMedia)// 是否传入已选图片
                 .forResult(listener);
     }
 
     public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, List<LocalMedia> selectionMedia) {
         applyInstagramOptions(activity.getApplicationContext(), PictureSelector.create(activity)
                 .openGallery(PictureMimeType.ofAll()))// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
-                .loadImageEngine(engine)// 外部传入图片加载引擎，必传项
+                .imageEngine(engine)// 外部传入图片加载引擎，必传项
                 .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
-                .selectionMedia(selectionMedia)// 是否传入已选图片
+                .selectionData(selectionMedia)// 是否传入已选图片
                 .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
     }
 
     public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, List<LocalMedia> selectionMedia, int requestCode) {
         applyInstagramOptions(activity.getApplicationContext(), PictureSelector.create(activity)
                 .openGallery(PictureMimeType.ofAll()))// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
-                .loadImageEngine(engine)// 外部传入图片加载引擎，必传项
+                .imageEngine(engine)// 外部传入图片加载引擎，必传项
                 .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
-                .selectionMedia(selectionMedia)// 是否传入已选图片
+                .selectionData(selectionMedia)// 是否传入已选图片
                 .forResult(requestCode);//结果回调onActivityResult code
     }
 
@@ -101,8 +101,8 @@ public final class InsGallery {
                 .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)// 设置相册Activity方向，不设置默认使用系统
                 .selectionMode(PictureConfig.MULTIPLE)// 多选 or 单选
                 .isSingleDirectReturn(false)// 单选模式下是否直接返回，PictureConfig.SINGLE模式下有效
-                .previewImage(true)// 是否可预览图片
-                .previewVideo(true)// 是否可预览视频
+                .isPreviewImage(true)// 是否可预览图片
+                .isPreviewVideo(true)// 是否可预览视频
                 //.querySpecifiedFormatSuffix(PictureMimeType.ofJPEG())// 查询指定后缀格式资源
                 .enablePreviewAudio(false) // 是否可播放音频
                 .isCamera(false)// 是否显示拍照按钮
@@ -110,9 +110,9 @@ public final class InsGallery {
                 //.isMultipleRecyclerAnimation(false)// 多图裁剪底部列表显示动画效果
                 .isZoomAnim(true)// 图片列表点击 缩放效果 默认true
                 //.imageFormat(PictureMimeType.PNG)// 拍照保存图片格式后缀,默认jpeg
-                .enableCrop(true)// 是否裁剪
+                .isEnableCrop(true)// 是否裁剪
                 //.basicUCropConfig()//对外提供所有UCropOptions参数配制，但如果PictureSelector原本支持设置的还是会使用原有的设置
-                .compress(false)// 是否压缩
+                .isCompress(false)// 是否压缩
                 //.compressQuality(80)// 图片压缩后输出质量 0~ 100
                 .synOrAsy(true)//同步true或异步false 压缩 默认同步
                 //.queryMaxFileSize(10)// 只查多少M以内的图片、视频、音频  单位M
@@ -120,7 +120,7 @@ public final class InsGallery {
                 .withAspectRatio(1, 1)// 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
                 .showCropFrame(true)// 是否显示裁剪矩形边框 圆形裁剪时建议设为false
                 .showCropGrid(true)// 是否显示裁剪矩形网格 圆形裁剪时建议设为false
-                .openClickSound(true)// 是否开启点击声音
+                .isOpenClickSound(true)// 是否开启点击声音
                 //.isDragFrame(false)// 是否可拖动裁剪框(固定)
                 //.videoMinSecond(10)
                 .videoMaxSecond(120)

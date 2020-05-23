@@ -5,8 +5,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 
-import androidx.annotation.NonNull;
-
 import com.luck.picture.lib.app.PictureAppMaster;
 
 import java.io.File;
@@ -18,10 +16,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+
 /**
  * @author：luck
  * @date：2019-12-03 14:53
- * @describe：PictureSelector Crash日志收集工具类
+ * @describe：PictureSelector Crash Log collection class
  */
 public class PictureSelectorCrashUtils {
     private static boolean mInitialized;

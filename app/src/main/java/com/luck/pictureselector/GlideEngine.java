@@ -7,21 +7,21 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.bumptech.glide.request.target.ImageViewTarget;
 import com.luck.picture.lib.engine.ImageEngine;
-import com.luck.picture.lib.listener.ImageCompleteCallback;
+import com.luck.picture.lib.listener.OnImageCompleteCallback;
 import com.luck.picture.lib.tools.MediaUtils;
 import com.luck.picture.lib.widget.longimage.ImageSource;
 import com.luck.picture.lib.widget.longimage.ImageViewState;
 import com.luck.picture.lib.widget.longimage.SubsamplingScaleImageView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
 /**
  * @author：luck
@@ -52,12 +52,12 @@ public class GlideEngine implements ImageEngine {
      * @param url
      * @param imageView
      * @param longImageView
-     * @param callback      网络图片加载回调监听
+     * @param callback      网络图片加载回调监听 {link after version 2.5.1 Please use the #OnImageCompleteCallback#}
      */
     @Override
     public void loadImage(@NonNull Context context, @NonNull String url,
                           @NonNull ImageView imageView,
-                          SubsamplingScaleImageView longImageView, ImageCompleteCallback callback) {
+                          SubsamplingScaleImageView longImageView, OnImageCompleteCallback callback) {
         Glide.with(context)
                 .asBitmap()
                 .load(url)

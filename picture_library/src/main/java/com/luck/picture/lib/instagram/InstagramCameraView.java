@@ -204,7 +204,7 @@ public class InstagramCameraView extends FrameLayout {
 
     private Uri getOutUri(int type) {
         return type == PictureMimeType.ofVideo()
-                ? MediaUtils.createVideoUri(getContext()) : MediaUtils.createImageUri(getContext());
+                ? MediaUtils.createVideoUri(getContext(), mConfig.suffixType) : MediaUtils.createImageUri(getContext(), mConfig.suffixType);
     }
 
     @SuppressLint("MissingPermission")

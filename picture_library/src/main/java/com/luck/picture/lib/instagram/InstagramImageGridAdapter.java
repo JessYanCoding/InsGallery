@@ -182,20 +182,20 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
             contentHolder.tvCheck.setVisibility(config.isSingleDirectReturn ? View.GONE : View.VISIBLE);
             contentHolder.btnCheck.setVisibility(config.isSingleDirectReturn ? View.GONE : View.VISIBLE);
             contentHolder.tvIsGif.setVisibility(gif ? View.VISIBLE : View.GONE);
-            boolean eqImage = PictureMimeType.eqImage(image.getMimeType());
+            boolean eqImage = PictureMimeType.isHasImage(image.getMimeType());
             if (eqImage) {
                 boolean eqLongImg = MediaUtils.isLongImg(image);
                 contentHolder.tvLongChart.setVisibility(eqLongImg ? View.VISIBLE : View.GONE);
             } else {
                 contentHolder.tvLongChart.setVisibility(View.GONE);
             }
-            boolean eqVideo = PictureMimeType.eqVideo(mimeType);
-            boolean eqAudio = PictureMimeType.eqAudio(mimeType);
-            if (eqVideo || eqAudio) {
+            boolean isHasVideo = PictureMimeType.isHasVideo(mimeType);
+            boolean eqAudio = PictureMimeType.isHasAudio(mimeType);
+            if (isHasVideo || eqAudio) {
                 contentHolder.tvDuration.setVisibility(View.VISIBLE);
                 contentHolder.tvDuration.setText(DateUtils.formatDurationTime(image.getDuration()));
                 contentHolder.tvDuration.setCompoundDrawablesRelativeWithIntrinsicBounds
-                        (eqVideo ? R.drawable.picture_icon_video : R.drawable.picture_icon_audio,
+                        (isHasVideo ? R.drawable.picture_icon_video : R.drawable.picture_icon_audio,
                                 0, 0, 0);
             } else {
                 contentHolder.tvDuration.setVisibility(View.GONE);
@@ -245,13 +245,13 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
                     image.setRealPath(newPath);
                 }
                 boolean eqResult =
-                        PictureMimeType.eqImage(mimeType) && config.enablePreview
-                                || PictureMimeType.eqVideo(mimeType) && (config.enPreviewVideo
+                        PictureMimeType.isHasImage(mimeType) && config.enablePreview
+                                || PictureMimeType.isHasVideo(mimeType) && (config.enPreviewVideo
                                 || config.selectionMode == PictureConfig.SINGLE)
-                                || PictureMimeType.eqAudio(mimeType) && (config.enablePreviewAudio
+                                || PictureMimeType.isHasAudio(mimeType) && (config.enablePreviewAudio
                                 || config.selectionMode == PictureConfig.SINGLE);
                 if (eqResult) {
-                    if (PictureMimeType.eqVideo(image.getMimeType())) {
+                    if (PictureMimeType.isHasVideo(image.getMimeType())) {
                         if (config.videoMinSecond > 0 && image.getDuration() < config.videoMinSecond) {
                             // 视频小于最低指定的长度
                             ToastUtils.s(context,
@@ -372,13 +372,13 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
             int imageSize = 0;
             for (int i = 0; i < size; i++) {
                 LocalMedia media = selectImages.get(i);
-                if (PictureMimeType.eqVideo(media.getMimeType())) {
+                if (PictureMimeType.isHasVideo(media.getMimeType())) {
                     videoSize++;
                 } else {
                     imageSize++;
                 }
             }
-            if (PictureMimeType.eqVideo(image.getMimeType())) {
+            if (PictureMimeType.isHasVideo(image.getMimeType())) {
                 if (config.maxVideoSelectNum > 0
                         && videoSize >= config.maxVideoSelectNum && !isChecked) {
                     // 如果选择的是视频
@@ -400,7 +400,7 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
                     return;
                 }
             }
-            if (PictureMimeType.eqImage(image.getMimeType()) && imageSize >= config.maxSelectNum && !isChecked) {
+            if (PictureMimeType.isHasImage(image.getMimeType()) && imageSize >= config.maxSelectNum && !isChecked) {
                 ToastUtils.s(context, StringUtils.getMsg(context, image.getMimeType(), config.maxSelectNum));
                 return;
             }
@@ -415,7 +415,7 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
                     return;
                 }
             }
-            if (PictureMimeType.eqVideo(mimeType) && config.maxVideoSelectNum > 0) {
+            if (PictureMimeType.isHasVideo(mimeType) && config.maxVideoSelectNum > 0) {
                 if (size >= config.maxVideoSelectNum && !isChecked) {
                     // 如果先选择的是视频
                     ToastUtils.s(context, StringUtils.getMsg(context, mimeType, config.maxVideoSelectNum));
@@ -439,7 +439,7 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
                     ToastUtils.s(context, StringUtils.getMsg(context, mimeType, config.maxSelectNum));
                     return;
                 }
-                if (PictureMimeType.eqVideo(image.getMimeType())) {
+                if (PictureMimeType.isHasVideo(image.getMimeType())) {
                     if (!isChecked && config.videoMinSecond > 0 && image.getDuration() < config.videoMinSecond) {
                         // 视频小于最低指定的长度
                         ToastUtils.s(context,

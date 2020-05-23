@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +26,6 @@ import com.luck.picture.lib.PictureCustomCameraActivity;
 import com.luck.picture.lib.PictureMediaScannerConnection;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.R;
-import com.luck.picture.lib.adapter.PictureAlbumDirectoryAdapter;
 import com.luck.picture.lib.camera.listener.CameraListener;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -34,6 +34,8 @@ import com.luck.picture.lib.dialog.PhotoItemSelectedDialog;
 import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
+import com.luck.picture.lib.listener.OnAlbumItemClickListener;
+import com.luck.picture.lib.listener.OnItemClickListener;
 import com.luck.picture.lib.model.LocalMediaLoader;
 import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.style.PictureWindowAnimationStyle;
@@ -71,8 +73,8 @@ import androidx.recyclerview.widget.SimpleItemAnimator;
  * @描述: Media 选择页面
  */
 public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity implements View.OnClickListener,
-        PictureAlbumDirectoryAdapter.OnItemClickListener,
-        InstagramImageGridAdapter.OnPhotoSelectChangedListener, PhotoItemSelectedDialog.OnItemClickListener {
+        OnAlbumItemClickListener,
+        InstagramImageGridAdapter.OnPhotoSelectChangedListener, OnItemClickListener {
     private static final String RECORD_AUDIO_PERMISSION = "RECORD_AUDIO_PERMISSION";
     protected ImageView mIvPictureLeftBack;
     protected ImageView mIvArrow;
@@ -98,6 +100,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private boolean isRunningBind;
     private String mTitle;
     private List<Page> mList;
+    private long intervalClickTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,7 +168,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         super.initWidgets();
         container = findViewById(R.id.container);
         titleViewBg = findViewById(R.id.titleViewBg);
-        mIvPictureLeftBack = findViewById(R.id.picture_left_back);
+        mIvPictureLeftBack = findViewById(R.id.pictureLeftBack);
         mTvPictureTitle = findViewById(R.id.picture_title);
         mTvPictureRight = findViewById(R.id.picture_right);
         mIvArrow = findViewById(R.id.ivArrow);
@@ -302,6 +305,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             mIvArrow.setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(getContext(), R.color.picture_color_black), PorterDuff.Mode.MULTIPLY));
         }
 
+        if (config.isAutomaticTitleRecyclerTop) {
+            titleViewBg.setOnClickListener(this);
+        }
         mIvPictureLeftBack.setOnClickListener(this);
         mTvPictureRight.setOnClickListener(this);
         mTvPictureTitle.setOnClickListener(this);
@@ -311,7 +317,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mTvPictureTitle.setText(mTitle);
         folderWindow = new FolderPopWindow(this, config);
         folderWindow.setArrowImageView(mIvArrow);
-        folderWindow.setOnItemClickListener(this);
+        folderWindow.setOnAlbumItemClickListener(this);
         mPictureRecycler.setHasFixedSize(true);
         mPictureRecycler.addItemDecoration(new SpacingItemDecoration(config.imageSpanCount,
                 ScreenUtils.dip2px(this, 2), false));
@@ -351,7 +357,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 }
             }
 
-            if (PictureMimeType.eqVideo(mimeType) && config.maxVideoSelectNum > 0) {
+            if (PictureMimeType.isHasVideo(mimeType) && config.maxVideoSelectNum > 0) {
                 if (size >= config.maxVideoSelectNum) {
                     // 如果先选择的是视频
                     ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), mimeType, config.maxVideoSelectNum));
@@ -375,7 +381,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     ToastUtils.s(getContext(), StringUtils.getMsg(getContext(), mimeType, config.maxSelectNum));
                     return;
                 }
-                if (PictureMimeType.eqVideo(previewMedia.getMimeType())) {
+                if (PictureMimeType.isHasVideo(previewMedia.getMimeType())) {
                     if (config.videoMinSecond > 0 && previewMedia.getDuration() < config.videoMinSecond) {
                         // 视频小于最低指定的长度
                         ToastUtils.s(getContext(),
@@ -562,7 +568,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                         foldersList = folders;
                         LocalMediaFolder folder = folders.get(0);
                         folder.setChecked(true);
-                        List<LocalMedia> result = folder.getImages();
+                        List<LocalMedia> result = folder.getData();
                         if (images == null) {
                             images = new ArrayList<>();
                         }
@@ -579,7 +585,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                                 // 更新相机胶卷目录
                                 LocalMedia media = images.get(0);
                                 folder.setFirstImagePath(media.getPath());
-                                folder.getImages().add(0, media);
+                                folder.getData().add(0, media);
                                 folder.setCheckedNum(1);
                                 folder.setImageNum(folder.getImageNum() + 1);
                                 // 更新相片所属目录
@@ -628,7 +634,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     public void startCamera() {
         // 防止快速点击，但是单独拍照不管
         if (!DoubleUtils.isFastDoubleClick()) {
-            if (PictureSelectionConfig.onPictureSelectorInterfaceListener != null) {
+            if (PictureSelectionConfig.onCustomCameraInterfaceListener != null) {
                 // 用户需要自定义拍照处理
                 if (config.chooseMode == PictureConfig.TYPE_ALL) {
                     // 如果是全部类型下，单独拍照就默认图片 (因为单独拍照不会new此PopupWindow对象)
@@ -636,7 +642,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     selectedDialog.setOnItemClickListener(this);
                     selectedDialog.show(getSupportFragmentManager(), "PhotoItemSelectedDialog");
                 } else {
-                    PictureSelectionConfig.onPictureSelectorInterfaceListener.onCameraClick(getContext(), config.chooseMode);
+                    PictureSelectionConfig.onCustomCameraInterfaceListener.onCameraClick(getContext(), config, config.chooseMode);
                 }
                 return;
             }
@@ -692,7 +698,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        if (id == R.id.picture_left_back) {
+        if (id == R.id.pictureLeftBack) {
             if (folderWindow != null && folderWindow.isShowing()) {
                 folderWindow.dismiss();
             } else {
@@ -712,6 +718,17 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             }
         } else if (id == R.id.picture_right) {
             onComplete();
+        } else if (id == R.id.titleViewBg) {
+            if (mInstagramViewPager.getSelectedPosition() == 0 && config.isAutomaticTitleRecyclerTop) {
+                int intervalTime = 500;
+                if (SystemClock.uptimeMillis() - intervalClickTime < intervalTime) {
+                    if (mAdapter.getItemCount() > 0) {
+                        mPictureRecycler.smoothScrollToPosition(0);
+                    }
+                } else {
+                    intervalClickTime = SystemClock.uptimeMillis();
+                }
+            }
         }
     }
 
@@ -732,14 +749,14 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         LocalMedia image = result.size() > 0 ? result.get(0) : null;
         String mimeType = image != null ? image.getMimeType() : "";
         // 如果设置了图片最小选择数量，则判断是否满足条件
-        boolean eqImg = PictureMimeType.eqImage(mimeType);
+        boolean eqImg = PictureMimeType.isHasImage(mimeType);
         if (config.isWithVideoImage) {
             // 混选模式
             int videoSize = 0;
             int imageSize = 0;
             for (int i = 0; i < size; i++) {
                 LocalMedia media = result.get(i);
-                if (PictureMimeType.eqVideo(media.getMimeType())) {
+                if (PictureMimeType.isHasVideo(media.getMimeType())) {
                     videoSize++;
                 } else {
                     imageSize++;
@@ -761,12 +778,12 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             }
         } else {
             if (config.selectionMode == PictureConfig.MULTIPLE) {
-                if (PictureMimeType.eqImage(mimeType) && config.minSelectNum > 0 && size < config.minSelectNum) {
+                if (PictureMimeType.isHasImage(mimeType) && config.minSelectNum > 0 && size < config.minSelectNum) {
                     String str = getString(R.string.picture_min_img_num, config.minSelectNum);
                     ToastUtils.s(getContext(), str);
                     return;
                 }
-                if (PictureMimeType.eqVideo(mimeType) && config.minVideoSelectNum > 0 && size < config.minVideoSelectNum) {
+                if (PictureMimeType.isHasVideo(mimeType) && config.minVideoSelectNum > 0 && size < config.minVideoSelectNum) {
                     String str = getString(R.string.picture_min_video_num, config.minVideoSelectNum);
                     ToastUtils.s(getContext(), str);
                     return;
@@ -836,8 +853,8 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                             || TextUtils.isEmpty(media.getPath())) {
                         continue;
                     }
-                    boolean eqImage = PictureMimeType.eqImage(media.getMimeType());
-                    if (eqImage) {
+                    boolean isHasImage = PictureMimeType.isHasImage(media.getMimeType());
+                    if (isHasImage) {
                         imageNum++;
                     }
                     CutInfo cutInfo = new CutInfo();
@@ -863,8 +880,8 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             int imageNum = 0;
             for (int i = 0; i < size; i++) {
                 LocalMedia media = images.get(i);
-                boolean eqImage = PictureMimeType.eqImage(media.getMimeType());
-                if (eqImage) {
+                boolean isHasImage = PictureMimeType.isHasImage(media.getMimeType());
+                if (isHasImage) {
                     imageNum++;
                     break;
                 }
@@ -1131,7 +1148,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     }
 
     @Override
-    public void onItemClick(boolean isCameraFolder, String folderName, List<LocalMedia> images) {
+    public void onItemClick(int position, boolean isCameraFolder, long bucketId, String folderName, List<LocalMedia> images) {
         boolean camera = config.isCamera && isCameraFolder;
         mAdapter.setShowCamera(camera);
         mTitle = folderName;
@@ -1244,11 +1261,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         LocalMedia media = previewImages.get(position);
         String mimeType = media.getMimeType();
         List<LocalMedia> result = new ArrayList<>();
-        if (PictureMimeType.eqVideo(mimeType)) {
+        if (PictureMimeType.isHasVideo(mimeType)) {
             // video
             mPreviewContainer.checkModel(InstagramPreviewContainer.PLAY_VIDEO_MODE);
             mPreviewContainer.playVideo(media, holder);
-        } else if (PictureMimeType.eqAudio(mimeType)) {
+        } else if (PictureMimeType.isHasAudio(mimeType)) {
             // audio
             audioDialog(media.getPath());
         } else {
@@ -1265,7 +1282,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 } else {
                     path = media.getPath();
                 }
-                boolean isHttp = PictureMimeType.isHttp(path);
+                boolean isHttp = PictureMimeType.isHasHttp(path);
                 boolean isAndroidQ = SdkVersionUtils.checkedAndroid_Q();
                 Uri uri = isHttp || isAndroidQ ? Uri.parse(path) : Uri.fromFile(new File(path));
                 String suffix = mimeType.replace("image/", ".");
@@ -1343,7 +1360,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     int imageSize = 0;
                     for (int i = 0; i < size; i++) {
                         LocalMedia media = list.get(i);
-                        if (PictureMimeType.eqImage(media.getMimeType())) {
+                        if (PictureMimeType.isHasImage(media.getMimeType())) {
                             imageSize++;
                             break;
                         }
@@ -1358,7 +1375,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 } else {
                     // 取出第1个判断是否是图片，视频和图片只能二选一，不必考虑图片和视频混合
                     String mimeType = list.size() > 0 ? list.get(0).getMimeType() : "";
-                    if (config.isCompress && PictureMimeType.eqImage(mimeType)
+                    if (config.isCompress && PictureMimeType.isHasImage(mimeType)
                             && !config.isCheckOriginalImage) {
                         compressImage(list);
                     } else {
@@ -1386,7 +1403,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
      * @param mimeType
      */
     private void singleDirectReturnCameraHandleResult(String mimeType) {
-        boolean eqImg = PictureMimeType.eqImage(mimeType);
+        boolean eqImg = PictureMimeType.isHasImage(mimeType);
         if (config.enableCrop && eqImg) {
             // 去裁剪
             config.originalPath = config.cameraPath;
@@ -1443,10 +1460,10 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     size = file.length();
                     mimeType = PictureMimeType.getMimeType(file);
                 }
-                if (PictureMimeType.eqImage(mimeType)) {
-                    newSize = MediaUtils.getLocalImageSizeToAndroidQ(this, config.cameraPath);
+                if (PictureMimeType.isHasImage(mimeType)) {
+                    newSize = MediaUtils.getImageSizeForUrlToAndroidQ(this, config.cameraPath);
                 } else {
-                    newSize = MediaUtils.getLocalVideoSize(this, Uri.parse(config.cameraPath));
+                    newSize = MediaUtils.getVideoSizeForUri(this, Uri.parse(config.cameraPath));
                     duration = MediaUtils.extractDuration(getContext(), true, config.cameraPath);
                 }
                 int lastIndexOf = config.cameraPath.lastIndexOf("/") + 1;
@@ -1463,12 +1480,12 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 File file = new File(config.cameraPath);
                 mimeType = PictureMimeType.getMimeType(file);
                 size = file.length();
-                if (PictureMimeType.eqImage(mimeType)) {
+                if (PictureMimeType.isHasImage(mimeType)) {
                     int degree = PictureFileUtils.readPictureDegree(this, config.cameraPath);
                     BitmapUtils.rotateImage(degree, config.cameraPath);
-                    newSize = MediaUtils.getLocalImageWidthOrHeight(config.cameraPath);
+                    newSize = MediaUtils.getImageSizeForUrl(config.cameraPath);
                 } else {
-                    newSize = MediaUtils.getLocalVideoSize(config.cameraPath);
+                    newSize = MediaUtils.getVideoSizeForUrl(config.cameraPath);
                     duration = MediaUtils.extractDuration(getContext(), false, config.cameraPath);
                 }
                 // 拍照产生一个临时id
@@ -1520,13 +1537,13 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                         int imageSize = 0;
                         for (int i = 0; i < count; i++) {
                             LocalMedia m = selectedImages.get(i);
-                            if (PictureMimeType.eqVideo(m.getMimeType())) {
+                            if (PictureMimeType.isHasVideo(m.getMimeType())) {
                                 videoSize++;
                             } else {
                                 imageSize++;
                             }
                         }
-                        if (PictureMimeType.eqVideo(media.getMimeType()) && config.maxVideoSelectNum > 0) {
+                        if (PictureMimeType.isHasVideo(media.getMimeType()) && config.maxVideoSelectNum > 0) {
                             // 视频还可选
                             if (videoSize < config.maxVideoSelectNum) {
                                 selectedImages.add(0, media);
@@ -1549,7 +1566,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                         }
 
                     } else {
-                        if (PictureMimeType.eqVideo(mimeType) && config.maxVideoSelectNum > 0) {
+                        if (PictureMimeType.isHasVideo(mimeType) && config.maxVideoSelectNum > 0) {
                             // 类型相同或还没有选中才加进选中集合中
                             if (count < config.maxVideoSelectNum) {
                                 if (mimeTypeSame || count == 0) {
@@ -1590,7 +1607,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             // 解决部分手机拍照完Intent.ACTION_MEDIA_SCANNER_SCAN_FILE，不及时刷新问题手动添加
             manualSaveFolder(media);
             // 这里主要解决极个别手机拍照会在DCIM目录重复生成一张照片问题
-            if (!isAndroidQ && PictureMimeType.eqImage(media.getMimeType())) {
+            if (!isAndroidQ && PictureMimeType.isHasImage(media.getMimeType())) {
                 int lastImageId = getLastImageId(media.getMimeType());
                 if (lastImageId != -1) {
                     removeMedia(lastImageId);
@@ -1612,7 +1629,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
      */
     private boolean checkVideoLegitimacy(LocalMedia media) {
         boolean isEnterNext = true;
-        if (PictureMimeType.eqVideo(media.getMimeType())) {
+        if (PictureMimeType.isHasVideo(media.getMimeType())) {
             // 判断视频是否符合条件
             if (config.videoMinSecond > 0 && config.videoMaxSecond > 0) {
                 // 用户设置了最小和最大视频时长，判断视频是否在区间之内
@@ -1796,18 +1813,18 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private void manualSaveFolder(LocalMedia media) {
         try {
             createNewFolder(foldersList);
-            LocalMediaFolder folder = getImageFolder(media.getPath(), foldersList);
+            LocalMediaFolder folder = getImageFolder(media.getPath(), media.getRealPath(), foldersList);
             LocalMediaFolder cameraFolder = foldersList.size() > 0 ? foldersList.get(0) : null;
             if (cameraFolder != null && folder != null) {
                 media.setParentFolderName(folder.getName());
                 // 相机胶卷
                 cameraFolder.setFirstImagePath(media.getPath());
-                cameraFolder.setImages(images);
+                cameraFolder.setData(images);
                 cameraFolder.setImageNum(cameraFolder.getImageNum() + 1);
                 // 拍照相册
                 int num = folder.getImageNum() + 1;
                 folder.setImageNum(num);
-                folder.getImages().add(0, media);
+                folder.getData().add(0, media);
                 folder.setFirstImagePath(config.cameraPath);
                 folderWindow.bindFolder(foldersList);
             }
@@ -1837,7 +1854,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 folder.setFirstImagePath(config.cameraPath);
                 folder.setImageNum(folder.getImageNum() + 1);
                 folder.setCheckedNum(1);
-                folder.getImages().add(0, media);
+                folder.getData().add(0, media);
                 break;
             }
         }
@@ -1870,20 +1887,20 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     }
 
     @Override
-    public void onItemClick(int position) {
+    public void onItemClick(View v, int position) {
         switch (position) {
             case PhotoItemSelectedDialog.IMAGE_CAMERA:
                 // 拍照
-                if (PictureSelectionConfig.onPictureSelectorInterfaceListener != null) {
-                    PictureSelectionConfig.onPictureSelectorInterfaceListener.onCameraClick(getContext(), PictureConfig.TYPE_IMAGE);
+                if (PictureSelectionConfig.onCustomCameraInterfaceListener != null) {
+                    PictureSelectionConfig.onCustomCameraInterfaceListener.onCameraClick(getContext(), config, PictureConfig.TYPE_IMAGE);
                 } else {
                     startOpenCamera();
                 }
                 break;
             case PhotoItemSelectedDialog.VIDEO_CAMERA:
                 // 录视频
-                if (PictureSelectionConfig.onPictureSelectorInterfaceListener != null) {
-                    PictureSelectionConfig.onPictureSelectorInterfaceListener.onCameraClick(getContext(), PictureConfig.TYPE_VIDEO);
+                if (PictureSelectionConfig.onCustomCameraInterfaceListener != null) {
+                    PictureSelectionConfig.onCustomCameraInterfaceListener.onCameraClick(getContext(), config, PictureConfig.TYPE_VIDEO);
                 } else {
                     startOpenCameraVideo();
                 }
@@ -1949,7 +1966,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         Button btn_cancel = dialog.findViewById(R.id.btn_cancel);
         Button btn_commit = dialog.findViewById(R.id.btn_commit);
         btn_commit.setText(getString(R.string.picture_go_setting));
-        TextView tv_title = dialog.findViewById(R.id.tv_title);
+        TextView tv_title = dialog.findViewById(R.id.tvTitle);
         TextView tv_content = dialog.findViewById(R.id.tv_content);
         tv_title.setText(getString(R.string.picture_prompt));
         tv_content.setText(errorMsg);

@@ -9,7 +9,7 @@ import java.io.File;
 /**
  * @author：luck
  * @date：2020-03-24 09:48
- * @describe：GlideCacheResources管理类
+ * @describe：GlideCacheEngine
  */
 public class GlideCacheEngine implements CacheResourcesEngine {
     /**

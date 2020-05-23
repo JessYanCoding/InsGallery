@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mAdapter.setSelectMax(maxSelectNum);
         mRecyclerView.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener((position, v) -> {
+        mAdapter.setOnItemClickListener((v, position) -> {
             List<LocalMedia> selectList = mAdapter.getData();
             if (selectList.size() > 0) {
                 LocalMedia media = selectList.get(position);

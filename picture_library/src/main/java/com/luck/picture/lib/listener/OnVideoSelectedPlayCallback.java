@@ -1,15 +1,14 @@
 package com.luck.picture.lib.listener;
 
-import com.luck.picture.lib.entity.LocalMedia;
 
 /**
  * @author：luck
  * @date：2020-01-15 14:38
- * @describe：自定义视频播放回调
+ * @describe：Custom video playback callback
  */
-public interface OnVideoSelectedPlayCallback<T extends LocalMedia> {
+public interface OnVideoSelectedPlayCallback<T> {
     /**
-     * 播放视频
+     * Play the video
      *
      * @param data
      */

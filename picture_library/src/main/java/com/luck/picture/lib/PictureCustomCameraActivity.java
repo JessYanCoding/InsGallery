@@ -7,34 +7,35 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.luck.picture.lib.camera.CustomCameraView;
+import com.luck.picture.lib.camera.listener.CameraListener;
+import com.luck.picture.lib.camera.view.CaptureLayout;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.dialog.PictureCustomDialog;
+import com.luck.picture.lib.permissions.PermissionChecker;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX;
 import androidx.camera.view.CameraView;
 
-import com.luck.picture.lib.camera.CustomCameraView;
-import com.luck.picture.lib.camera.listener.CameraListener;
-import com.luck.picture.lib.camera.view.CaptureLayout;
-import com.luck.picture.lib.config.PictureConfig;
-import com.luck.picture.lib.config.PictureSelectionConfig;
-import com.luck.picture.lib.dialog.PictureCustomDialog;
-import com.luck.picture.lib.permissions.PermissionChecker;
-import com.luck.picture.lib.tools.ToastUtils;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-
 /**
  * @author：luck
  * @date：2020-01-04 14:05
- * @describe：自定义拍照和录音
+ * @describe：Custom photos and videos
  */
 public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActivity {
-
+    private final static String TAG = PictureCustomCameraActivity.class.getSimpleName();
 
     private CustomCameraView mCameraView;
     protected boolean isEnterSetting;
@@ -68,10 +69,9 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
             return;
         }
 
-        // 验证相机权限
+        // 验证相机权限和麦克风权限
         if (PermissionChecker
                 .checkSelfPermission(this, Manifest.permission.CAMERA)) {
-            // 验证麦克风权限
             boolean isRecordAudio = PermissionChecker.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
             if (isRecordAudio) {
                 createCameraView();
@@ -161,10 +161,12 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
         mCameraView.setCameraListener(new CameraListener() {
             @Override
             public void onPictureSuccess(@NonNull File file) {
+                config.cameraMimeType = PictureMimeType.ofImage();
                 Intent intent = new Intent();
                 intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
+                intent.putExtra(PictureConfig.EXTRA_CONFIG, config);
                 if (config.camera) {
-                    requestCamera(intent);
+                    dispatchHandleCamera(intent);
                 } else {
                     setResult(RESULT_OK, intent);
                     onBackPressed();
@@ -173,10 +175,12 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 
             @Override
             public void onRecordSuccess(@NonNull File file) {
+                config.cameraMimeType = PictureMimeType.ofVideo();
                 Intent intent = new Intent();
                 intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
+                intent.putExtra(PictureConfig.EXTRA_CONFIG, config);
                 if (config.camera) {
-                    requestCamera(intent);
+                    dispatchHandleCamera(intent);
                 } else {
                     setResult(RESULT_OK, intent);
                     onBackPressed();
@@ -185,8 +189,7 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 
             @Override
             public void onError(int videoCaptureError, @NonNull String message, @Nullable Throwable cause) {
-                ToastUtils.s(getContext(), message);
-                onBackPressed();
+                Log.i(TAG, "onError: " + message);
             }
         });
 
@@ -196,6 +199,9 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
 
     @Override
     public void onBackPressed() {
+        if (config != null && config.camera && PictureSelectionConfig.listener != null) {
+            PictureSelectionConfig.listener.onCancel();
+        }
         closeActivity();
     }
 
@@ -258,9 +264,9 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
         Button btn_cancel = dialog.findViewById(R.id.btn_cancel);
         Button btn_commit = dialog.findViewById(R.id.btn_commit);
         btn_commit.setText(getString(R.string.picture_go_setting));
-        TextView tv_title = dialog.findViewById(R.id.tv_title);
+        TextView tvTitle = dialog.findViewById(R.id.tvTitle);
         TextView tv_content = dialog.findViewById(R.id.tv_content);
-        tv_title.setText(getString(R.string.picture_prompt));
+        tvTitle.setText(getString(R.string.picture_prompt));
         tv_content.setText(errorMsg);
         btn_cancel.setOnClickListener(v -> {
             if (!isFinishing()) {

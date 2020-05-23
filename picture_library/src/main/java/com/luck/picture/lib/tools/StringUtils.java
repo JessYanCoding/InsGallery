@@ -52,9 +52,9 @@ public class StringUtils {
      */
     @SuppressLint("StringFormatMatches")
     public static String getMsg(Context context, String mimeType, int maxSelectNum) {
-        if (PictureMimeType.eqVideo(mimeType)) {
+        if (PictureMimeType.isHasVideo(mimeType)) {
             return context.getString(R.string.picture_message_video_max_num, maxSelectNum);
-        } else if (PictureMimeType.eqAudio(mimeType)) {
+        } else if (PictureMimeType.isHasAudio(mimeType)) {
             return context.getString(R.string.picture_message_audio_max_num, maxSelectNum);
         } else {
             return context.getString(R.string.picture_message_max_num, maxSelectNum);
@@ -70,7 +70,7 @@ public class StringUtils {
     public static String rename(String fileName) {
         String temp = fileName.substring(0, fileName.lastIndexOf("."));
         String suffix = fileName.substring(fileName.lastIndexOf("."));
-        return new StringBuffer().append(temp).append("_").append(DateUtils.getCreateFileName()).append(suffix).toString();
+        return temp + "_" + DateUtils.getCreateFileName() + suffix;
     }
 
     /**
@@ -81,6 +81,31 @@ public class StringUtils {
      */
     public static String renameSuffix(String fileName, String suffix) {
         String temp = fileName.substring(0, fileName.lastIndexOf("."));
-        return new StringBuffer().append(temp).append(suffix).toString();
+        return temp + suffix;
+    }
+
+    /**
+     * getEncryptionValue
+     *
+     * @param url
+     * @param width
+     * @param height
+     * @return
+     */
+    public static String getEncryptionValue(String url, int width, int height) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(url).append("_").append(width).append("x").append(height);
+        return ValueOf.toString(Math.abs(hash(stringBuilder.hashCode())));
+    }
+
+    /**
+     * hash
+     *
+     * @param key
+     * @return
+     */
+    public static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 }

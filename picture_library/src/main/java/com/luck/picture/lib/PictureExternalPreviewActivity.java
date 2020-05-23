@@ -30,7 +30,7 @@ import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.luck.picture.lib.listener.ImageCompleteCallback;
+import com.luck.picture.lib.listener.OnImageCompleteCallback;
 import com.luck.picture.lib.permissions.PermissionChecker;
 import com.luck.picture.lib.photoview.PhotoView;
 import com.luck.picture.lib.thread.PictureThreadUtils;
@@ -74,7 +74,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     private String downloadPath;
     private String mMimeType;
     private ImageButton ibDelete;
-    private boolean isAndroidQ;
     private View titleViewBg;
 
     @Override
@@ -85,7 +84,6 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
     @Override
     protected void initWidgets() {
         super.initWidgets();
-        isAndroidQ = SdkVersionUtils.checkedAndroid_Q();
         titleViewBg = findViewById(R.id.titleViewBg);
         tvTitle = findViewById(R.id.picture_title);
         ibLeftBack = findViewById(R.id.left_back);
@@ -267,12 +265,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     // 原图
                     path = media.getPath();
                 }
-                boolean isHttp = PictureMimeType.isHttp(path);
+                boolean isHttp = PictureMimeType.isHasHttp(path);
                 String mimeType = isHttp ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
-                boolean eqVideo = PictureMimeType.eqVideo(mimeType);
-                ivPlay.setVisibility(eqVideo ? View.VISIBLE : View.GONE);
+                boolean isHasVideo = PictureMimeType.isHasVideo(mimeType);
+                ivPlay.setVisibility(isHasVideo ? View.VISIBLE : View.GONE);
                 boolean isGif = PictureMimeType.isGif(mimeType);
-                final boolean eqLongImg = MediaUtils.isLongImg(media);
+                boolean eqLongImg = MediaUtils.isLongImg(media);
                 imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
                 longImageView.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
                 // 压缩过的gif就不是gif了
@@ -286,7 +284,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         if (isHttp) {
                             // 网络图片
                             PictureSelectionConfig.imageEngine.loadImage(contentView.getContext(), path,
-                                    imageView, longImageView, new ImageCompleteCallback() {
+                                    imageView, longImageView, new OnImageCompleteCallback() {
                                         @Override
                                         public void onShowLoading() {
                                             showPleaseDialog();
@@ -299,7 +297,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                                     });
                         } else {
                             if (eqLongImg) {
-                                displayLongPic(isAndroidQ
+                                displayLongPic(PictureMimeType.isContent(path)
                                         ? Uri.parse(path) : Uri.fromFile(new File(path)), longImageView);
                             } else {
                                 PictureSelectionConfig.imageEngine.loadImage(contentView.getContext(), path, imageView);
@@ -315,12 +313,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     finish();
                     exitAnimation();
                 });
-                if (!eqVideo) {
+                if (!isHasVideo) {
                     longImageView.setOnLongClickListener(v -> {
                         if (config.isNotPreviewDownload) {
                             if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                                 downloadPath = path;
-                                String currentMimeType = PictureMimeType.isHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
+                                String currentMimeType = PictureMimeType.isHasHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
                                 mMimeType = PictureMimeType.isJPG(currentMimeType) ? PictureMimeType.MIME_TYPE_JPEG : currentMimeType;
                                 showDownLoadDialog();
                             } else {
@@ -331,12 +329,12 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         return true;
                     });
                 }
-                if (!eqVideo) {
+                if (!isHasVideo) {
                     imageView.setOnLongClickListener(v -> {
                         if (config.isNotPreviewDownload) {
                             if (PermissionChecker.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                                 downloadPath = path;
-                                String currentMimeType = PictureMimeType.isHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
+                                String currentMimeType = PictureMimeType.isHasHttp(path) ? PictureMimeType.getImageMimeType(media.getPath()) : media.getMimeType();
                                 mMimeType = PictureMimeType.isJPG(currentMimeType) ? PictureMimeType.MIME_TYPE_JPEG : currentMimeType;
                                 showDownLoadDialog();
                             } else {
@@ -389,9 +387,9 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                     new PictureCustomDialog(getContext(), R.layout.picture_wind_base_dialog);
             Button btn_cancel = dialog.findViewById(R.id.btn_cancel);
             Button btn_commit = dialog.findViewById(R.id.btn_commit);
-            TextView tv_title = dialog.findViewById(R.id.tv_title);
+            TextView tvTitle = dialog.findViewById(R.id.tvTitle);
             TextView tv_content = dialog.findViewById(R.id.tv_content);
-            tv_title.setText(getString(R.string.picture_prompt));
+            tvTitle.setText(getString(R.string.picture_prompt));
             tv_content.setText(getString(R.string.picture_prompt_content));
             btn_cancel.setOnClickListener(v -> {
                 if (!isFinishing()) {
@@ -399,10 +397,10 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 }
             });
             btn_commit.setOnClickListener(view -> {
-                boolean isHttp = PictureMimeType.isHttp(downloadPath);
+                boolean isHttp = PictureMimeType.isHasHttp(downloadPath);
                 showPleaseDialog();
                 if (isHttp) {
-                    PictureThreadUtils.executeByCached(new PictureThreadUtils.SimpleTask<String>() {
+                    PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<String>() {
                         @Override
                         public String doInBackground() {
                             return showLoadingImage(downloadPath);
@@ -410,14 +408,13 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
                         @Override
                         public void onSuccess(String result) {
-                            PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
                             onSuccessful(result);
                         }
                     });
                 } else {
                     // 有可能本地图片
                     try {
-                        if (isAndroidQ) {
+                        if (PictureMimeType.isContent(downloadPath)) {
                             savePictureAlbumAndroidQ(PictureMimeType.isContent(downloadPath) ? Uri.parse(downloadPath) : Uri.fromFile(new File(downloadPath)));
                         } else {
                             // 把文件插入到系统图库
@@ -450,8 +447,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 : getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         if (rootDir != null && !rootDir.exists() && rootDir.mkdirs()) {
         }
-        File folderDir = new File(isAndroidQ || !state.equals(Environment.MEDIA_MOUNTED)
-                ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
+        File folderDir = new File(SdkVersionUtils.checkedAndroid_Q() || !state.equals(Environment.MEDIA_MOUNTED)
+                ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + PictureMimeType.CAMERA + File.separator);
         if (folderDir != null && !folderDir.exists() && folderDir.mkdirs()) {
         }
         String fileName = DateUtils.getCreateFileName("IMG_") + suffix;
@@ -500,7 +497,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
             ToastUtils.s(getContext(), getString(R.string.picture_save_error));
             return;
         }
-        PictureThreadUtils.executeByCached(new PictureThreadUtils.SimpleTask<String>() {
+        PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<String>() {
 
             @Override
             public String doInBackground() {
@@ -524,7 +521,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
 
             @Override
             public void onSuccess(String result) {
-                PictureThreadUtils.cancel(PictureThreadUtils.getCachedPool());
+                PictureThreadUtils.cancel(PictureThreadUtils.getIoPool());
                 onSuccessful(result);
             }
         });
@@ -553,7 +550,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         InputStream inputStream = null;
         BufferedSource inBuffer = null;
         try {
-            if (isAndroidQ) {
+            if (SdkVersionUtils.checkedAndroid_Q()) {
                 outImageUri = createOutImageUri();
             } else {
                 String suffix = PictureMimeType.getLastImgSuffix(mMimeType);
@@ -567,7 +564,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                         rootDir.mkdirs();
                     }
                     File folderDir = new File(!state.equals(Environment.MEDIA_MOUNTED)
-                            ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
+                            ? rootDir.getAbsolutePath() : rootDir.getAbsolutePath() + File.separator + PictureMimeType.CAMERA + File.separator);
                     if (!folderDir.exists() && folderDir.mkdirs()) {
                     }
                     String fileName = DateUtils.getCreateFileName("IMG_") + suffix;
@@ -586,7 +583,7 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
                 }
             }
         } catch (Exception e) {
-            if (outImageUri != null && isAndroidQ) {
+            if (outImageUri != null && SdkVersionUtils.checkedAndroid_Q()) {
                 getContentResolver().delete(outImageUri, null, null);
             }
         } finally {
@@ -619,8 +616,8 @@ public class PictureExternalPreviewActivity extends PictureBaseActivity implemen
         if (PictureSelectionConfig.customVideoPlayCallback != null) {
             PictureSelectionConfig.customVideoPlayCallback = null;
         }
-        if (PictureSelectionConfig.onPictureSelectorInterfaceListener != null) {
-            PictureSelectionConfig.onPictureSelectorInterfaceListener = null;
+        if (PictureSelectionConfig.onCustomCameraInterfaceListener != null) {
+            PictureSelectionConfig.onCustomCameraInterfaceListener = null;
         }
     }
 
