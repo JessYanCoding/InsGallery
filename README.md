@@ -37,7 +37,7 @@
 
 ## Download
 ``` gradle
- implementation 'me.jessyan:insgallery:0.1.7'
+ implementation 'me.jessyan:insgallery:0.2.1'
 ```
 
 ## Usage
