@@ -279,7 +279,19 @@ public class InstagramPreviewContainer extends FrameLayout {
     }
 
     private void resetAspectRatio() {
-        mGestureCropImageView.setTargetAspectRatio(isAspectRatio ? 0 : 1.0f);
+        float radio = 0;
+        if (isAspectRatio) {
+            Drawable drawable = mGestureCropImageView.getDrawable();
+            if (drawable != null) {
+                if (drawable.getIntrinsicHeight() > drawable.getIntrinsicWidth() * 1.266f) {
+                    radio = drawable.getIntrinsicWidth() / (drawable.getIntrinsicWidth() * 1.266f);
+                } else if (drawable.getIntrinsicWidth() > drawable.getIntrinsicHeight() * 1.9f) {
+                    radio = drawable.getIntrinsicHeight() * 1.9f / drawable.getIntrinsicHeight();
+                }
+            }
+        }
+
+        mGestureCropImageView.setTargetAspectRatio(isAspectRatio ? radio : 1.0f);
         mGestureCropImageView.onImageLaidOut();
     }
 
