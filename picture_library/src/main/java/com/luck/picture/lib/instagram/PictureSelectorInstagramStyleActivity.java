@@ -95,7 +95,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     protected boolean isEnterSetting;
     protected InstagramGallery mInstagramGallery;
     private InstagramPreviewContainer mPreviewContainer;
-    private int mPreviewPosition;
+    private int mPreviewPosition = -1;
     private InstagramViewPager mInstagramViewPager;
     private boolean isRunningBind;
     private String mTitle;
@@ -176,7 +176,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         config.isCamera = false;
         config.selectionMode = PictureConfig.SINGLE;
         config.isSingleDirectReturn = true;
-//        config.isWithVideoImage = false;
+        config.isWithVideoImage = false;
 //        config.maxVideoSelectNum = 1;
         config.aspect_ratio_x = 1;
         config.aspect_ratio_y = 1;
@@ -1229,6 +1229,10 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
      * @param position
      */
     public void startPreview(List<LocalMedia> previewImages, int position) {
+        if (mPreviewPosition == position) {
+            return;
+        }
+
         RecyclerView.ViewHolder holder = mPictureRecycler.findViewHolderForAdapterPosition(position);
         if (!mInstagramGallery.isScrollTop()) {
             if (position == 0) {
