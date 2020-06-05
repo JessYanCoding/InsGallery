@@ -182,7 +182,7 @@ public final class InsGallery {
         }
         // 相册右侧取消按钮字体颜色  废弃 改用.pictureRightDefaultTextColor和.pictureRightDefaultTextColor
         if (currentTheme == THEME_STYLE_DARK) {
-            mPictureParameterStyle.pictureRightDefaultTextColor = ContextCompat.getColor(context, R.color.picture_color_white);
+            mPictureParameterStyle.pictureRightDefaultTextColor = ContextCompat.getColor(context, R.color.picture_color_1766FF);
         } else if (currentTheme == THEME_STYLE_DARK_BLUE) {
             mPictureParameterStyle.pictureRightDefaultTextColor = Color.parseColor("#2FA6FF");
         } else {
@@ -215,7 +215,7 @@ public final class InsGallery {
         // 外部预览界面是否显示删除按钮
         mPictureParameterStyle.pictureExternalPreviewGonePreviewDelete = true;
 //        // 自定义相册右侧文本内容设置
-        mPictureParameterStyle.pictureRightDefaultText = context.getString(R.string.done);
+        mPictureParameterStyle.pictureRightDefaultText = context.getString(R.string.next);
         return mPictureParameterStyle;
     }
 

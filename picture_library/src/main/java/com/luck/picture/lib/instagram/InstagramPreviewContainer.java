@@ -105,6 +105,7 @@ public class InstagramPreviewContainer extends FrameLayout {
     };
     private AnimatorSet mAnimatorSet;
     private ObjectAnimator mPlayAnimator;
+    private float mAspectRadio;
 
     public InstagramPreviewContainer(@NonNull Context context, PictureSelectionConfig config) {
         super(context);
@@ -160,10 +161,13 @@ public class InstagramPreviewContainer extends FrameLayout {
         mOverlayView.setShowCropGrid(false);
         mOverlayView.setShowCropFrame(false);
         if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
+            mOverlayView.setDimmedColor(Color.parseColor("#363636"));
             mOverlayView.setCropGridColor(ContextCompat.getColor(context, R.color.picture_color_black));
         } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
+            mOverlayView.setDimmedColor(Color.parseColor("#6614617f"));
             mOverlayView.setCropGridColor(Color.parseColor("#18222D"));
         } else {
+            mOverlayView.setDimmedColor(Color.parseColor("#efefef"));
             mOverlayView.setCropGridColor(ContextCompat.getColor(context, R.color.picture_color_white));
         }
 
@@ -279,20 +283,28 @@ public class InstagramPreviewContainer extends FrameLayout {
     }
 
     private void resetAspectRatio() {
-        float radio = 0;
+        mAspectRadio = 0;
         if (isAspectRatio) {
             Drawable drawable = mGestureCropImageView.getDrawable();
             if (drawable != null) {
                 if (drawable.getIntrinsicHeight() > drawable.getIntrinsicWidth() * 1.266f) {
-                    radio = drawable.getIntrinsicWidth() / (drawable.getIntrinsicWidth() * 1.266f);
+                    mAspectRadio = drawable.getIntrinsicWidth() / (drawable.getIntrinsicWidth() * 1.266f);
                 } else if (drawable.getIntrinsicWidth() > drawable.getIntrinsicHeight() * 1.9f) {
-                    radio = drawable.getIntrinsicHeight() * 1.9f / drawable.getIntrinsicHeight();
+                    mAspectRadio = drawable.getIntrinsicHeight() * 1.9f / drawable.getIntrinsicHeight();
                 }
             }
         }
 
-        mGestureCropImageView.setTargetAspectRatio(isAspectRatio ? radio : 1.0f);
+        mGestureCropImageView.setTargetAspectRatio(isAspectRatio ? mAspectRadio : 1.0f);
         mGestureCropImageView.onImageLaidOut();
+    }
+
+    public boolean isAspectRatio() {
+        return isAspectRatio;
+    }
+
+    public float getAspectRadio() {
+        return mAspectRadio;
     }
 
     public void setImageUri(@NonNull Uri inputUri, @Nullable Uri outputUri) {

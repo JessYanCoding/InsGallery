@@ -70,4 +70,5 @@
     <string name="camera_init">相機初始化中...</string>
     <string name="picture_know">我知道了</string>
     <string name="picture_data_null">這裏空空如也…</string>
+    <string name="next">繼續</string>
 </resources>
