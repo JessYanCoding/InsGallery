@@ -957,15 +957,17 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 && eqImg) {
             // 图片才压缩，视频不管
             compressImage(images);
-        } else if (PictureMimeType.isHasVideo(mimeType)) {
-            Bundle bundle = null;
-            if (mPreviewContainer != null) {
-                bundle = new Bundle();
-                bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mPreviewContainer.isAspectRatio());
-                bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mPreviewContainer.getAspectRadio());
-            }
-            InstagramMediaProcessActivity.launchActivity(this, config, images, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_VIDEO_PROCESS);
-        } else {
+        }
+//        else if (PictureMimeType.isHasVideo(mimeType)) {
+//            Bundle bundle = null;
+//            if (mPreviewContainer != null) {
+//                bundle = new Bundle();
+//                bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mPreviewContainer.isAspectRatio());
+//                bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mPreviewContainer.getAspectRadio());
+//            }
+//            InstagramMediaProcessActivity.launchActivity(this, config, images, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_VIDEO_PROCESS);
+//        }
+        else {
             onResult(images);
         }
     }
@@ -1422,9 +1424,15 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     break;
                 case UCrop.REQUEST_CROP:
                     List<LocalMedia> result = new ArrayList<>();
-                    if (mAdapter.getImages().size() > 0) {
+
+                    if (data.getBooleanExtra(BitmapCropSquareTask.EXTRA_FROM_CAMERA, false) && mAdapter.getSelectedImages().size() > 0) {
+                        result.add(mAdapter.getSelectedImages().get(0));
+                    }
+
+                    if (result.isEmpty() && mAdapter.getImages().size() > 0) {
                         result.add(mAdapter.getImages().get(mPreviewPosition));
                     }
+
                     Bundle bundle = new Bundle();
                     if (data != null) {
                         bundle.putParcelable(InstagramMediaProcessActivity.EXTRA_SINGLE_IMAGE_URI, UCrop.getOutput(data));

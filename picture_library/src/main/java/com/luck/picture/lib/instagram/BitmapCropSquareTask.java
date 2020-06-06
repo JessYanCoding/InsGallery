@@ -25,6 +25,7 @@ public class BitmapCropSquareTask extends AsyncTask<Void, Void, Throwable> {
     private final Bitmap mBitmap;
     private final String mImageOutputPath;
     private final WeakReference<PictureSelectorInstagramStyleActivity>  mActivityWeakReference;
+    public static final String EXTRA_FROM_CAMERA = "extra_from_camera";
 
     public BitmapCropSquareTask(Bitmap bitmap, String imageOutputPath, PictureSelectorInstagramStyleActivity activity) {
         mBitmap = bitmap;
@@ -68,6 +69,7 @@ public class BitmapCropSquareTask extends AsyncTask<Void, Void, Throwable> {
         PictureSelectorInstagramStyleActivity activity = mActivityWeakReference.get();
         if (activity != null && throwable == null) {
             activity.onActivityResult(UCrop.REQUEST_CROP, Activity.RESULT_OK, new Intent()
+                    .putExtra(EXTRA_FROM_CAMERA, true)
                     .putExtra(UCrop.EXTRA_OUTPUT_URI, Uri.fromFile(new File(mImageOutputPath))));
         } else if (throwable != null) {
             ToastUtils.s(activity, throwable.getMessage());
