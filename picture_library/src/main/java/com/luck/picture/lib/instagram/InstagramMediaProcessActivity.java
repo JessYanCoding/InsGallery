@@ -33,6 +33,7 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
     public static final int REQUEST_SINGLE_IMAGE_PROCESS = 339;
     public static final int REQUEST_MULTI_IMAGE_PROCESS = 440;
     public static final int REQUEST_SINGLE_VIDEO_PROCESS = 441;
+    public static final int RESULT_SINGLE_CANCELED = 501;
     private List<LocalMedia> mSelectMedia;
     private InstagramTitleBar mTitleBar;
     private MediaType mMediaType;
@@ -111,6 +112,9 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
         mTitleBar.setClickListener(new InstagramTitleBar.OnTitleBarItemOnClickListener() {
             @Override
             public void onLeftViewClick() {
+                if (mMediaType == MediaType.SINGLE_IMAGE || mMediaType == MediaType.SINGLE_VIDEO) {
+                    setResult(RESULT_SINGLE_CANCELED);
+                }
                 finish();
             }
 

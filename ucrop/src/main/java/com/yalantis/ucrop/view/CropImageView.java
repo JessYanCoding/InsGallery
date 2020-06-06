@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 
 import com.yalantis.ucrop.R;
@@ -86,6 +87,23 @@ public class CropImageView extends TransformImageView {
 
         new BitmapCropTask(getContext(), getViewBitmap(), imageState, cropParameters, cropCallback)
                 .executeOnExecutor(Executors.newCachedThreadPool());
+    }
+
+    public AsyncTask createCropAndSaveImageTask(@NonNull Bitmap.CompressFormat compressFormat, int compressQuality,
+                                                @Nullable BitmapCropCallback cropCallback) {
+        cancelAllAnimations();
+        setImageToWrapCropBounds(false);
+
+        final ImageState imageState = new ImageState(
+                mCropRect, RectUtils.trapToRect(mCurrentImageCorners),
+                getCurrentScale(), getCurrentAngle());
+
+        final CropParameters cropParameters = new CropParameters(
+                mMaxResultImageSizeX, mMaxResultImageSizeY,
+                compressFormat, compressQuality,
+                getImageInputPath(), getImageOutputPath(), getExifInfo());
+
+        return new BitmapCropTask(getContext(), getViewBitmap(), imageState, cropParameters, cropCallback);
     }
 
     /**

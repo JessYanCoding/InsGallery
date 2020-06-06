@@ -1365,7 +1365,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
         LocalMedia media = previewImages.get(position);
         String mimeType = media.getMimeType();
-        List<LocalMedia> result = new ArrayList<>();
         if (PictureMimeType.isHasVideo(mimeType)) {
             // video
             mPreviewContainer.checkModel(InstagramPreviewContainer.PLAY_VIDEO_MODE);
@@ -1456,6 +1455,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             if (data != null) {
                 Throwable throwable = (Throwable) data.getSerializableExtra(UCrop.EXTRA_ERROR);
                 ToastUtils.s(getContext(), throwable.getMessage());
+            }
+        } else if (resultCode == InstagramMediaProcessActivity.RESULT_SINGLE_CANCELED) {
+            List<LocalMedia> result = mAdapter.getSelectedImages();
+            if (result.size() > 0) {
+                result.clear();
             }
         }
     }

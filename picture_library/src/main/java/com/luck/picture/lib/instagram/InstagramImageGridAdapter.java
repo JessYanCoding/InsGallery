@@ -226,7 +226,7 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
                     if (SdkVersionUtils.checkedAndroid_Q()) {
                         image.setRealPath(newPath);
                     }
-                    changeCheckboxState(contentHolder, image);
+                    changeCheckboxState(contentHolder, image, showCamera ? position - 1 : position);
                 });
             }
             contentHolder.contentView.setOnClickListener(v -> {
@@ -265,9 +265,11 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
                             return;
                         }
                     }
-                    imageSelectChangedListener.onPictureClick(image, index);
+                    if (imageSelectChangedListener != null) {
+                        imageSelectChangedListener.onPictureClick(image, index);
+                    }
                 } else {
-                    changeCheckboxState(contentHolder, image);
+                    changeCheckboxState(contentHolder, image, index);
                 }
             });
         }
@@ -361,7 +363,7 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
      */
 
     @SuppressLint("StringFormatMatches")
-    private void changeCheckboxState(ViewHolder contentHolder, LocalMedia image) {
+    private void changeCheckboxState(ViewHolder contentHolder, LocalMedia image, int position) {
         boolean isChecked = contentHolder.tvCheck.isSelected();
         int size = selectImages.size();
         String mimeType = size > 0 ? selectImages.get(0).getMimeType() : "";
@@ -479,6 +481,9 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
                 singleRadioMediaImage();
             }
             selectImages.add(image);
+            if (imageSelectChangedListener != null) {
+                imageSelectChangedListener.onPictureClick(image, position);
+            }
             image.setNum(selectImages.size());
             VoiceUtils.getInstance().play();
             if (contentHolder.ivPicture.getScaleX() == 1f) {
