@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -226,17 +227,7 @@ public class InstagramPreviewContainer extends FrameLayout {
         multiLayoutParams.rightMargin = ScreenUtils.dip2px(context, 15);
         multiLayoutParams.bottomMargin = ScreenUtils.dip2px(context, 12);
         addView(mMultiView, multiLayoutParams);
-        mMultiView.setOnClickListener(v -> {
-            isMulti = !isMulti;
-            if (isMulti) {
-                mRatioView.setVisibility(View.GONE);
-            } else {
-                mRatioView.setVisibility(View.VISIBLE);
-            }
-            if (mListener != null) {
-                mListener.onSelectionModeChange(isMulti);
-            }
-        });
+        mMultiView.setOnClickListener(v -> setMultiMode(!isMulti));
 
         View divider = new View(getContext());
         if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
@@ -248,6 +239,18 @@ public class InstagramPreviewContainer extends FrameLayout {
         }
         FrameLayout.LayoutParams dividerParms = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(getContext(), 2), Gravity.BOTTOM);
         addView(divider, dividerParms);
+    }
+
+    public void setMultiMode(boolean multi) {
+        isMulti = multi;
+        if (multi) {
+            mRatioView.setVisibility(View.GONE);
+        } else {
+            mRatioView.setVisibility(View.VISIBLE);
+        }
+        if (mListener != null) {
+            mListener.onSelectionModeChange(multi);
+        }
     }
 
     private void pauseVideo() {
@@ -469,6 +472,10 @@ public class InstagramPreviewContainer extends FrameLayout {
             mPositionWhenPaused = mVideoView.getCurrentPosition();
             mVideoView.stopPlayback();
         }
+    }
+
+    public AsyncTask createCropAndSaveImageTask(BitmapCropCallback cropCallback) {
+       return mGestureCropImageView.createCropAndSaveImageTask(UCropActivity.DEFAULT_COMPRESS_FORMAT, UCropActivity.DEFAULT_COMPRESS_QUALITY, cropCallback);
     }
 
     public void cropAndSaveImage(PictureSelectorInstagramStyleActivity activity) {

@@ -1,6 +1,7 @@
 package com.luck.picture.lib.instagram;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -36,6 +38,7 @@ import com.luck.picture.lib.dialog.PhotoItemSelectedDialog;
 import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
+import com.luck.picture.lib.instagram.cache.LruCache;
 import com.luck.picture.lib.listener.OnAlbumItemClickListener;
 import com.luck.picture.lib.listener.OnItemClickListener;
 import com.luck.picture.lib.model.LocalMediaLoader;
@@ -65,15 +68,19 @@ import com.otaliastudios.transcoder.strategy.size.AspectRatioResizer;
 import com.otaliastudios.transcoder.strategy.size.PassThroughResizer;
 import com.otaliastudios.transcoder.strategy.size.Resizer;
 import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
 import com.yalantis.ucrop.model.CutInfo;
 import com.yalantis.ucrop.model.ExifInfo;
+import com.yalantis.ucrop.task.BitmapCropTask;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -119,6 +126,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private String mTitle;
     private List<Page> mList;
     private long intervalClickTime;
+    private LruCache<LocalMedia, AsyncTask> mLruCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,6 +224,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                         mInstagramGallery.setInitGalleryHeight();
                         mInstagramViewPager.setScrollEnable(false);
                         mInstagramViewPager.displayTabLayout(false);
+                    }
+                    if (mLruCache == null) {
+                        mLruCache = new LruCache<>(20);
                     }
                     bindPreviewPosition();
                 } else {
@@ -425,7 +436,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     public boolean containsMedia(List<LocalMedia> selectedImages, LocalMedia media) {
         if (selectedImages != null && media != null) {
             for (LocalMedia selectedImage : selectedImages) {
-                if (selectedImage.getPath().equals(media.getPath())) {
+                if (selectedImage.getPath().equals(media.getPath()) || selectedImage.getId() == media.getId()) {
                     return true;
                 }
             }
@@ -933,25 +944,27 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 }
             } else {
                 // 是图片和选择压缩并且是多张，调用批量压缩
-                ArrayList<CutInfo> cuts = new ArrayList<>();
-                int count = images.size();
-                for (int i = 0; i < count; i++) {
-                    LocalMedia media = images.get(i);
-                    if (media == null
-                            || TextUtils.isEmpty(media.getPath())) {
-                        continue;
-                    }
-                    CutInfo cutInfo = new CutInfo();
-                    cutInfo.setId(media.getId());
-                    cutInfo.setPath(media.getPath());
-                    cutInfo.setImageWidth(media.getWidth());
-                    cutInfo.setImageHeight(media.getHeight());
-                    cutInfo.setMimeType(media.getMimeType());
-                    cutInfo.setDuration(media.getDuration());
-                    cutInfo.setRealPath(media.getRealPath());
-                    cuts.add(cutInfo);
-                }
-                startCrop(cuts);
+//                ArrayList<CutInfo> cuts = new ArrayList<>();
+//                int count = images.size();
+//                for (int i = 0; i < count; i++) {
+//                    LocalMedia media = images.get(i);
+//                    if (media == null
+//                            || TextUtils.isEmpty(media.getPath())) {
+//                        continue;
+//                    }
+//                    CutInfo cutInfo = new CutInfo();
+//                    cutInfo.setId(media.getId());
+//                    cutInfo.setPath(media.getPath());
+//                    cutInfo.setImageWidth(media.getWidth());
+//                    cutInfo.setImageHeight(media.getHeight());
+//                    cutInfo.setMimeType(media.getMimeType());
+//                    cutInfo.setDuration(media.getDuration());
+//                    cutInfo.setRealPath(media.getRealPath());
+//                    cuts.add(cutInfo);
+//                }
+//                startCrop(cuts);
+                savePreviousPositionCropInfo(mAdapter.getImages().get(mPreviewPosition));
+                startMultiCrop();
             }
         } else if (config.isCompress
                 && eqImg) {
@@ -959,13 +972,15 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             compressImage(images);
         }
 //        else if (PictureMimeType.isHasVideo(mimeType)) {
+//            List<LocalMedia> result = new ArrayList<>();
+//            result.addAll(images);
 //            Bundle bundle = null;
 //            if (mPreviewContainer != null) {
 //                bundle = new Bundle();
 //                bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mPreviewContainer.isAspectRatio());
 //                bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mPreviewContainer.getAspectRadio());
 //            }
-//            InstagramMediaProcessActivity.launchActivity(this, config, images, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_VIDEO_PROCESS);
+//            InstagramMediaProcessActivity.launchActivity(this, config, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_VIDEO_PROCESS);
 //        }
         else {
             onResult(images);
@@ -1267,6 +1282,23 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     }
 
     @Override
+    public void onItemChecked(int position, LocalMedia image, boolean isCheck) {
+        if (isCheck) {
+            List<LocalMedia> images = mAdapter.getImages();
+            startPreview(images, position);
+        } else if (mLruCache != null) {
+            if (mLruCache.remove(image) == null) {
+                for (Map.Entry<LocalMedia, AsyncTask> entry : mLruCache.entrySet()) {
+                    if (entry.getKey().getPath().equals(image.getPath()) || entry.getKey().getId() == image.getId()) {
+                        mLruCache.remove(entry.getKey());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public void onTakePhoto() {
         // 启动相机拍照,先判断手机是否有拍照权限
         if (PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA)) {
@@ -1363,6 +1395,10 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             });
         }
 
+        if (mPreviewPosition >= 0) {
+            savePreviousPositionCropInfo(previewImages.get(mPreviewPosition));
+        }
+
         setPreviewPosition(position);
 
         LocalMedia media = previewImages.get(position);
@@ -1379,15 +1415,15 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             if (media != null) {
                 mPreviewContainer.checkModel(InstagramPreviewContainer.PLAY_IMAGE_MODE);
                 final String path;
-                if (media.isCut() && !media.isCompressed()) {
-                    // 裁剪过
-                    path = media.getCutPath();
-                } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
-                    // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
-                    path = media.getCompressPath();
-                } else {
+//                if (media.isCut() && !media.isCompressed()) {
+//                    // 裁剪过
+//                    path = media.getCutPath();
+//                } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
+//                    // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
+//                    path = media.getCompressPath();
+//                } else {
                     path = media.getPath();
-                }
+//                }
                 boolean isHttp = PictureMimeType.isHasHttp(path);
                 boolean isAndroidQ = SdkVersionUtils.checkedAndroid_Q();
                 Uri uri = isHttp || isAndroidQ ? Uri.parse(path) : Uri.fromFile(new File(path));
@@ -1398,6 +1434,116 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             }
         }
     }
+
+    private void savePreviousPositionCropInfo(LocalMedia previousMedia) {
+        if (previousMedia == null || mLruCache == null || mPreviewContainer == null || config.selectionMode == PictureConfig.SINGLE || !PictureMimeType.isHasImage(previousMedia.getMimeType())) {
+            return;
+        }
+
+        List<LocalMedia> selectedImages = mAdapter.getSelectedImages();
+        if (selectedImages.contains(previousMedia)) {
+            mLruCache.put(previousMedia, mPreviewContainer.createCropAndSaveImageTask(new BitmapCropCallbackImpl(previousMedia)));
+        } else {
+            for (LocalMedia selectedImage : selectedImages) {
+                if (selectedImage.getPath().equals(previousMedia.getPath()) || selectedImage.getId() == previousMedia.getId()) {
+                    mLruCache.put(selectedImage, mPreviewContainer.createCropAndSaveImageTask(new BitmapCropCallbackImpl(selectedImage)));
+                    break;
+                }
+            }
+        }
+    }
+
+    private void startMultiCrop() {
+        if (mLruCache == null || mAdapter == null || mPreviewContainer == null) {
+            return;
+        }
+        for (Map.Entry<LocalMedia, AsyncTask> entry : mLruCache.entrySet()) {
+            Objects.requireNonNull((BitmapCropTask) entry.getValue()).execute();
+        }
+        new FinishMultiCropTask(this, mPreviewContainer, mLruCache, mAdapter.getSelectedImages(), config).execute();
+    }
+
+    public static class FinishMultiCropTask extends AsyncTask<Void, Void, Void> {
+        private WeakReference<InstagramPreviewContainer> mContainerWeakReference;
+        private WeakReference<PictureSelectorInstagramStyleActivity> mActivityWeakReference;
+        private LruCache mLruCache;
+        private List<LocalMedia> mSelectedImages;
+        private PictureSelectionConfig mConfig;
+
+        public FinishMultiCropTask(PictureSelectorInstagramStyleActivity activity, InstagramPreviewContainer previewContainer, LruCache lruCache, List<LocalMedia> selectedImages, PictureSelectionConfig config) {
+            mContainerWeakReference = new WeakReference<>(previewContainer);
+            mActivityWeakReference = new WeakReference<>(activity);
+            mLruCache = lruCache;
+            mSelectedImages = selectedImages;
+            mConfig = config;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            InstagramPreviewContainer previewContainer = mContainerWeakReference.get();
+            List<LocalMedia> result = new ArrayList<>();
+            result.addAll(mSelectedImages);
+
+            Bundle bundle = null;
+            if (previewContainer != null) {
+                bundle = new Bundle();
+                bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, previewContainer.isAspectRatio());
+                bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, previewContainer.getAspectRadio());
+            }
+
+            PictureSelectorInstagramStyleActivity activity = mActivityWeakReference.get();
+            if (activity != null) {
+                InstagramMediaProcessActivity.launchActivity(activity, mConfig, result, bundle, InstagramMediaProcessActivity.REQUEST_MULTI_IMAGE_PROCESS);
+            }
+
+            if (mSelectedImages != null && !mSelectedImages.isEmpty()) {
+                mSelectedImages.clear();
+            }
+            if (mLruCache != null) {
+                mLruCache.clear();
+            }
+
+            if (previewContainer != null) {
+                previewContainer.setMultiMode(false);
+            }
+        }
+    }
+
+    private static class BitmapCropCallbackImpl implements BitmapCropCallback {
+        private LocalMedia mLocalMedia;
+
+        public BitmapCropCallbackImpl(LocalMedia localMedia) {
+            mLocalMedia = localMedia;
+        }
+
+        public void setLocalMedia(LocalMedia localMedia) {
+            mLocalMedia = localMedia;
+        }
+
+        @Override
+        public void onBitmapCropped(@NonNull Uri resultUri, int offsetX, int offsetY, int imageWidth, int imageHeight) {
+            if (mLocalMedia != null) {
+                mLocalMedia.setCut(true);
+                mLocalMedia.setCutPath(resultUri.getPath());
+                mLocalMedia.setWidth(imageWidth);
+                mLocalMedia.setHeight(imageHeight);
+                mLocalMedia.setSize(new File(resultUri.getPath()).length());
+                mLocalMedia.setAndroidQToPath(SdkVersionUtils.checkedAndroid_Q() ? resultUri.getPath() : mLocalMedia.getAndroidQToPath());
+            }
+            Log.d("Test", resultUri.getPath());
+        }
+
+        @Override
+        public void onCropFailure(@NonNull Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
 
     private void setPreviewPosition(int position) {
         if (mPreviewPosition != position && mAdapter != null && position < mAdapter.getItemCount()) {

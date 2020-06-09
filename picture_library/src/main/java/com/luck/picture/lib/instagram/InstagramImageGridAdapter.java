@@ -481,9 +481,6 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
                 singleRadioMediaImage();
             }
             selectImages.add(image);
-            if (imageSelectChangedListener != null) {
-                imageSelectChangedListener.onPictureClick(image, position);
-            }
             image.setNum(selectImages.size());
             VoiceUtils.getInstance().play();
             if (contentHolder.ivPicture.getScaleX() == 1f) {
@@ -495,6 +492,7 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
         notifyItemChanged(contentHolder.getAdapterPosition());
         selectImage(contentHolder, !isChecked);
         if (imageSelectChangedListener != null) {
+            imageSelectChangedListener.onItemChecked(position, image, !isChecked);
             imageSelectChangedListener.onChange(selectImages);
         }
     }
@@ -552,6 +550,7 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
     }
 
     public interface OnPhotoSelectChangedListener {
+        void onItemChecked(int position, LocalMedia image, boolean isCheck);
         /**
          * 拍照回调
          */

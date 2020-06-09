@@ -95,7 +95,7 @@ public class CropImageView extends TransformImageView {
         setImageToWrapCropBounds(false);
 
         final ImageState imageState = new ImageState(
-                mCropRect, RectUtils.trapToRect(mCurrentImageCorners),
+                new RectF(mCropRect), RectUtils.trapToRect(mCurrentImageCorners),
                 getCurrentScale(), getCurrentAngle());
 
         final CropParameters cropParameters = new CropParameters(
