@@ -2,9 +2,11 @@ package com.luck.picture.lib.instagram;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -16,6 +18,8 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,19 +31,17 @@ import java.util.List;
  * ================================================
  */
 public class InstagramMediaProcessActivity extends PictureBaseActivity {
-    public static final String EXTRA_ASPECT_RATIO  = "extra_aspect_ratio";
-    public static final String EXTRA_ASPECT_RATIO_VALUE  = "extra_aspect_ratio_value";
-    public static final String EXTRA_SINGLE_IMAGE_URI = "extra_single_image_uri";
+    public static final String EXTRA_ASPECT_RATIO = "extra_aspect_ratio";
+    public static final String EXTRA_ASPECT_RATIO_VALUE = "extra_aspect_ratio_value";
     public static final int REQUEST_SINGLE_IMAGE_PROCESS = 339;
     public static final int REQUEST_MULTI_IMAGE_PROCESS = 440;
     public static final int REQUEST_SINGLE_VIDEO_PROCESS = 441;
-    public static final int RESULT_SINGLE_CANCELED = 501;
+    public static final int RESULT_MEDIA_PROCESS_CANCELED = 501;
     private List<LocalMedia> mSelectMedia;
     private InstagramTitleBar mTitleBar;
     private MediaType mMediaType;
     private boolean isAspectRatio;
     private float mAspectRatio;
-    private Uri mSingleImageUri;
 
     public enum MediaType {
         SINGLE_IMAGE, SINGLE_VIDEO, MULTI_IMAGE
@@ -54,14 +56,13 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             mSelectMedia = PictureSelector.obtainSelectorList(savedInstanceState);
-            mSingleImageUri = savedInstanceState.getParcelable(EXTRA_SINGLE_IMAGE_URI);
         }
         super.onCreate(savedInstanceState);
     }
 
     @Override
     protected void onPause() {
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         super.onPause();
     }
 
@@ -91,7 +92,7 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
             protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
                 mTitleBar.layout(0, 0, mTitleBar.getMeasuredWidth(), mTitleBar.getMeasuredHeight());
                 View child = getChildAt(0);
-                child.layout( 0, mTitleBar.getMeasuredHeight(), child.getMeasuredWidth(), mTitleBar.getMeasuredHeight() + child.getMeasuredHeight());
+                child.layout(0, mTitleBar.getMeasuredHeight(), child.getMeasuredWidth(), mTitleBar.getMeasuredHeight() + child.getMeasuredHeight());
             }
         };
         container = contentView;
@@ -113,9 +114,7 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
         mTitleBar.setClickListener(new InstagramTitleBar.OnTitleBarItemOnClickListener() {
             @Override
             public void onLeftViewClick() {
-                if (mMediaType == MediaType.SINGLE_IMAGE || mMediaType == MediaType.SINGLE_VIDEO) {
-                    setResult(RESULT_SINGLE_CANCELED);
-                }
+                setResult(RESULT_MEDIA_PROCESS_CANCELED);
                 finish();
             }
 
@@ -127,7 +126,7 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
             @Override
             public void onRightViewClick() {
                 if (mMediaType == MediaType.SINGLE_IMAGE) {
-                    ((InstagramMediaSingleImageContainer)contentView.getChildAt(0)).onSaveImage(uri -> {
+                    ((InstagramMediaSingleImageContainer) contentView.getChildAt(0)).onSaveImage(uri -> {
                         setResult(RESULT_OK, new Intent().putExtra(UCrop.EXTRA_OUTPUT_URI, uri));
                         finish();
                     });
@@ -151,9 +150,6 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
         super.onSaveInstanceState(outState);
         if (mSelectMedia.size() > 0) {
             PictureSelector.saveSelectorList(outState, mSelectMedia);
-        }
-        if (mMediaType == MediaType.SINGLE_IMAGE && mSingleImageUri != null) {
-            outState.putParcelable(EXTRA_SINGLE_IMAGE_URI, mSingleImageUri);
         }
     }
 
@@ -181,18 +177,24 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
             mAspectRatio = getIntent().getFloatExtra(EXTRA_ASPECT_RATIO_VALUE, 0);
         }
 
-        if (mSingleImageUri == null && getIntent() != null) {
-            mSingleImageUri = getIntent().getParcelableExtra(EXTRA_SINGLE_IMAGE_URI);
+        try {
+            Uri uri;
+            LocalMedia media = mSelectMedia.get(0);
+            if (media.isCut()) {
+                uri = Uri.fromFile(new File(media.getCutPath()));
+            } else {
+                uri = PictureMimeType.isContent(media.getPath()) ? Uri.parse(media.getPath()) : Uri.fromFile(new File(media.getPath()));
+            }
+
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+            InstagramMediaSingleImageContainer singleImageContainer = new InstagramMediaSingleImageContainer(this, config, bitmap, isAspectRatio, mAspectRatio);
+            contentView.addView(singleImageContainer, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        if (mSingleImageUri == null) {
-            finish();
-            return;
-        }
-        InstagramMediaSingleImageContainer singleImageContainer = new InstagramMediaSingleImageContainer(this, config, mSingleImageUri, isAspectRatio, mAspectRatio);
-        contentView.addView(singleImageContainer, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
     }
 
-     public static void launchActivity(Activity activity, PictureSelectionConfig config, List<LocalMedia> images, Bundle extras, int requestCode) {
+    public static void launchActivity(Activity activity, PictureSelectionConfig config, List<LocalMedia> images, Bundle extras, int requestCode) {
         Intent intent = new Intent(activity.getApplicationContext(), InstagramMediaProcessActivity.class);
         intent.putExtra(PictureConfig.EXTRA_CONFIG, config);
         intent.putParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST,
@@ -201,6 +203,6 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
             intent.putExtras(extras);
         }
         activity.startActivityForResult(intent, requestCode);
-        activity.overridePendingTransition(0,0);
+        activity.overridePendingTransition(0, 0);
     }
 }

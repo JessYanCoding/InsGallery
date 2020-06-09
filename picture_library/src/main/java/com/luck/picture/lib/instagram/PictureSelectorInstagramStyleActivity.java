@@ -1,7 +1,6 @@
 package com.luck.picture.lib.instagram;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -1460,20 +1459,18 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         for (Map.Entry<LocalMedia, AsyncTask> entry : mLruCache.entrySet()) {
             Objects.requireNonNull((BitmapCropTask) entry.getValue()).execute();
         }
-        new FinishMultiCropTask(this, mPreviewContainer, mLruCache, mAdapter.getSelectedImages(), config).execute();
+        new FinishMultiCropTask(this, mPreviewContainer, mAdapter.getSelectedImages(), config).execute();
     }
 
     public static class FinishMultiCropTask extends AsyncTask<Void, Void, Void> {
         private WeakReference<InstagramPreviewContainer> mContainerWeakReference;
         private WeakReference<PictureSelectorInstagramStyleActivity> mActivityWeakReference;
-        private LruCache mLruCache;
         private List<LocalMedia> mSelectedImages;
         private PictureSelectionConfig mConfig;
 
-        public FinishMultiCropTask(PictureSelectorInstagramStyleActivity activity, InstagramPreviewContainer previewContainer, LruCache lruCache, List<LocalMedia> selectedImages, PictureSelectionConfig config) {
+        public FinishMultiCropTask(PictureSelectorInstagramStyleActivity activity, InstagramPreviewContainer previewContainer, List<LocalMedia> selectedImages, PictureSelectionConfig config) {
             mContainerWeakReference = new WeakReference<>(previewContainer);
             mActivityWeakReference = new WeakReference<>(activity);
-            mLruCache = lruCache;
             mSelectedImages = selectedImages;
             mConfig = config;
         }
@@ -1499,17 +1496,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             PictureSelectorInstagramStyleActivity activity = mActivityWeakReference.get();
             if (activity != null) {
                 InstagramMediaProcessActivity.launchActivity(activity, mConfig, result, bundle, InstagramMediaProcessActivity.REQUEST_MULTI_IMAGE_PROCESS);
-            }
-
-            if (mSelectedImages != null && !mSelectedImages.isEmpty()) {
-                mSelectedImages.clear();
-            }
-            if (mLruCache != null) {
-                mLruCache.clear();
-            }
-
-            if (previewContainer != null) {
-                previewContainer.setMultiMode(false);
             }
         }
     }
@@ -1569,30 +1555,17 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     }
                     break;
                 case UCrop.REQUEST_CROP:
-                    List<LocalMedia> result = new ArrayList<>();
-
-                    if (data.getBooleanExtra(BitmapCropSquareTask.EXTRA_FROM_CAMERA, false) && mAdapter.getSelectedImages().size() > 0) {
-                        result.add(mAdapter.getSelectedImages().get(0));
-                    }
-
-                    if (result.isEmpty() && mAdapter.getImages().size() > 0) {
-                        result.add(mAdapter.getImages().get(mPreviewPosition));
-                    }
-
-                    Bundle bundle = new Bundle();
-                    if (data != null) {
-                        bundle.putParcelable(InstagramMediaProcessActivity.EXTRA_SINGLE_IMAGE_URI, UCrop.getOutput(data));
-                    }
-
-                    if (mPreviewContainer != null) {
-                        bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mPreviewContainer.isAspectRatio());
-                        bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mPreviewContainer.getAspectRadio());
-                    }
-
-                    InstagramMediaProcessActivity.launchActivity(this, config, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS);
+                    singleImageFilterHandle(data);
                     break;
                 case InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS:
                     singleCropHandleResult(data);
+                    break;
+                case InstagramMediaProcessActivity.REQUEST_MULTI_IMAGE_PROCESS:
+                    if (mAdapter.getSelectedImages().size() > 1) {
+
+                    } else {
+                        singleCropHandleResult(data);
+                    }
                     break;
                 case UCrop.REQUEST_MULTI_CROP:
                     multiCropHandleResult(data);
@@ -1610,12 +1583,42 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 Throwable throwable = (Throwable) data.getSerializableExtra(UCrop.EXTRA_ERROR);
                 ToastUtils.s(getContext(), throwable.getMessage());
             }
-        } else if (resultCode == InstagramMediaProcessActivity.RESULT_SINGLE_CANCELED) {
+        } else if (resultCode == InstagramMediaProcessActivity.RESULT_MEDIA_PROCESS_CANCELED) {
             List<LocalMedia> result = mAdapter.getSelectedImages();
-            if (result.size() > 0) {
+            if (!result.isEmpty()) {
                 result.clear();
             }
+            if (mLruCache != null && mLruCache.size() > 0) {
+                mLruCache.clear();
+            }
+            if (mPreviewContainer != null && mPreviewContainer.isMulti()) {
+                mPreviewContainer.setMultiMode(false);
+            }
         }
+    }
+
+    private void singleImageFilterHandle(Intent data) {
+        List<LocalMedia> result = new ArrayList<>();
+        if (mAdapter.getSelectedImages().size() > 0) {
+            result.add(mAdapter.getSelectedImages().get(0));
+        }
+
+        Bundle bundle = new Bundle();
+        if (data != null && !result.isEmpty()) {
+            LocalMedia media = result.get(0);
+            Uri resultUri = UCrop.getOutput(data);
+            if (resultUri != null) {
+                media.setCut(true);
+                media.setCutPath(resultUri.getPath());
+            }
+        }
+
+        if (mPreviewContainer != null && !data.getBooleanExtra(BitmapCropSquareTask.EXTRA_FROM_CAMERA, false)) {
+            bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mPreviewContainer.isAspectRatio());
+            bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mPreviewContainer.getAspectRadio());
+        }
+
+        InstagramMediaProcessActivity.launchActivity(this, config, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS);
     }
 
     /**

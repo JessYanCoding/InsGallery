@@ -49,7 +49,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
     private int mSelectionPosition;
     private final View mLoadingView;
 
-    public InstagramMediaSingleImageContainer(@NonNull Context context, PictureSelectionConfig config, Uri singleImageUri, boolean isAspectRatio, float aspectRatio) {
+    public InstagramMediaSingleImageContainer(@NonNull Context context, PictureSelectionConfig config, Bitmap bitmap, boolean isAspectRatio, float aspectRatio) {
         super(context);
         setWillNotDraw(false);
         mPaint= new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -67,7 +67,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
             mImageView.setRatio(aspectRatio);
         }
         mImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
-        mImageView.setImage(singleImageUri);
+        mImageView.setImage(bitmap);
 
         mRecyclerView = new RecyclerView(context);
         mRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
@@ -81,7 +81,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
         mLoadingView = LayoutInflater.from(context).inflate(R.layout.picture_alert_dialog, this, false);
         addView(mLoadingView);
 
-        new LoadBitmapTask(context, this, singleImageUri).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new LoadBitmapTask(context, this, bitmap).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -212,19 +212,19 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
     private static class LoadBitmapTask extends AsyncTask<Void, Void, Void> {
         private Context mContext;
         private WeakReference<InstagramMediaSingleImageContainer> mImageContainer;
-        private Uri mSingleImageUri;
+        private Bitmap mBitmap;
 
-        public LoadBitmapTask(Context context, InstagramMediaSingleImageContainer imageContainer, Uri uri) {
+        public LoadBitmapTask(Context context, InstagramMediaSingleImageContainer imageContainer, Bitmap bitmap) {
             mContext = context;
             mImageContainer = new WeakReference<>(imageContainer);
-            mSingleImageUri = uri;
+            mBitmap = bitmap;
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
             InstagramMediaSingleImageContainer imageContainer = mImageContainer.get();
             if (imageContainer != null) {
-                imageContainer.mAdapter.getThumbnailBitmaps(mContext, mSingleImageUri);
+                imageContainer.mAdapter.getThumbnailBitmaps(mContext, mBitmap);
             }
             return null;
         }

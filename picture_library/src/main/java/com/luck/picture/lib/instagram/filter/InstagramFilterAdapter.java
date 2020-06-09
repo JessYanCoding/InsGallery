@@ -4,14 +4,11 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.luck.picture.lib.config.PictureSelectionConfig;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,14 +39,9 @@ public class InstagramFilterAdapter extends RecyclerView.Adapter<InstagramFilter
         mBitmaps = new ArrayList<>();
     }
 
-    public void getThumbnailBitmaps(Context context, Uri imageUri) {
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
-            List<GPUImageFilter> imageFilters = FilterType.createImageFilterList(context);
-            GPUImage.getBitmapForMultipleFilters(bitmap, imageFilters, item -> mBitmaps.add(item));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void getThumbnailBitmaps(Context context, Bitmap bitmap) {
+        List<GPUImageFilter> imageFilters = FilterType.createImageFilterList(context);
+        GPUImage.getBitmapForMultipleFilters(bitmap, imageFilters, item -> mBitmaps.add(item));
     }
 
     @NonNull

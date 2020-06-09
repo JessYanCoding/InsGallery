@@ -253,6 +253,10 @@ public class InstagramPreviewContainer extends FrameLayout {
         }
     }
 
+    public boolean isMulti() {
+        return isMulti;
+    }
+
     private void pauseVideo() {
         pauseVideo(!isPause);
     }
