@@ -27,7 +27,7 @@
             android:name=".instagram.PictureSelectorInstagramStyleActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
 
-        <activity android:name=".instagram.InstagramMediaProcessActivity"
+        <activity android:name=".instagram.process.InstagramMediaProcessActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
 
         <activity

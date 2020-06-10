@@ -1,4 +1,4 @@
-package com.luck.picture.lib.instagram;
+package com.luck.picture.lib.instagram.process;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.instagram.InsGallery;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import androidx.annotation.NonNull;

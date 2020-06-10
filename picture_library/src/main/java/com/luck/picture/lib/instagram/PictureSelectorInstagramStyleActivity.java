@@ -38,6 +38,7 @@ import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
 import com.luck.picture.lib.instagram.cache.LruCache;
+import com.luck.picture.lib.instagram.process.InstagramMediaProcessActivity;
 import com.luck.picture.lib.listener.OnAlbumItemClickListener;
 import com.luck.picture.lib.listener.OnItemClickListener;
 import com.luck.picture.lib.model.LocalMediaLoader;

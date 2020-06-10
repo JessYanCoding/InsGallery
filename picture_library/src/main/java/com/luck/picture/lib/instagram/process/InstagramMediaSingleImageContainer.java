@@ -1,4 +1,4 @@
-package com.luck.picture.lib.instagram;
+package com.luck.picture.lib.instagram.process;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,6 +16,7 @@ import android.widget.FrameLayout;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.instagram.InsGallery;
 import com.luck.picture.lib.instagram.adapter.InstagramFilterItemDecoration;
 import com.luck.picture.lib.instagram.adapter.FilterItemView;
 import com.luck.picture.lib.instagram.filter.FilterType;

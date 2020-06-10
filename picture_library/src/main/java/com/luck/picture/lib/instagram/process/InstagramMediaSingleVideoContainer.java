@@ -1,4 +1,4 @@
-package com.luck.picture.lib.instagram;
+package com.luck.picture.lib.instagram.process;
 
 import android.content.Context;
 import android.widget.FrameLayout;
