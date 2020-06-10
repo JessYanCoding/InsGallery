@@ -17,9 +17,9 @@ import android.widget.FrameLayout;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.instagram.adapter.InstagramFilterItemDecoration;
-import com.luck.picture.lib.instagram.filter.FilterItemView;
+import com.luck.picture.lib.instagram.adapter.FilterItemView;
 import com.luck.picture.lib.instagram.filter.FilterType;
-import com.luck.picture.lib.instagram.filter.InstagramFilterAdapter;
+import com.luck.picture.lib.instagram.adapter.InstagramFilterAdapter;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 

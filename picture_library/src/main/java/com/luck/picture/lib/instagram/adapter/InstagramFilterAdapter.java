@@ -1,4 +1,4 @@
-package com.luck.picture.lib.instagram.filter;
+package com.luck.picture.lib.instagram.adapter;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.instagram.filter.FilterType;
 
 import java.util.ArrayList;
 import java.util.List;

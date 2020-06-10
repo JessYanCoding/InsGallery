@@ -1,4 +1,4 @@
-package com.luck.picture.lib.instagram.filter;
+package com.luck.picture.lib.instagram.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.instagram.InsGallery;
+import com.luck.picture.lib.instagram.filter.FilterType;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import androidx.annotation.NonNull;
