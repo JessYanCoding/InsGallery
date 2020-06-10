@@ -1456,6 +1456,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         if (mLruCache == null || mAdapter == null || mPreviewContainer == null) {
             return;
         }
+        showPleaseDialog();
         for (Map.Entry<LocalMedia, AsyncTask> entry : mLruCache.entrySet()) {
             Objects.requireNonNull((BitmapCropTask) entry.getValue()).execute();
         }
@@ -1495,6 +1496,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
             PictureSelectorInstagramStyleActivity activity = mActivityWeakReference.get();
             if (activity != null) {
+                activity.dismissDialog();
                 InstagramMediaProcessActivity.launchActivity(activity, mConfig, result, bundle, InstagramMediaProcessActivity.REQUEST_MULTI_IMAGE_PROCESS);
             }
         }

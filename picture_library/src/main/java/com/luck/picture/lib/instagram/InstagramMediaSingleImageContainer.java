@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -17,6 +16,7 @@ import android.widget.FrameLayout;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.instagram.adapter.InstagramFilterItemDecoration;
 import com.luck.picture.lib.instagram.filter.FilterItemView;
 import com.luck.picture.lib.instagram.filter.FilterType;
 import com.luck.picture.lib.instagram.filter.InstagramFilterAdapter;
@@ -72,7 +72,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
         mRecyclerView = new RecyclerView(context);
         mRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new ItemDecoration(ScreenUtils.dip2px(context, 9)));
+        mRecyclerView.addItemDecoration(new InstagramFilterItemDecoration(ScreenUtils.dip2px(context, 9)));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         mAdapter = new InstagramFilterAdapter(context, config);
         mAdapter.setOnItemClickListener(this);
@@ -235,27 +235,6 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
             if (imageContainer != null) {
                 imageContainer.mLoadingView.setVisibility(View.INVISIBLE);
                 imageContainer.mRecyclerView.setAdapter(imageContainer.mAdapter);
-            }
-        }
-    }
-
-    public static class ItemDecoration extends RecyclerView.ItemDecoration {
-        private int spacing;
-
-        public ItemDecoration(int spacing) {
-            this.spacing = spacing;
-        }
-
-        @Override
-        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-            int position = parent.getChildAdapterPosition(view);
-            if (position == 0) {
-                outRect.left = spacing * 2;
-                outRect.right = spacing;
-            } else if (position == parent.getAdapter().getItemCount() - 1) {
-                outRect.right = spacing * 2;
-            } else {
-                outRect.right = spacing;
             }
         }
     }

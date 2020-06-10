@@ -48,7 +48,7 @@ public class FilterItemView extends FrameLayout {
         int height = MeasureSpec.getSize(heightMeasureSpec);
 
         mTitleView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
-        mImageView.measure(MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 100), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 100), MeasureSpec.EXACTLY));
+        mImageView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY));
         setMeasuredDimension(width, height);
     }
 
