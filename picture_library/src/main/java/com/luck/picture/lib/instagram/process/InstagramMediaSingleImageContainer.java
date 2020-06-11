@@ -125,7 +125,6 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
 
         if (mSelectionPosition != position) {
             mImageView.setFilter(FilterType.createFilterForType(getContext(), filterType));
-            mImageView.requestRender();
 
             int previousPosition = mSelectionPosition;
             mSelectionPosition = position;

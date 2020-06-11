@@ -158,7 +158,7 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
             isAspectRatio = getIntent().getBooleanExtra(EXTRA_ASPECT_RATIO, false);
             mAspectRatio = getIntent().getFloatExtra(EXTRA_ASPECT_RATIO_VALUE, 0);
         }
-        InstagramMediaMultiImageContainer multiImageContainer = new InstagramMediaMultiImageContainer(this, selectMedia, isAspectRatio, mAspectRatio);
+        InstagramMediaMultiImageContainer multiImageContainer = new InstagramMediaMultiImageContainer(this, config, selectMedia, isAspectRatio, mAspectRatio);
         contentView.addView(multiImageContainer, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
     }
 

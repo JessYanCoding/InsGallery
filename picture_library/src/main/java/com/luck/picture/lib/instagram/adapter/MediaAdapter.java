@@ -53,7 +53,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.Holder> {
 
     @Override
     public int getItemCount() {
-        return mMediaList.size();
+        return mBitmaps.size();
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
