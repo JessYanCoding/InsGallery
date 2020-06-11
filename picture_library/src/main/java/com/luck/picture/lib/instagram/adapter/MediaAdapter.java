@@ -40,7 +40,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.Holder> {
         Holder holder = new Holder(new MediaItemView(parent.getContext()));
         holder.itemView.setOnClickListener(v -> {
             if (mOnItemClickListener != null) {
-                mOnItemClickListener.onItemClick(holder.itemView, holder.getAdapterPosition());
+                mOnItemClickListener.onItemClick(holder.itemView, holder.getAdapterPosition(), mBitmaps.get(holder.getAdapterPosition()));
             }
         });
         return holder;
@@ -61,7 +61,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.Holder> {
     }
 
     public interface OnItemClickListener {
-        void onItemClick(View view, int position);
+        void onItemClick(View view, int position, Bitmap bitmap);
     }
 
     public static class Holder extends RecyclerView.ViewHolder {

@@ -69,6 +69,10 @@ public class InstagramFilterAdapter extends RecyclerView.Adapter<InstagramFilter
         ((FilterItemView) holder.itemView).refreshFilter(mFilters.get(position), mBitmaps.get(position), position, mSelectionPosition);
     }
 
+    public FilterType getItem(int position) {
+        return mFilters.get(position);
+    }
+
     @Override
     public int getItemCount() {
         return mFilters.size();

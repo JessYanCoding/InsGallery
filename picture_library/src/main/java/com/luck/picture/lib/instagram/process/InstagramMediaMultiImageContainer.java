@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -43,7 +44,7 @@ import jp.co.cyberagent.android.gpuimage.filter.GPUImageGaussianBlurFilter;
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public class InstagramMediaMultiImageContainer extends FrameLayout implements InstagramFilterAdapter.OnItemClickListener {
+public class InstagramMediaMultiImageContainer extends FrameLayout implements InstagramFilterAdapter.OnItemClickListener, MediaAdapter.OnItemClickListener {
     private final RecyclerView mMediaRecyclerView;
     private final RecyclerView mFilterRecyclerView;
     private final MediaAdapter mMediaAdapter;
@@ -53,36 +54,50 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     private final View mFilterLoadingView;
     private int mSelectionPosition;
     private GPUImage mGpuImage;
+    private InstagramMediaProcessActivity mActivity;
+    private PictureSelectionConfig mConfig;
+    private List<LocalMedia> mMedias;
+    private boolean mIsAspectRatio;
+    private float mAspectRatio;
+    private final Context mContext;
+    private FilterType mCurrentFilterType = FilterType.I_NORMAL;
 
-    public InstagramMediaMultiImageContainer(@NonNull Context context, PictureSelectionConfig config, List<LocalMedia> medias, boolean isAspectRatio, float aspectRatio) {
-        super(context);
+    public InstagramMediaMultiImageContainer(@NonNull InstagramMediaProcessActivity activity, PictureSelectionConfig config, List<LocalMedia> medias, boolean isAspectRatio, float aspectRatio) {
+        super(activity);
+        mContext = activity;
+        mActivity = activity;
+        mConfig = config;
+        mMedias = medias;
+        mIsAspectRatio = isAspectRatio;
+        mAspectRatio = aspectRatio;
         mBitmaps = new ArrayList<>();
 
-        mMediaRecyclerView = new RecyclerView(context);
+        mMediaRecyclerView = new RecyclerView(mContext);
         mMediaRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
         mMediaRecyclerView.setHasFixedSize(true);
-        mMediaRecyclerView.addItemDecoration(new InstagramFilterItemDecoration(ScreenUtils.dip2px(context, 9), 3));
-        mMediaRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        mMediaAdapter = new MediaAdapter(context, medias);
+        mMediaRecyclerView.addItemDecoration(new InstagramFilterItemDecoration(ScreenUtils.dip2px(mContext, 9), 3));
+        mMediaRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
+        mMediaAdapter = new MediaAdapter(mContext, medias);
+        mMediaAdapter.setOnItemClickListener(this);
         addView(mMediaRecyclerView);
 
-        mFilterRecyclerView = new RecyclerView(context);
+        mFilterRecyclerView = new RecyclerView(mContext);
         mFilterRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
         mFilterRecyclerView.setHasFixedSize(true);
-        mFilterRecyclerView.addItemDecoration(new InstagramFilterItemDecoration(ScreenUtils.dip2px(context, 9)));
-        mFilterRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
-        mFilterAdapter = new InstagramFilterAdapter(context, config);
+        mFilterRecyclerView.addItemDecoration(new InstagramFilterItemDecoration(ScreenUtils.dip2px(mContext, 9)));
+        mFilterRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
+        mFilterAdapter = new InstagramFilterAdapter(mContext, config);
         mFilterAdapter.setOnItemClickListener(this);
         addView(mFilterRecyclerView);
 
-        mMediaLoadingView = LayoutInflater.from(context).inflate(R.layout.picture_alert_dialog, this, false);
+        mMediaLoadingView = LayoutInflater.from(mContext).inflate(R.layout.picture_alert_dialog, this, false);
         addView(mMediaLoadingView);
 
-        mFilterLoadingView = LayoutInflater.from(context).inflate(R.layout.picture_alert_dialog, this, false);
+        mFilterLoadingView = LayoutInflater.from(mContext).inflate(R.layout.picture_alert_dialog, this, false);
         addView(mFilterLoadingView);
 
         int maxBitmapSize = BitmapLoadUtils.calculateMaxBitmapSize(getContext());
-        new LoadBitmapTask(context, this, mBitmaps, medias, maxBitmapSize).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new LoadBitmapTask(mContext, this, mBitmaps, medias, maxBitmapSize).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -121,6 +136,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
 
     @Override
     public void onItemClick(View view, int position, FilterType filterType) {
+        mCurrentFilterType = filterType;
         mFilterRecyclerView.smoothScrollBy(view.getLeft() - getMeasuredWidth() / 3, 0);
 
         if (mSelectionPosition != position) {
@@ -138,6 +154,19 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
                 ((FilterItemView) previousHolder.itemView).selection(false);
             }
         }
+    }
+
+    @Override
+    public void onItemClick(View view, int position, Bitmap bitmap) {
+        List<LocalMedia> result = new ArrayList<>();
+        result.add(mMedias.get(position));
+
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mIsAspectRatio);
+        bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mAspectRatio);
+        bundle.putInt(InstagramMediaProcessActivity.EXTRA_SINGLE_IMAGE_FILTER, mCurrentFilterType.ordinal());
+
+        InstagramMediaProcessActivity.launchActivity(mActivity, mConfig, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS);
     }
 
     private static class ApplyFilterBitmapTask extends AsyncTask<Void, Void, List<Bitmap>> {

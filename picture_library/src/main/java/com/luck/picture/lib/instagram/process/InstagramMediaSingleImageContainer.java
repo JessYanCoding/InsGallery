@@ -49,11 +49,13 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
     private InstagramFilterAdapter mAdapter;
     private int mSelectionPosition;
     private final View mLoadingView;
+    private int mSelectionFilter;
 
-    public InstagramMediaSingleImageContainer(@NonNull Context context, PictureSelectionConfig config, Bitmap bitmap, boolean isAspectRatio, float aspectRatio) {
+    public InstagramMediaSingleImageContainer(@NonNull Context context, PictureSelectionConfig config, Bitmap bitmap, boolean isAspectRatio, float aspectRatio, int selectionFilter) {
         super(context);
+        mSelectionFilter = selectionFilter;
         setWillNotDraw(false);
-        mPaint= new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
             mPaint.setColor(Color.parseColor("#363636"));
         } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE) {
@@ -76,6 +78,11 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
         mRecyclerView.addItemDecoration(new InstagramFilterItemDecoration(ScreenUtils.dip2px(context, 9)));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context, RecyclerView.HORIZONTAL, false));
         mAdapter = new InstagramFilterAdapter(context, config);
+        if (mSelectionFilter > 0) {
+            mImageView.setFilter(FilterType.createFilterForType(getContext(), mAdapter.getItem(mSelectionFilter)));
+            mSelectionPosition = mSelectionFilter;
+            mAdapter.setSelectionPosition(mSelectionFilter);
+        }
         mAdapter.setOnItemClickListener(this);
         addView(mRecyclerView);
 
@@ -132,7 +139,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
             ((FilterItemView) view).selection(true);
             RecyclerView.ViewHolder previousHolder = mRecyclerView.findViewHolderForAdapterPosition(previousPosition);
             if (previousHolder != null && previousHolder.itemView != null) {
-                ((FilterItemView)previousHolder.itemView).selection(false);
+                ((FilterItemView) previousHolder.itemView).selection(false);
             }
         }
     }
@@ -235,6 +242,9 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
             if (imageContainer != null) {
                 imageContainer.mLoadingView.setVisibility(View.INVISIBLE);
                 imageContainer.mRecyclerView.setAdapter(imageContainer.mAdapter);
+                if (imageContainer.mSelectionFilter > 0) {
+                    imageContainer.mRecyclerView.scrollToPosition(imageContainer.mSelectionFilter - 1);
+                }
             }
         }
     }

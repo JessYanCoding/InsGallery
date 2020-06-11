@@ -33,6 +33,7 @@ import java.util.List;
 public class InstagramMediaProcessActivity extends PictureBaseActivity {
     public static final String EXTRA_ASPECT_RATIO = "extra_aspect_ratio";
     public static final String EXTRA_ASPECT_RATIO_VALUE = "extra_aspect_ratio_value";
+    public static final String EXTRA_SINGLE_IMAGE_FILTER = "extra_single_image_filter";
     public static final int REQUEST_SINGLE_IMAGE_PROCESS = 339;
     public static final int REQUEST_MULTI_IMAGE_PROCESS = 440;
     public static final int REQUEST_SINGLE_VIDEO_PROCESS = 441;
@@ -172,9 +173,11 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
     }
 
     private void createSingleImageContainer(FrameLayout contentView) {
+        int selectionFilter = 0;
         if (getIntent() != null) {
             isAspectRatio = getIntent().getBooleanExtra(EXTRA_ASPECT_RATIO, false);
             mAspectRatio = getIntent().getFloatExtra(EXTRA_ASPECT_RATIO_VALUE, 0);
+            selectionFilter = getIntent().getIntExtra(EXTRA_SINGLE_IMAGE_FILTER, 0);
         }
 
         try {
@@ -187,7 +190,7 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
             }
 
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-            InstagramMediaSingleImageContainer singleImageContainer = new InstagramMediaSingleImageContainer(this, config, bitmap, isAspectRatio, mAspectRatio);
+            InstagramMediaSingleImageContainer singleImageContainer = new InstagramMediaSingleImageContainer(this, config, bitmap, isAspectRatio, mAspectRatio, selectionFilter);
             contentView.addView(singleImageContainer, FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
         } catch (IOException e) {
             e.printStackTrace();
