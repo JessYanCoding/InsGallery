@@ -16,7 +16,6 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
-import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.io.IOException;
@@ -115,22 +114,22 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
         mTitleBar.setClickListener(new InstagramTitleBar.OnTitleBarItemOnClickListener() {
             @Override
             public void onLeftViewClick() {
-                setResult(RESULT_MEDIA_PROCESS_CANCELED);
-                finish();
+                if (contentView.getChildAt(0) instanceof ProcessStateCallBack) {
+                    ((ProcessStateCallBack)contentView.getChildAt(0)).onBack(InstagramMediaProcessActivity.this);
+                }
             }
 
             @Override
             public void onCenterViewClick() {
-
+                if (contentView.getChildAt(0) instanceof ProcessStateCallBack) {
+                    ((ProcessStateCallBack)contentView.getChildAt(0)).onCenterFeature(InstagramMediaProcessActivity.this);
+                }
             }
 
             @Override
             public void onRightViewClick() {
-                if (mMediaType == MediaType.SINGLE_IMAGE) {
-                    ((InstagramMediaSingleImageContainer) contentView.getChildAt(0)).onSaveImage(uri -> {
-                        setResult(RESULT_OK, new Intent().putExtra(UCrop.EXTRA_OUTPUT_URI, uri));
-                        finish();
-                    });
+                if (contentView.getChildAt(0) instanceof ProcessStateCallBack) {
+                    ((ProcessStateCallBack)contentView.getChildAt(0)).onProcess(InstagramMediaProcessActivity.this);
                 }
             }
         });

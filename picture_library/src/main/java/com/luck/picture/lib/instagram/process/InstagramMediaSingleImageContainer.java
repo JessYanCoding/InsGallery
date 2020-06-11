@@ -1,6 +1,8 @@
 package com.luck.picture.lib.instagram.process;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -17,11 +19,12 @@ import android.widget.FrameLayout;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.instagram.InsGallery;
-import com.luck.picture.lib.instagram.adapter.InstagramFilterItemDecoration;
 import com.luck.picture.lib.instagram.adapter.FilterItemView;
-import com.luck.picture.lib.instagram.filter.FilterType;
 import com.luck.picture.lib.instagram.adapter.InstagramFilterAdapter;
+import com.luck.picture.lib.instagram.adapter.InstagramFilterItemDecoration;
+import com.luck.picture.lib.instagram.filter.FilterType;
 import com.luck.picture.lib.tools.ScreenUtils;
+import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 
 import java.io.File;
@@ -42,7 +45,7 @@ import jp.co.cyberagent.android.gpuimage.GPUImageView;
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public class InstagramMediaSingleImageContainer extends FrameLayout implements InstagramFilterAdapter.OnItemClickListener {
+public class InstagramMediaSingleImageContainer extends FrameLayout implements InstagramFilterAdapter.OnItemClickListener, ProcessStateCallBack {
     private final GPUImageView mImageView;
     private final RecyclerView mRecyclerView;
     private Paint mPaint;
@@ -147,6 +150,25 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
     public void onSaveImage(GPUImageView.OnPictureSavedListener listener) {
         String fileName = System.currentTimeMillis() + ".jpg";
         new SaveTask(getContext().getApplicationContext(), "Filters", fileName, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    @Override
+    public void onBack(InstagramMediaProcessActivity activity) {
+        activity.setResult(InstagramMediaProcessActivity.RESULT_MEDIA_PROCESS_CANCELED);
+        activity.finish();
+    }
+
+    @Override
+    public void onCenterFeature(InstagramMediaProcessActivity activity) {
+
+    }
+
+    @Override
+    public void onProcess(InstagramMediaProcessActivity activity) {
+        onSaveImage(uri -> {
+            activity.setResult(Activity.RESULT_OK, new Intent().putExtra(UCrop.EXTRA_OUTPUT_URI, uri));
+            activity.finish();
+        });
     }
 
     private class SaveTask extends AsyncTask<Void, Void, Void> {

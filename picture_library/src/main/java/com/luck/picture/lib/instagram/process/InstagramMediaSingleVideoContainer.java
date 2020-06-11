@@ -14,9 +14,25 @@ import androidx.annotation.NonNull;
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public class InstagramMediaSingleVideoContainer extends FrameLayout {
+public class InstagramMediaSingleVideoContainer extends FrameLayout implements ProcessStateCallBack {
 
     public InstagramMediaSingleVideoContainer(@NonNull Context context, LocalMedia media, boolean isAspectRatio, float aspectRatio) {
         super(context);
+    }
+
+    @Override
+    public void onBack(InstagramMediaProcessActivity activity) {
+        activity.setResult(InstagramMediaProcessActivity.RESULT_MEDIA_PROCESS_CANCELED);
+        activity.finish();
+    }
+
+    @Override
+    public void onCenterFeature(InstagramMediaProcessActivity activity) {
+
+    }
+
+    @Override
+    public void onProcess(InstagramMediaProcessActivity activity) {
+
     }
 }

@@ -44,7 +44,7 @@ import jp.co.cyberagent.android.gpuimage.filter.GPUImageGaussianBlurFilter;
  * <a href="https://github.com/JessYanCoding">Follow me</a>
  * ================================================
  */
-public class InstagramMediaMultiImageContainer extends FrameLayout implements InstagramFilterAdapter.OnItemClickListener, MediaAdapter.OnItemClickListener {
+public class InstagramMediaMultiImageContainer extends FrameLayout implements InstagramFilterAdapter.OnItemClickListener, MediaAdapter.OnItemClickListener, ProcessStateCallBack {
     private final RecyclerView mMediaRecyclerView;
     private final RecyclerView mFilterRecyclerView;
     private final MediaAdapter mMediaAdapter;
@@ -167,6 +167,22 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
         bundle.putInt(InstagramMediaProcessActivity.EXTRA_SINGLE_IMAGE_FILTER, mCurrentFilterType.ordinal());
 
         InstagramMediaProcessActivity.launchActivity(mActivity, mConfig, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS);
+    }
+
+    @Override
+    public void onBack(InstagramMediaProcessActivity activity) {
+        activity.setResult(InstagramMediaProcessActivity.RESULT_MEDIA_PROCESS_CANCELED);
+        activity.finish();
+    }
+
+    @Override
+    public void onCenterFeature(InstagramMediaProcessActivity activity) {
+
+    }
+
+    @Override
+    public void onProcess(InstagramMediaProcessActivity activity) {
+
     }
 
     private static class ApplyFilterBitmapTask extends AsyncTask<Void, Void, List<Bitmap>> {
