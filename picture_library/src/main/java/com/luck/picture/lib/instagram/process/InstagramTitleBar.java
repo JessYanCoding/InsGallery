@@ -91,6 +91,10 @@ public class InstagramTitleBar extends FrameLayout {
         addView(mRightView);
     }
 
+    public void setRightViewText(String text) {
+        mRightView.setText(text);
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);

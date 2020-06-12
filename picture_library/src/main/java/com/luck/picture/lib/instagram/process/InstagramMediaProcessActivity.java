@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 
 import com.luck.picture.lib.PictureBaseActivity;
 import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
@@ -112,6 +113,9 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
 
         mTitleBar = new InstagramTitleBar(this, config, mMediaType);
         contentView.addView(mTitleBar);
+        if (getIntent() != null && getIntent().getIntExtra(EXTRA_SINGLE_IMAGE_FILTER, -1) != -1) {
+            mTitleBar.setRightViewText(getString(R.string.done));
+        }
         mTitleBar.setClickListener(new InstagramTitleBar.OnTitleBarItemOnClickListener() {
             @Override
             public void onLeftViewClick() {
