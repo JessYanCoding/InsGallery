@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.instagram.InsGallery;
 import com.luck.picture.lib.instagram.adapter.FilterItemView;
 import com.luck.picture.lib.instagram.adapter.InstagramFilterAdapter;
@@ -52,10 +53,13 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
     private InstagramFilterAdapter mAdapter;
     private int mSelectionPosition;
     private final View mLoadingView;
+    private PictureSelectionConfig mConfig;
     private int mSelectionFilter;
+    private PictureCustomDialog mDialog;
 
     public InstagramMediaSingleImageContainer(@NonNull Context context, PictureSelectionConfig config, Bitmap bitmap, boolean isAspectRatio, float aspectRatio, int selectionFilter) {
         super(context);
+        mConfig = config;
         mSelectionFilter = selectionFilter;
         setWillNotDraw(false);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -154,8 +158,31 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
 
     @Override
     public void onBack(InstagramMediaProcessActivity activity) {
-        activity.setResult(InstagramMediaProcessActivity.RESULT_MEDIA_PROCESS_CANCELED);
-        activity.finish();
+        if (mSelectionFilter >= 0 && mSelectionFilter != mSelectionPosition) {
+            if (!activity.isFinishing()) {
+                if (mDialog == null) {
+                    ProcessAlertView layout = new ProcessAlertView(getContext(), mConfig);
+                    layout.setOnAlertListener(new ProcessAlertView.onAlertListener() {
+                        @Override
+                        public void onAgree() {
+                            activity.finish();
+                        }
+
+                        @Override
+                        public void onCancel() {
+                            mDialog.dismiss();
+                        }
+                    });
+                    mDialog = new PictureCustomDialog(getContext(), layout);
+                    mDialog.setCancelable(true);
+                    mDialog.setCanceledOnTouchOutside(false);
+                }
+                mDialog.show();
+            }
+        } else {
+            activity.setResult(InstagramMediaProcessActivity.RESULT_MEDIA_PROCESS_CANCELED);
+            activity.finish();
+        }
     }
 
     @Override

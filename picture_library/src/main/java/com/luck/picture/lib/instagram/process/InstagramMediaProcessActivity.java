@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.luck.picture.lib.PictureBaseActivity;
@@ -137,11 +138,7 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
 
     @Override
     public void initPictureSelectorStyle() {
-        if (config.style != null) {
-            if (config.style.pictureContainerBackgroundColor != 0) {
-                container.setBackgroundColor(config.style.pictureContainerBackgroundColor);
-            }
-        }
+        container.setBackgroundColor(colorPrimary);
         mTitleBar.setBackgroundColor(colorPrimary);
     }
 
@@ -150,6 +147,13 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
         super.onSaveInstanceState(outState);
         if (mSelectMedia.size() > 0) {
             PictureSelector.saveSelectorList(outState, mSelectMedia);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (((ViewGroup)container).getChildAt(0) instanceof ProcessStateCallBack) {
+            ((ProcessStateCallBack)((ViewGroup)container).getChildAt(0)).onBack(InstagramMediaProcessActivity.this);
         }
     }
 
@@ -172,11 +176,11 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
     }
 
     private void createSingleImageContainer(FrameLayout contentView) {
-        int selectionFilter = 0;
+        int selectionFilter = -1;
         if (getIntent() != null) {
             isAspectRatio = getIntent().getBooleanExtra(EXTRA_ASPECT_RATIO, false);
             mAspectRatio = getIntent().getFloatExtra(EXTRA_ASPECT_RATIO_VALUE, 0);
-            selectionFilter = getIntent().getIntExtra(EXTRA_SINGLE_IMAGE_FILTER, 0);
+            selectionFilter = getIntent().getIntExtra(EXTRA_SINGLE_IMAGE_FILTER, -1);
         }
 
         try {

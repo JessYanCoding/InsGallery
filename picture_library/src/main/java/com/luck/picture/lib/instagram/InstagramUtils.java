@@ -11,6 +11,7 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Build;
 import android.util.StateSet;
 import android.view.View;
@@ -67,6 +68,12 @@ public class InstagramUtils {
         CombinedDrawable combinedDrawable = new CombinedDrawable(defaultDrawable, drawable);
         combinedDrawable.setCustomSize(size, size);
         return combinedDrawable;
+    }
+
+    public static Drawable createRoundRectDrawable(int rad, int defaultColor) {
+        ShapeDrawable defaultDrawable = new ShapeDrawable(new RoundRectShape(new float[]{rad, rad, rad, rad, rad, rad, rad, rad}, null, null));
+        defaultDrawable.getPaint().setColor(defaultColor);
+        return defaultDrawable;
     }
 
     public static void setCombinedDrawableColor(Drawable combinedDrawable, int color, boolean isIcon) {

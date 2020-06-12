@@ -71,4 +71,7 @@
     <string name="picture_know">我知道了</string>
     <string name="picture_data_null">这里空空如也…</string>
     <string name="next">继续</string>
+    <string name="discard_edits">放弃编辑?</string>
+    <string name="discard_edits_alert">如现在返回，图片编辑将被取消。</string>
+    <string name="discard">放弃</string>
 </resources>

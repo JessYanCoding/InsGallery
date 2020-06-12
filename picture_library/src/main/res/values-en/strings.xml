@@ -59,7 +59,7 @@
     <string name="picture_photo_pictures">Take Picture</string>
     <string name="picture_photo_recording">Long Press Camera</string>
     <string name="picture_go_setting">Go Setting</string>
-    <string name="gallery">gallery</string>
+    <string name="gallery">Gallery</string>
     <string name="photo">Photo</string>
     <string name="video">Video</string>
     <string name="press_to_record">Press and hold to record.</string>
@@ -72,4 +72,7 @@
     <string name="picture_know">I know the</string>
     <string name="picture_data_null">There no data here…</string>
     <string name="next">Next</string>
+    <string name="discard_edits">Discard Edits?</string>
+    <string name="discard_edits_alert">If you go back now, your image edits will be discarded.</string>
+    <string name="discard">Discard</string>
 </resources>

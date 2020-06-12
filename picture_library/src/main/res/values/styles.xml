@@ -35,7 +35,7 @@
     <style name="Picture.Theme.Dialog" parent="@android:style/Theme.Dialog">
 
         <!-- 边框 -->
-        <item name="android:windowFrame">@android:color/transparent</item>
+<!--        <item name="android:windowFrame">@android:color/transparent</item>-->
         <!-- 是否浮现在activity之上 -->
         <item name="android:windowIsFloating">true</item>
         <!-- 半透明 -->
