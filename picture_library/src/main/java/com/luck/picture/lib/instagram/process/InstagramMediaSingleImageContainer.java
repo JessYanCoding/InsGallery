@@ -192,10 +192,23 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
 
     @Override
     public void onProcess(InstagramMediaProcessActivity activity) {
-        onSaveImage(uri -> {
-            activity.setResult(Activity.RESULT_OK, new Intent().putExtra(UCrop.EXTRA_OUTPUT_URI, uri));
-            activity.finish();
-        });
+        if (mSelectionFilter == -1) {
+            onSaveImage(uri -> {
+                activity.setResult(Activity.RESULT_OK, new Intent().putExtra(UCrop.EXTRA_OUTPUT_URI, uri));
+                activity.finish();
+            });
+        } else {
+            if (mSelectionFilter != mSelectionPosition) {
+
+            } else {
+                activity.finish();
+            }
+        }
+    }
+
+    @Override
+    public void onActivityResult(InstagramMediaProcessActivity activity, int requestCode, int resultCode, Intent data) {
+
     }
 
     private class SaveTask extends AsyncTask<Void, Void, Void> {

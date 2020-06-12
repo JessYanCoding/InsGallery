@@ -1,6 +1,7 @@
 package com.luck.picture.lib.instagram.process;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -61,6 +62,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     private float mAspectRatio;
     private final Context mContext;
     private FilterType mCurrentFilterType = FilterType.I_NORMAL;
+    private int mProcessPosition;
 
     public InstagramMediaMultiImageContainer(@NonNull InstagramMediaProcessActivity activity, PictureSelectionConfig config, List<LocalMedia> medias, boolean isAspectRatio, float aspectRatio) {
         super(activity);
@@ -158,6 +160,8 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
 
     @Override
     public void onItemClick(View view, int position, Bitmap bitmap) {
+        mProcessPosition = position;
+
         List<LocalMedia> result = new ArrayList<>();
         result.add(mMedias.get(position));
 
@@ -183,6 +187,13 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     @Override
     public void onProcess(InstagramMediaProcessActivity activity) {
 
+    }
+
+    @Override
+    public void onActivityResult(InstagramMediaProcessActivity activity, int requestCode, int resultCode, Intent data) {
+        if (requestCode == InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS) {
+
+        }
     }
 
     private static class ApplyFilterBitmapTask extends AsyncTask<Void, Void, List<Bitmap>> {

@@ -1,6 +1,7 @@
 package com.luck.picture.lib.instagram.process;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.FrameLayout;
 
 import com.luck.picture.lib.entity.LocalMedia;
@@ -33,6 +34,11 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
 
     @Override
     public void onProcess(InstagramMediaProcessActivity activity) {
+
+    }
+
+    @Override
+    public void onActivityResult(InstagramMediaProcessActivity activity, int requestCode, int resultCode, Intent data) {
 
     }
 }

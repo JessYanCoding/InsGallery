@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+
 /**
  * ================================================
  * Created by JessYan on 2020/5/29 11:39
@@ -158,6 +160,14 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
     public void onBackPressed() {
         if (((ViewGroup)container).getChildAt(0) instanceof ProcessStateCallBack) {
             ((ProcessStateCallBack)((ViewGroup)container).getChildAt(0)).onBack(InstagramMediaProcessActivity.this);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (((ViewGroup)container).getChildAt(0) instanceof ProcessStateCallBack) {
+            ((ProcessStateCallBack)((ViewGroup)container).getChildAt(0)).onActivityResult(InstagramMediaProcessActivity.this, requestCode, resultCode, data);
         }
     }
 
