@@ -65,6 +65,8 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     private FilterType mCurrentFilterType = FilterType.I_NORMAL;
     private int mProcessPosition;
     private int[] mApplyFilters;
+    private boolean isLoadingBitmap;
+    private boolean isApplyingFilter;
 
     public InstagramMediaMultiImageContainer(@NonNull InstagramMediaProcessActivity activity, PictureSelectionConfig config, List<LocalMedia> medias, boolean isAspectRatio, float aspectRatio) {
         super(activity);
@@ -147,6 +149,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
             if (mGpuImage == null) {
                 mGpuImage = new GPUImage(getContext());
             }
+            isApplyingFilter = true;
             new ApplyFilterBitmapTask(this, filterType).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
             int previousPosition = mSelectionPosition;
@@ -188,7 +191,11 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
 
     @Override
     public void onProcess(InstagramMediaProcessActivity activity) {
+        if (isLoadingBitmap || isApplyingFilter) {
+            ToastUtils.s(getContext(), getContext().getString(R.string.next_alert));
+        } else {
 
+        }
     }
 
     @Override
@@ -257,6 +264,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
             if (container != null && bitmaps != null) {
                 container.mMediaAdapter.setBitmaps(bitmaps);
                 container.mMediaAdapter.notifyDataSetChanged();
+                container.isApplyingFilter = false;
             }
         }
     }
@@ -312,6 +320,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
         protected Void doInBackground(Void... voids) {
             InstagramMediaMultiImageContainer container = mContainerWeakReference.get();
             if (container != null) {
+                container.isLoadingBitmap = true;
                 startLoadBitmapTask(mContext, container, mMedias, mMaxBitmapSize, mBitmaps);
             }
             return null;
@@ -353,6 +362,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
                 container.mMediaLoadingView.setVisibility(View.INVISIBLE);
                 container.mMediaAdapter.setBitmaps(mBitmaps);
                 container.mMediaRecyclerView.setAdapter(container.mMediaAdapter);
+                container.isLoadingBitmap = false;
             }
         }
     }

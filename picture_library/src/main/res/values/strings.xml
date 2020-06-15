@@ -74,4 +74,5 @@
     <string name="discard_edits">放弃编辑?</string>
     <string name="discard_edits_alert">如现在返回，图片编辑将被取消。</string>
     <string name="discard">放弃</string>
+    <string name="next_alert">图片加载完成后才能继续下一步哦！</string>
 </resources>

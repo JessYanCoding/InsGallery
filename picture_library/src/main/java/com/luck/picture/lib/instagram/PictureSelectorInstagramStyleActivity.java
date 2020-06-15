@@ -127,6 +127,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private List<Page> mList;
     private long intervalClickTime;
     private LruCache<LocalMedia, AsyncTask> mLruCache;
+    private boolean isCroppingImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1454,9 +1455,10 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     }
 
     private void startMultiCrop() {
-        if (mLruCache == null || mAdapter == null || mPreviewContainer == null) {
+        if (mLruCache == null || mAdapter == null || mPreviewContainer == null || isCroppingImage) {
             return;
         }
+        isCroppingImage = true;
         showPleaseDialog();
         for (Map.Entry<LocalMedia, AsyncTask> entry : mLruCache.entrySet()) {
             Objects.requireNonNull((BitmapCropTask) entry.getValue()).execute();
@@ -1597,6 +1599,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             if (mPreviewContainer != null && mPreviewContainer.isMulti()) {
                 mPreviewContainer.setMultiMode(false);
             }
+            isCroppingImage = false;
         }
     }
 
