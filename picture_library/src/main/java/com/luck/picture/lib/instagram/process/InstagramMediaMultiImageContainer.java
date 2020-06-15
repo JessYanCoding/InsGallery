@@ -1,5 +1,6 @@
 package com.luck.picture.lib.instagram.process;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -63,6 +64,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     private final Context mContext;
     private FilterType mCurrentFilterType = FilterType.I_NORMAL;
     private int mProcessPosition;
+    private int[] mApplyFilters;
 
     public InstagramMediaMultiImageContainer(@NonNull InstagramMediaProcessActivity activity, PictureSelectionConfig config, List<LocalMedia> medias, boolean isAspectRatio, float aspectRatio) {
         super(activity);
@@ -168,7 +170,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
         Bundle bundle = new Bundle();
         bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mIsAspectRatio);
         bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mAspectRatio);
-        bundle.putInt(InstagramMediaProcessActivity.EXTRA_SINGLE_IMAGE_FILTER, mCurrentFilterType.ordinal());
+        bundle.putInt(InstagramMediaProcessActivity.EXTRA_SINGLE_IMAGE_FILTER, mApplyFilters[mProcessPosition]);
 
         InstagramMediaProcessActivity.launchActivity(mActivity, mConfig, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS);
     }
@@ -192,7 +194,35 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     @Override
     public void onActivityResult(InstagramMediaProcessActivity activity, int requestCode, int resultCode, Intent data) {
         if (requestCode == InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS) {
+            if (resultCode == Activity.RESULT_OK) {
+                int selectionFilter = -1;
+                if (data != null) {
+                    selectionFilter = data.getIntExtra(InstagramMediaProcessActivity.EXTRA_SINGLE_IMAGE_SELECTION_FILTER, -1);
+                }
+                if (selectionFilter >= 0 && mFilterAdapter != null && mMediaAdapter != null && mApplyFilters != null) {
+                    mApplyFilters[mProcessPosition] = selectionFilter;
 
+                    if (mCurrentFilterType.ordinal() != selectionFilter) {
+                        mSelectionPosition = -1;
+                        mFilterAdapter.setSelectionPosition(-1);
+                        RecyclerView.ViewHolder holder = mFilterRecyclerView.findViewHolderForAdapterPosition(mCurrentFilterType.ordinal());
+                        if (holder != null && holder.itemView != null) {
+                            ((FilterItemView) holder.itemView).selection(false);
+                        }
+                    }
+
+                    if (mGpuImage == null) {
+                        mGpuImage = new GPUImage(getContext());
+                    }
+                    mGpuImage.setFilter(FilterType.createFilterForType(getContext(), mFilterAdapter.getItem(selectionFilter)));
+                    Bitmap newBitmap = mGpuImage.getBitmapWithFilterApplied(mBitmaps.get(mProcessPosition));
+
+                    mMediaAdapter.getBitmaps().remove(mProcessPosition);
+                    mMediaAdapter.getBitmaps().add(mProcessPosition, newBitmap);
+
+                    mMediaAdapter.notifyItemChanged(mProcessPosition);
+                }
+            }
         }
     }
 
@@ -211,7 +241,9 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
             if (container != null) {
                 container.mGpuImage.setFilter(FilterType.createFilterForType(container.getContext(), mFilterType));
                 List<Bitmap> newBitMaps = new ArrayList<>();
-                for (Bitmap bitmap : container.mBitmaps) {
+                for (int i = 0; i < container.mBitmaps.size(); i++) {
+                    container.mApplyFilters[i] = mFilterType.ordinal();
+                    Bitmap bitmap = container.mBitmaps.get(i);
                     newBitMaps.add(container.mGpuImage.getBitmapWithFilterApplied(bitmap));
                 }
                 return newBitMaps;
@@ -317,6 +349,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
         protected void onPostExecute(Void aVoid) {
             InstagramMediaMultiImageContainer container = mContainerWeakReference.get();
             if (container != null) {
+                container.mApplyFilters = new int[mBitmaps.size()];
                 container.mMediaLoadingView.setVisibility(View.INVISIBLE);
                 container.mMediaAdapter.setBitmaps(mBitmaps);
                 container.mMediaRecyclerView.setAdapter(container.mMediaAdapter);

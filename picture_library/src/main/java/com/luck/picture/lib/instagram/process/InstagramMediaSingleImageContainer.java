@@ -199,10 +199,9 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
             });
         } else {
             if (mSelectionFilter != mSelectionPosition) {
-
-            } else {
-                activity.finish();
+                activity.setResult(Activity.RESULT_OK, new Intent().putExtra(InstagramMediaProcessActivity.EXTRA_SINGLE_IMAGE_SELECTION_FILTER, mSelectionPosition));
             }
+            activity.finish();
         }
     }
 

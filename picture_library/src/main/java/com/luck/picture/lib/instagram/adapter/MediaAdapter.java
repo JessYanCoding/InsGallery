@@ -34,6 +34,10 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.Holder> {
         mBitmaps = bitmaps;
     }
 
+    public List<Bitmap> getBitmaps() {
+        return mBitmaps;
+    }
+
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

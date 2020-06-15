@@ -37,6 +37,7 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
     public static final String EXTRA_ASPECT_RATIO = "extra_aspect_ratio";
     public static final String EXTRA_ASPECT_RATIO_VALUE = "extra_aspect_ratio_value";
     public static final String EXTRA_SINGLE_IMAGE_FILTER = "extra_single_image_filter";
+    public static final String EXTRA_SINGLE_IMAGE_SELECTION_FILTER = "extra_single_image_selection_filter";
     public static final int REQUEST_SINGLE_IMAGE_PROCESS = 339;
     public static final int REQUEST_MULTI_IMAGE_PROCESS = 440;
     public static final int REQUEST_SINGLE_VIDEO_PROCESS = 441;
