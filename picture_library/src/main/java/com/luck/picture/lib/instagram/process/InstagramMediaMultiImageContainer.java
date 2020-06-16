@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.dialog.PictureLoadingDialog;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.instagram.adapter.FilterItemView;
 import com.luck.picture.lib.instagram.adapter.InstagramFilterAdapter;
@@ -67,6 +68,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     private int[] mApplyFilters;
     private boolean isLoadingBitmap;
     private boolean isApplyingFilter;
+    private List<LocalMedia> mLoadedMedias;
 
     public InstagramMediaMultiImageContainer(@NonNull InstagramMediaProcessActivity activity, PictureSelectionConfig config, List<LocalMedia> medias, boolean isAspectRatio, float aspectRatio) {
         super(activity);
@@ -77,6 +79,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
         mIsAspectRatio = isAspectRatio;
         mAspectRatio = aspectRatio;
         mBitmaps = new ArrayList<>();
+        mLoadedMedias = new ArrayList<>();
 
         mMediaRecyclerView = new RecyclerView(mContext);
         mMediaRecyclerView.setOverScrollMode(OVER_SCROLL_NEVER);
@@ -194,7 +197,8 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
         if (isLoadingBitmap || isApplyingFilter) {
             ToastUtils.s(getContext(), getContext().getString(R.string.next_alert));
         } else {
-
+            new PictureLoadingDialog(getContext()).show();
+            new SaveBitmapsTask(getContext().getApplicationContext(), activity,"Filters", mMediaAdapter.getBitmaps(), mLoadedMedias).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
     }
 
@@ -334,7 +338,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
                 } else {
                     uri = PictureMimeType.isContent(media.getPath()) ? Uri.parse(media.getPath()) : Uri.fromFile(new File(media.getPath()));
                 }
-                new BitmapLoadTask(context, uri, uri, maxBitmapSize, maxBitmapSize, new BitmapLoadCallbackImpl(context, container, bitmaps)).execute();
+                new BitmapLoadTask(context, uri, uri, maxBitmapSize, maxBitmapSize, new BitmapLoadCallbackImpl(context, container, bitmaps, media)).execute();
             }
             new FinishLoadBitmapTask(container, bitmaps).execute();
         }
@@ -370,20 +374,25 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     private static class BitmapLoadCallbackImpl implements BitmapLoadCallback {
         private Context mContext;
         private List<Bitmap> mBitmaps;
+        private LocalMedia mMedia;
         private WeakReference<InstagramMediaMultiImageContainer> mContainerWeakReference;
 
-        public BitmapLoadCallbackImpl(Context context, InstagramMediaMultiImageContainer container, List<Bitmap> bitmaps) {
+        public BitmapLoadCallbackImpl(Context context, InstagramMediaMultiImageContainer container, List<Bitmap> bitmaps, LocalMedia media) {
             mContext = context;
             mContainerWeakReference = new WeakReference<>(container);
             mBitmaps = bitmaps;
+            mMedia = media;
         }
 
         @Override
         public void onBitmapLoaded(@NonNull Bitmap bitmap, @NonNull ExifInfo exifInfo, @NonNull String imageInputPath, @Nullable String imageOutputPath) {
             mBitmaps.add(bitmap);
             InstagramMediaMultiImageContainer container = mContainerWeakReference.get();
-            if (container != null && mBitmaps.size() == 1) {
-                new LoadFilterBitmapTask(mContext, container, bitmap).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            if (container != null) {
+                container.mLoadedMedias.add(mMedia);
+                if (mBitmaps.size() == 1) {
+                    new LoadFilterBitmapTask(mContext, container, bitmap).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
             }
         }
 

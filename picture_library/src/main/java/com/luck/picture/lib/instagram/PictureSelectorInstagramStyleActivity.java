@@ -1526,7 +1526,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 mLocalMedia.setSize(new File(resultUri.getPath()).length());
                 mLocalMedia.setAndroidQToPath(SdkVersionUtils.checkedAndroid_Q() ? resultUri.getPath() : mLocalMedia.getAndroidQToPath());
             }
-            Log.d("Test", resultUri.getPath());
+            Log.d("Test", mLocalMedia.toString());
         }
 
         @Override
@@ -1567,7 +1567,14 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     break;
                 case InstagramMediaProcessActivity.REQUEST_MULTI_IMAGE_PROCESS:
                     if (mAdapter.getSelectedImages().size() > 1) {
-
+                        if (data != null) {
+                            List<LocalMedia> list = data.getParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST);
+                            if (list != null) {
+                                mAdapter.bindSelectImages(list);
+                                mAdapter.notifyDataSetChanged();
+                            }
+                        }
+                        handlerResult(mAdapter.getSelectedImages());
                     } else {
                         singleCropHandleResult(data);
                     }

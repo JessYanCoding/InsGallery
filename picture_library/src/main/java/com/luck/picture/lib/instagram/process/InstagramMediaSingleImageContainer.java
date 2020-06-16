@@ -252,7 +252,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
                 return;
             }
 
-            File path = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            File path = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             File file = new File(path, folderName + "/" + fileName);
             OutputStream outputStream = null;
             try {
@@ -260,7 +260,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
                 outputStream = context.getContentResolver().openOutputStream(Uri.fromFile(file));
                 image.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
                 image.recycle();
-                MediaScannerConnection.scanFile(getContext().getApplicationContext(),
+                MediaScannerConnection.scanFile(context,
                         new String[]{
                                 file.toString()
                         }, null,

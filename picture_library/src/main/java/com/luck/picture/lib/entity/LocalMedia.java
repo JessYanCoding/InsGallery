@@ -392,6 +392,18 @@ public class LocalMedia implements Parcelable {
         isMaxSelectEnabledMask = maxSelectEnabledMask;
     }
 
+    @Override
+    public String toString() {
+        return "LocalMedia{" +
+                "id=" + id +
+                ", path='" + path + '\'' +
+                ", cutPath='" + cutPath + '\'' +
+                ", androidQToPath='" + androidQToPath + '\'' +
+                ", width=" + width +
+                ", height=" + height +
+                ", size=" + size +
+                '}';
+    }
 
     @Override
     public int describeContents() {
