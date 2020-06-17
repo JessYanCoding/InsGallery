@@ -971,19 +971,16 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 && eqImg) {
             // 图片才压缩，视频不管
             compressImage(images);
-        }
-//        else if (PictureMimeType.isHasVideo(mimeType)) {
-//            List<LocalMedia> result = new ArrayList<>();
-//            result.addAll(images);
-//            Bundle bundle = null;
-//            if (mPreviewContainer != null) {
-//                bundle = new Bundle();
-//                bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mPreviewContainer.isAspectRatio());
-//                bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mPreviewContainer.getAspectRadio());
-//            }
-//            InstagramMediaProcessActivity.launchActivity(this, config, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_VIDEO_PROCESS);
-//        }
-        else {
+        } else if (PictureMimeType.isHasVideo(mimeType)) {
+            List<LocalMedia> result = new ArrayList<>();
+            result.addAll(images);
+            Bundle bundle = null;
+            if (mPreviewContainer != null) {
+                bundle = new Bundle();
+                bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mPreviewContainer.isAspectRatio());
+            }
+            InstagramMediaProcessActivity.launchActivity(this, config, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_VIDEO_PROCESS);
+        } else {
             onResult(images);
         }
     }
@@ -1494,7 +1491,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             if (previewContainer != null) {
                 bundle = new Bundle();
                 bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, previewContainer.isAspectRatio());
-                bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, previewContainer.getAspectRadio());
             }
 
             PictureSelectorInstagramStyleActivity activity = mActivityWeakReference.get();
@@ -1628,7 +1624,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
         if (mPreviewContainer != null && !data.getBooleanExtra(BitmapCropSquareTask.EXTRA_FROM_CAMERA, false)) {
             bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mPreviewContainer.isAspectRatio());
-            bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mPreviewContainer.getAspectRadio());
         }
 
         InstagramMediaProcessActivity.launchActivity(this, config, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS);

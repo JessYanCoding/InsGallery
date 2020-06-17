@@ -50,6 +50,7 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
     private List<LocalMedia> selectImages = new ArrayList<>();
     private PictureSelectionConfig config;
     private int mPreviewPosition;
+    private long lastClickTime;
     /**
      * 单选图片
      */
@@ -216,6 +217,9 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
 
             if (config.enablePreview || config.enPreviewVideo || config.enablePreviewAudio) {
                 contentHolder.btnCheck.setOnClickListener(v -> {
+                    if (isFastDoubleClick()) {
+                        return;
+                    }
                     // 如原图路径不存在或者路径存在但文件不存在
                     String newPath = SdkVersionUtils.checkedAndroid_Q()
                             ? PictureFileUtils.getPath(context, Uri.parse(path)) : path;
@@ -273,6 +277,15 @@ public class InstagramImageGridAdapter extends RecyclerView.Adapter<RecyclerView
                 }
             });
         }
+    }
+
+    public boolean isFastDoubleClick() {
+        long time = System.currentTimeMillis();
+        if (time - lastClickTime < 800) {
+            return true;
+        }
+        lastClickTime = time;
+        return false;
     }
 
 

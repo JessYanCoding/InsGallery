@@ -57,7 +57,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
     private int mSelectionFilter;
     private PictureCustomDialog mDialog;
 
-    public InstagramMediaSingleImageContainer(@NonNull Context context, PictureSelectionConfig config, Bitmap bitmap, boolean isAspectRatio, float aspectRatio, int selectionFilter) {
+    public InstagramMediaSingleImageContainer(@NonNull Context context, PictureSelectionConfig config, Bitmap bitmap, boolean isAspectRatio, int selectionFilter) {
         super(context);
         mConfig = config;
         mSelectionFilter = selectionFilter;
@@ -73,8 +73,16 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
 
         mImageView = new GPUImageView(context);
         addView(mImageView);
-        if (isAspectRatio && aspectRatio > 0) {
-            mImageView.setRatio(aspectRatio);
+        if (isAspectRatio) {
+            float targetAspectRatio = 0;
+            if (bitmap.getHeight() > bitmap.getWidth() * 1.266f) {
+                targetAspectRatio = bitmap.getWidth() / (bitmap.getWidth() * 1.266f);
+            } else if (bitmap.getWidth() > bitmap.getHeight() * 1.9f) {
+                targetAspectRatio = bitmap.getHeight() * 1.9f / bitmap.getHeight();
+            }
+            if (targetAspectRatio > 0) {
+                mImageView.setRatio(targetAspectRatio);
+            }
         }
         mImageView.setScaleType(GPUImage.ScaleType.CENTER_INSIDE);
         mImageView.setImage(bitmap);

@@ -61,7 +61,6 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     private PictureSelectionConfig mConfig;
     private List<LocalMedia> mMedias;
     private boolean mIsAspectRatio;
-    private float mAspectRatio;
     private final Context mContext;
     private FilterType mCurrentFilterType = FilterType.I_NORMAL;
     private int mProcessPosition;
@@ -70,14 +69,13 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     private boolean isApplyingFilter;
     private List<LocalMedia> mLoadedMedias;
 
-    public InstagramMediaMultiImageContainer(@NonNull InstagramMediaProcessActivity activity, PictureSelectionConfig config, List<LocalMedia> medias, boolean isAspectRatio, float aspectRatio) {
+    public InstagramMediaMultiImageContainer(@NonNull InstagramMediaProcessActivity activity, PictureSelectionConfig config, List<LocalMedia> medias, boolean isAspectRatio) {
         super(activity);
         mContext = activity;
         mActivity = activity;
         mConfig = config;
         mMedias = medias;
         mIsAspectRatio = isAspectRatio;
-        mAspectRatio = aspectRatio;
         mBitmaps = new ArrayList<>();
         mLoadedMedias = new ArrayList<>();
 
@@ -175,7 +173,6 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
 
         Bundle bundle = new Bundle();
         bundle.putBoolean(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO, mIsAspectRatio);
-        bundle.putFloat(InstagramMediaProcessActivity.EXTRA_ASPECT_RATIO_VALUE, mAspectRatio);
         bundle.putInt(InstagramMediaProcessActivity.EXTRA_SINGLE_IMAGE_FILTER, mApplyFilters[mProcessPosition]);
 
         InstagramMediaProcessActivity.launchActivity(mActivity, mConfig, result, bundle, InstagramMediaProcessActivity.REQUEST_SINGLE_IMAGE_PROCESS);
