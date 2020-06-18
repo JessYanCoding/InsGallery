@@ -294,16 +294,22 @@ public class InstagramPreviewContainer extends FrameLayout {
         if (isAspectRatio) {
             Drawable drawable = mGestureCropImageView.getDrawable();
             if (drawable != null) {
-                if (drawable.getIntrinsicHeight() > drawable.getIntrinsicWidth() * 1.266f) {
-                    mAspectRadio = drawable.getIntrinsicWidth() / (drawable.getIntrinsicWidth() * 1.266f);
-                } else if (drawable.getIntrinsicWidth() > drawable.getIntrinsicHeight() * 1.9f) {
-                    mAspectRadio = drawable.getIntrinsicHeight() * 1.9f / drawable.getIntrinsicHeight();
-                }
+                mAspectRadio = getInstagramAspectRatio(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
             }
         }
 
         mGestureCropImageView.setTargetAspectRatio(isAspectRatio ? mAspectRadio : 1.0f);
         mGestureCropImageView.onImageLaidOut();
+    }
+
+    public static float getInstagramAspectRatio(int width, int height) {
+        float aspectRatio = 0;
+        if (height > width * 1.266f) {
+            aspectRatio = width / (width * 1.266f);
+        } else if (width > height * 1.9f) {
+            aspectRatio = height * 1.9f / height;
+        }
+        return aspectRatio;
     }
 
     public boolean isAspectRatio() {
@@ -440,6 +446,7 @@ public class InstagramPreviewContainer extends FrameLayout {
         int parentWidth = getMeasuredWidth();
         int parentHeight = getMeasuredHeight();
 
+        float instagramAspectRatio = getInstagramAspectRatio(videoWidth, videoHeight);
         float targetAspectRatio = videoWidth * 1.0f / videoHeight;
 
         int height = (int) (parentWidth / targetAspectRatio);
@@ -448,11 +455,16 @@ public class InstagramPreviewContainer extends FrameLayout {
         int adjustHeight;
         if (isAspectRatio) {
             if (height > parentHeight) {
-                adjustWidth = (int) (parentHeight * targetAspectRatio);
-                adjustHeight = parentHeight;
-            } else {
-                adjustWidth = parentWidth;
+                adjustWidth = (int) (parentWidth * (instagramAspectRatio > 0 ? instagramAspectRatio : targetAspectRatio));
                 adjustHeight = height;
+            } else {
+                if (instagramAspectRatio > 0) {
+                    adjustWidth = (int) (parentHeight * targetAspectRatio);
+                    adjustHeight = (int) (parentHeight / instagramAspectRatio);
+                } else {
+                    adjustWidth = parentWidth;
+                    adjustHeight = height;
+                }
             }
         } else {
             if (height < parentHeight) {

@@ -1522,7 +1522,6 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                 mLocalMedia.setSize(new File(resultUri.getPath()).length());
                 mLocalMedia.setAndroidQToPath(SdkVersionUtils.checkedAndroid_Q() ? resultUri.getPath() : mLocalMedia.getAndroidQToPath());
             }
-            Log.d("Test", mLocalMedia.toString());
         }
 
         @Override

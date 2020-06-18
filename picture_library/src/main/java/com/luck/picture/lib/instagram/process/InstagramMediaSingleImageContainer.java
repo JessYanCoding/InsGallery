@@ -20,6 +20,7 @@ import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.instagram.InsGallery;
+import com.luck.picture.lib.instagram.InstagramPreviewContainer;
 import com.luck.picture.lib.instagram.adapter.FilterItemView;
 import com.luck.picture.lib.instagram.adapter.InstagramFilterAdapter;
 import com.luck.picture.lib.instagram.adapter.InstagramFilterItemDecoration;
@@ -74,12 +75,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
         mImageView = new GPUImageView(context);
         addView(mImageView);
         if (isAspectRatio) {
-            float targetAspectRatio = 0;
-            if (bitmap.getHeight() > bitmap.getWidth() * 1.266f) {
-                targetAspectRatio = bitmap.getWidth() / (bitmap.getWidth() * 1.266f);
-            } else if (bitmap.getWidth() > bitmap.getHeight() * 1.9f) {
-                targetAspectRatio = bitmap.getHeight() * 1.9f / bitmap.getHeight();
-            }
+            float targetAspectRatio = InstagramPreviewContainer.getInstagramAspectRatio(bitmap.getWidth(), bitmap.getHeight());
             if (targetAspectRatio > 0) {
                 mImageView.setRatio(targetAspectRatio);
             }
