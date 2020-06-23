@@ -75,4 +75,6 @@
     <string name="discard_edits_alert">如現在返回，圖片編輯將被取消。</string>
     <string name="discard">放棄</string>
     <string name="next_alert">圖片加載完成後才能繼續下一步哦！</string>
+    <string name="video_sound_off">視頻聲音: 關</string>
+    <string name="video_sound_on">視頻聲音: 開</string>
 </resources>

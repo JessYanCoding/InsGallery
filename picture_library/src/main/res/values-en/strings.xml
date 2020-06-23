@@ -76,4 +76,6 @@
     <string name="discard_edits_alert">If you go back now, your image edits will be discarded.</string>
     <string name="discard">Discard</string>
     <string name="next_alert">You can continue to the next step after loading the image!</string>
+    <string name="video_sound_off">Video Sound Off</string>
+    <string name="video_sound_on">Video Sound On</string>
 </resources>

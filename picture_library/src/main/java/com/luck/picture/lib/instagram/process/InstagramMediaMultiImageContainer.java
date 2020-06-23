@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -185,7 +186,7 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
     }
 
     @Override
-    public void onCenterFeature(InstagramMediaProcessActivity activity) {
+    public void onCenterFeature(InstagramMediaProcessActivity activity, ImageView view) {
 
     }
 

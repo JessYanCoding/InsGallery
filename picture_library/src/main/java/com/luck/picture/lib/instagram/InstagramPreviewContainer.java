@@ -113,11 +113,17 @@ public class InstagramPreviewContainer extends FrameLayout {
         this.config = config;
         mHandler = new Handler(context.getMainLooper());
 
+        if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
+            setBackgroundColor(Color.parseColor("#363636"));
+        } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE) {
+            setBackgroundColor(Color.parseColor("#004561"));
+        } else {
+            setBackgroundColor(Color.parseColor("#efefef"));
+        }
+
         mVideoView = new VideoView(context);
         addView(mVideoView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.CENTER));
-        mVideoView.setOnClickListener((v -> {
-            pauseVideo();
-        }));
+        mVideoView.setOnClickListener((v -> pauseVideo()));
         mVideoView.setOnPreparedListener(mp -> {
             mMediaPlayer = mp;
             mp.setLooping(true);
@@ -165,7 +171,7 @@ public class InstagramPreviewContainer extends FrameLayout {
             mOverlayView.setDimmedColor(Color.parseColor("#363636"));
             mOverlayView.setCropGridColor(ContextCompat.getColor(context, R.color.picture_color_black));
         } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
-            mOverlayView.setDimmedColor(Color.parseColor("#6614617f"));
+            mOverlayView.setDimmedColor(Color.parseColor("#004561"));
             mOverlayView.setCropGridColor(Color.parseColor("#18222D"));
         } else {
             mOverlayView.setDimmedColor(Color.parseColor("#efefef"));

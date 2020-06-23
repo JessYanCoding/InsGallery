@@ -47,13 +47,13 @@ public class InstagramTitleBar extends FrameLayout {
         mCenterView.setPadding(ScreenUtils.dip2px(context, 10), 0, ScreenUtils.dip2px(context, 10), 0);
         mCenterView.setOnClickListener(v -> {
             if (mClickListener != null) {
-                mClickListener.onCenterViewClick();
+                mClickListener.onCenterViewClick(mCenterView);
             }
         });
         addView(mCenterView);
         switch (mediaType) {
             case SINGLE_VIDEO:
-                mCenterView.setImageResource(R.drawable.discover_volume_on);
+                mCenterView.setImageResource(R.drawable.discover_volume_off);
                 break;
             default:
                 mCenterView.setVisibility(View.GONE);
@@ -133,7 +133,7 @@ public class InstagramTitleBar extends FrameLayout {
 
     public interface OnTitleBarItemOnClickListener {
         void onLeftViewClick();
-        void onCenterViewClick();
+        void onCenterViewClick(ImageView view);
         void onRightViewClick();
     }
 }

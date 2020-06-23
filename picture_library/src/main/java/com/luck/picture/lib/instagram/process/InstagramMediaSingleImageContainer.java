@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
@@ -67,7 +68,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
         if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
             mPaint.setColor(Color.parseColor("#363636"));
         } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE) {
-            mPaint.setColor(Color.parseColor("#6614617f"));
+            mPaint.setColor(Color.parseColor("#004561"));
         } else {
             mPaint.setColor(Color.parseColor("#efefef"));
         }
@@ -190,7 +191,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
     }
 
     @Override
-    public void onCenterFeature(InstagramMediaProcessActivity activity) {
+    public void onCenterFeature(InstagramMediaProcessActivity activity, ImageView view) {
 
     }
 

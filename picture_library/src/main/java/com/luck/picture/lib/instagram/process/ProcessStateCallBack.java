@@ -1,6 +1,7 @@
 package com.luck.picture.lib.instagram.process;
 
 import android.content.Intent;
+import android.widget.ImageView;
 
 /**
  * ================================================
@@ -11,7 +12,7 @@ import android.content.Intent;
  */
 public interface ProcessStateCallBack {
     void onBack(InstagramMediaProcessActivity activity);
-    void onCenterFeature(InstagramMediaProcessActivity activity);
+    void onCenterFeature(InstagramMediaProcessActivity activity, ImageView view);
     void onProcess(InstagramMediaProcessActivity activity);
     void onActivityResult(InstagramMediaProcessActivity activity, int requestCode, int resultCode, Intent data);
 }
