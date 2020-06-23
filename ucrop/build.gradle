@@ -1,12 +1,13 @@
+apply from: '../../config.gradle'
+
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion cfgs.compileSdkVersion
-    buildToolsVersion cfgs.buildToolsVersion
+    compileSdkVersion rootProject.ext.buildConfig.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion cfgs.minSdkVersion
-        targetSdkVersion cfgs.targetSdkVersion
+        minSdkVersion rootProject.ext.buildConfig.minSdkVersion
+        targetSdkVersion rootProject.ext.buildConfig.targetSdkVersion
         versionCode 24
         versionName "2.2.4-non-native"
 
@@ -30,10 +31,8 @@ android {
 }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:${cfgs.androidx_appcompat_version}"
-    implementation "androidx.exifinterface:exifinterface:${cfgs.androidx_exifinterface_version}"
-    implementation "androidx.transition:transition:${cfgs.androidx_transition_version}"
-    implementation "androidx.recyclerview:recyclerview:${cfgs.version_recyclerview}"
+    implementation "androidx.appcompat:appcompat:${buildConfig.androidx_appcompat_version}"
+    implementation "androidx.exifinterface:exifinterface:${buildConfig.androidx_exifinterface_version}"
+    implementation "androidx.transition:transition:${buildConfig.androidx_transition_version}"
+    implementation "androidx.recyclerview:recyclerview:${buildConfig.version_recyclerview}"
 }
-
-apply from: 'bintray.gradle'

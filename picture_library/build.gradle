@@ -1,13 +1,16 @@
+apply from: '../../utils.gradle'
+apply from: '../../config.gradle'
+
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion cfgs.compileSdkVersion
+    compileSdkVersion rootProject.ext.buildConfig.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion cfgs.minSdkVersion
-        targetSdkVersion cfgs.targetSdkVersion
-        versionCode cfgs.versionCode
-        versionName cfgs.versionName
+        minSdkVersion rootProject.ext.buildConfig.minSdkVersion
+        targetSdkVersion rootProject.ext.buildConfig.targetSdkVersion
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
     }
 
     compileOptions {
@@ -29,16 +32,14 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "androidx.appcompat:appcompat:${cfgs.version_appcompat}"
-    implementation "androidx.recyclerview:recyclerview:${cfgs.version_recyclerview}"
-    implementation "androidx.concurrent:concurrent-futures:${cfgs.futures_version}"
-    implementation "com.squareup.okio:okio:${cfgs.okio_version}"
-    implementation "androidx.camera:camera-lifecycle:${cfgs.camerax_version}"
-    implementation "androidx.localbroadcastmanager:localbroadcastmanager:${cfgs.localbroadcastmanager}"
-    implementation "androidx.camera:camera-view:${cfgs.camerax_view}"
+    implementation "androidx.appcompat:appcompat:${buildConfig.version_appcompat}"
+    implementation "androidx.recyclerview:recyclerview:${buildConfig.version_recyclerview}"
+    implementation "androidx.concurrent:concurrent-futures:${buildConfig.futures_version}"
+    implementation "com.squareup.okio:okio:${buildConfig.okio_version}"
+    implementation "androidx.camera:camera-lifecycle:${buildConfig.camerax_version}"
+    implementation "androidx.localbroadcastmanager:localbroadcastmanager:${buildConfig.localbroadcastmanager}"
+    implementation "androidx.camera:camera-view:${buildConfig.camerax_view}"
     api project(':ucrop')
     api 'com.otaliastudios:transcoder:0.9.1'
     api 'jp.co.cyberagent.android:gpuimage:2.0.4'
 }
-
-apply from: 'bintray.gradle'

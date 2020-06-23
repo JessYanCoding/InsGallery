@@ -1,14 +1,17 @@
+apply from: '../../utils.gradle'
+apply from: '../../config.gradle'
+
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion cfgs.compileSdkVersion
+    compileSdkVersion rootProject.ext.buildConfig.compileSdkVersion
 
     defaultConfig {
         applicationId "com.luck.pictureselector"
-        minSdkVersion cfgs.minSdkVersion
-        targetSdkVersion cfgs.targetSdkVersion
-        versionCode cfgs.versionCode
-        versionName cfgs.versionName
+        minSdkVersion rootProject.ext.buildConfig.minSdkVersion
+        targetSdkVersion rootProject.ext.buildConfig.targetSdkVersion
+        versionCode VERSION_CODE
+        versionName VERSION_NAME
     }
     buildTypes {
         release {
@@ -36,9 +39,9 @@ dependencies {
     implementation project(':picture_library')
 //    implementation 'me.jessyan:insgallery:0.2.1'
 
-    implementation "androidx.appcompat:appcompat:${cfgs.version_appcompat}"
-    implementation "androidx.recyclerview:recyclerview:${cfgs.version_recyclerview}"
-    implementation "androidx.camera:camera-camera2:${cfgs.camerax_version}"
-    implementation "com.github.bumptech.glide:glide:${cfgs.glide_version}"
+    implementation "androidx.appcompat:appcompat:${buildConfig.version_appcompat}"
+    implementation "androidx.recyclerview:recyclerview:${buildConfig.version_recyclerview}"
+    implementation "androidx.camera:camera-camera2:${buildConfig.camerax_version}"
+    implementation "com.github.bumptech.glide:glide:${buildConfig.glide_version}"
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
 }
