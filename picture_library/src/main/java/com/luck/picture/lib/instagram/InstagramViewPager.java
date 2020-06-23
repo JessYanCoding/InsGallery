@@ -190,7 +190,9 @@ public class InstagramViewPager extends FrameLayout {
             float dx = (int) (event.getX() - startedTrackingX);
             float dy = (int) event.getY() - startedTrackingY;
 
-            moveByX(dx * 1.1f);
+            if (scrollEnable) {
+                moveByX(dx * 1.1f);
+            }
 
             startedTrackingX = (int) event.getX();
             startedTrackingY = (int) event.getY();
@@ -211,22 +213,24 @@ public class InstagramViewPager extends FrameLayout {
                 velocityTracker = null;
             }
 
-            int triggerValue = getMeasuredWidth() / 2;
-            int position = (int) (Math.abs(scrollHorizontalPosition) / getMeasuredWidth());
-            if (Math.abs(scrollHorizontalPosition) % getMeasuredWidth() >= triggerValue) {
-                position++;
-            }
-
-            int destination = getDestination(position);
-
-            if (Math.abs(velX) >= 500) {
-                if (velX <= 0) {
-                    startChildAnimation(getDestination(mCurrentPosition), 150);
-                } else {
-                    startChildAnimation(getDestination(mCurrentPosition - 1), 150);
+            if (scrollEnable) {
+                int triggerValue = getMeasuredWidth() / 2;
+                int position = (int) (Math.abs(scrollHorizontalPosition) / getMeasuredWidth());
+                if (Math.abs(scrollHorizontalPosition) % getMeasuredWidth() >= triggerValue) {
+                    position++;
                 }
-            } else {
-                startChildAnimation(destination, 200);
+
+                int destination = getDestination(position);
+
+                if (Math.abs(velX) >= 500) {
+                    if (velX <= 0) {
+                        startChildAnimation(getDestination(mCurrentPosition), 150);
+                    } else {
+                        startChildAnimation(getDestination(mCurrentPosition - 1), 150);
+                    }
+                } else {
+                    startChildAnimation(destination, 200);
+                }
             }
 
             if (click) {

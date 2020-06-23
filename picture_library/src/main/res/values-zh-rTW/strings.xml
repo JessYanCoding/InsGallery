@@ -77,4 +77,6 @@
     <string name="next_alert">圖片加載完成後才能繼續下一步哦！</string>
     <string name="video_sound_off">視頻聲音: 關</string>
     <string name="video_sound_on">視頻聲音: 開</string>
+    <string name="trim">修剪</string>
+    <string name="cover">封面</string>
 </resources>

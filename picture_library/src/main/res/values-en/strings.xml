@@ -78,4 +78,6 @@
     <string name="next_alert">You can continue to the next step after loading the image!</string>
     <string name="video_sound_off">Video Sound Off</string>
     <string name="video_sound_on">Video Sound On</string>
+    <string name="trim">Trim</string>
+    <string name="cover">Cover</string>
 </resources>
