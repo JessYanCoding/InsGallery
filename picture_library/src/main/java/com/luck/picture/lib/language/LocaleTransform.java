@@ -1,5 +1,7 @@
 package com.luck.picture.lib.language;
 
+import com.luck.picture.lib.hula.Constants;
+
 import java.util.Locale;
 
 /**
@@ -31,6 +33,8 @@ public class LocaleTransform {
             case LanguageConfig.VIETNAM:
                 // 越南语
                 return new Locale("vi");
+            case Constants.LanguageConfig.HULA:
+                return new Locale("no");
             default:
                 // 简体中文
                 return Locale.CHINESE;
