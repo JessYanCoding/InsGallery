@@ -20,6 +20,7 @@ import com.luck.picture.lib.instagram.Page;
 public class PageTrim implements Page {
     private PictureSelectionConfig mConfig;
     private LocalMedia mMedia;
+    private TrimContainer mContainer;
 
     public PageTrim(PictureSelectionConfig config, LocalMedia media) {
         mConfig = config;
@@ -28,7 +29,8 @@ public class PageTrim implements Page {
 
     @Override
     public View getView(Context context) {
-        return new TrimContainer(context, mConfig, mMedia);
+        mContainer = new TrimContainer(context, mConfig, mMedia);
+        return mContainer;
     }
 
     @Override
@@ -49,5 +51,13 @@ public class PageTrim implements Page {
     @Override
     public Rect disallowInterceptTouchRect() {
         return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mContainer != null) {
+            mContainer.onDestroy();
+            mContainer = null;
+        }
     }
 }

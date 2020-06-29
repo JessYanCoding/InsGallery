@@ -123,7 +123,7 @@ public final class InsGallery {
                 .isOpenClickSound(true)// 是否开启点击声音
                 //.isDragFrame(false)// 是否可拖动裁剪框(固定)
                 //.videoMinSecond(10)
-                .videoMaxSecond(120)
+                .videoMaxSecond(600)
                 .recordVideoSecond(60)//录制视频秒数 默认60s
                 .recordVideoMinSecond(3)//最低录制秒数
                 .cutOutQuality(90)// 裁剪输出质量 默认100
