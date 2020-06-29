@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
@@ -31,7 +32,8 @@ import androidx.recyclerview.widget.RecyclerView;
 public class TrimContainer extends FrameLayout {
     private RecyclerView mRecyclerView;
     private final VideoTrimmerAdapter mVideoTrimmerAdapter;
-    private AsyncTask<Void, Void, Void> mFrameTask;
+    private getAllFrameTask mFrameTask;
+    private final VideoRulerView mVideoRulerView;
 
     public TrimContainer(@NonNull Context context, PictureSelectionConfig config, LocalMedia media) {
         super(context);
@@ -48,8 +50,10 @@ public class TrimContainer extends FrameLayout {
         mVideoTrimmerAdapter = new VideoTrimmerAdapter();
         mRecyclerView.setAdapter(mVideoTrimmerAdapter);
         addView(mRecyclerView);
+        ObjectAnimator.ofFloat(mRecyclerView, "translationX", ScreenUtils.getScreenWidth(context), 0).setDuration(300).start();
 
-        ObjectAnimator.ofFloat(mRecyclerView, "translationX", ScreenUtils.getScreenWidth(context), 0).setDuration(400).start();
+        mVideoRulerView = new VideoRulerView(context);
+        addView(mVideoRulerView);
 
         int thumbsCount;
         if (media.getDuration() > 60000) {
@@ -60,7 +64,8 @@ public class TrimContainer extends FrameLayout {
             thumbsCount = 8;
         }
         mVideoTrimmerAdapter.setItemCount(thumbsCount);
-        mFrameTask = new getAllFrameTask(context, media, thumbsCount, 0, (int) media.getDuration(), new OnSingleBitmapListenerImpl(this)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        mFrameTask = new getAllFrameTask(context, media, thumbsCount, 0, (int) media.getDuration(), new OnSingleBitmapListenerImpl(this));
+        mFrameTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -69,16 +74,39 @@ public class TrimContainer extends FrameLayout {
         int height = MeasureSpec.getSize(heightMeasureSpec);
 
         mRecyclerView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 90), MeasureSpec.EXACTLY));
+        mVideoRulerView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height - ScreenUtils.dip2px(getContext(), 90), MeasureSpec.EXACTLY));
         setMeasuredDimension(width, height);
     }
 
     @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        int viewTop = 0;
+        int viewLeft = 0;
+        mRecyclerView.layout(viewLeft, viewTop, viewLeft + mRecyclerView.getMeasuredWidth(), viewTop + mRecyclerView.getMeasuredHeight());
+
+        viewTop += mRecyclerView.getMeasuredHeight();
+        mVideoRulerView.layout(viewLeft, viewTop, viewLeft + mVideoRulerView.getMeasuredWidth(), viewTop + mVideoRulerView.getMeasuredHeight());
+    }
+
+    @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        Rect rect = new Rect();
+        mVideoRulerView.getHitRect(rect);
+        if (rect.contains((int) (ev.getX()), (int) (ev.getY()))) {
+            return true;
+        }
         return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mRecyclerView.onTouchEvent(event);
+        return true;
     }
 
     public void onDestroy() {
         if (mFrameTask != null) {
+            mFrameTask.setStop(true);
             mFrameTask.cancel(true);
             mFrameTask = null;
         }
