@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.instagram.Page;
 
 /**
@@ -18,9 +19,10 @@ import com.luck.picture.lib.instagram.Page;
  * ================================================
  */
 public class PageCover implements Page {
+    private PictureSelectionConfig mConfig;
 
-    public PageCover() {
-
+    public PageCover(PictureSelectionConfig config) {
+        mConfig = config;
     }
 
     @Override

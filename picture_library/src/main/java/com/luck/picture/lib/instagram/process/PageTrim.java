@@ -1,13 +1,13 @@
 package com.luck.picture.lib.instagram.process;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.instagram.Page;
 
 /**
@@ -18,16 +18,17 @@ import com.luck.picture.lib.instagram.Page;
  * ================================================
  */
 public class PageTrim implements Page {
+    private PictureSelectionConfig mConfig;
+    private LocalMedia mMedia;
 
-    public PageTrim() {
-
+    public PageTrim(PictureSelectionConfig config, LocalMedia media) {
+        mConfig = config;
+        mMedia = media;
     }
 
     @Override
     public View getView(Context context) {
-        FrameLayout frameLayout = new FrameLayout(context);
-        frameLayout.setBackgroundColor(Color.CYAN);
-        return frameLayout;
+        return new TrimContainer(context, mConfig, mMedia);
     }
 
     @Override

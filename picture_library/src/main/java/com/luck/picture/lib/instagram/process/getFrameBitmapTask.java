@@ -25,11 +25,11 @@ import java.lang.ref.WeakReference;
 public class getFrameBitmapTask extends AsyncTask<Void, Void, Bitmap> {
     private WeakReference<Context> mContextWeakReference;
     private LocalMedia mMedia;
-    private onCompleteListener mOnCompleteListener;
+    private OnCompleteListener mOnCompleteListener;
     private boolean isAspectRatio;
     private long mTime;
 
-    public getFrameBitmapTask(Context context, LocalMedia media, boolean isAspectRatio, long time, onCompleteListener onCompleteListener) {
+    public getFrameBitmapTask(Context context, LocalMedia media, boolean isAspectRatio, long time, OnCompleteListener onCompleteListener) {
         mContextWeakReference = new WeakReference<>(context);
         mMedia = media;
         this.isAspectRatio = isAspectRatio;
@@ -110,7 +110,7 @@ public class getFrameBitmapTask extends AsyncTask<Void, Void, Bitmap> {
         }
     }
 
-    public interface onCompleteListener {
+    public interface OnCompleteListener {
         void onGetBitmapComplete(Bitmap bitmap);
     }
 }

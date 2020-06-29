@@ -124,8 +124,8 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
         mTopContainer.addView(mPlayButton, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
 
         mList = new ArrayList<>();
-        mList.add(new PageTrim());
-        mList.add(new PageCover());
+        mList.add(new PageTrim(config, media));
+        mList.add(new PageCover(config));
         mInstagramViewPager = new InstagramViewPager(getContext(), mList, config);
         mInstagramViewPager.setScrollEnable(false);
         addView(mInstagramViewPager);
@@ -141,7 +141,7 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
             }
         });
 
-        new getFrameBitmapTask(context, media, isAspectRatio, -1, new onCompleteListenerImpl(mThumbView)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new getFrameBitmapTask(context, media, isAspectRatio, -1, new OnCompleteListenerImpl(mThumbView)).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private void startVideo(boolean start) {
@@ -334,10 +334,10 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
         mVideoView.setLayoutParams(layoutParams);
     }
 
-    public static class onCompleteListenerImpl implements getFrameBitmapTask.onCompleteListener {
+    public static class OnCompleteListenerImpl implements getFrameBitmapTask.OnCompleteListener {
         private WeakReference<ImageView> mImageViewWeakReference;
 
-        public onCompleteListenerImpl(ImageView imageView) {
+        public OnCompleteListenerImpl(ImageView imageView) {
             mImageViewWeakReference = new WeakReference<>(imageView);
         }
 
