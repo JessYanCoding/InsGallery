@@ -27,6 +27,7 @@ public class getAllFrameTask extends AsyncTask<Void, Void, Void> {
     private long mStartPosition;
     private long mEndPosition;
     private OnSingleBitmapListener mOnSingleBitmapListener;
+    private boolean isStop;
 
     public getAllFrameTask(Context context, LocalMedia media, int totalThumbsCount, long startPosition,
                            long endPosition, OnSingleBitmapListener onSingleBitmapListener) {
@@ -36,6 +37,10 @@ public class getAllFrameTask extends AsyncTask<Void, Void, Void> {
         mStartPosition = startPosition;
         mEndPosition = endPosition;
         mOnSingleBitmapListener = onSingleBitmapListener;
+    }
+
+    public void setStop(boolean stop) {
+        isStop = stop;
     }
 
     @Override
@@ -54,6 +59,9 @@ public class getAllFrameTask extends AsyncTask<Void, Void, Void> {
 
                 long interval = (mEndPosition - mStartPosition) / (mTotalThumbsCount - 1);
                 for (long i = 0; i < mTotalThumbsCount; ++i) {
+                    if (isStop) {
+                        break;
+                    }
                     long frameTime = mStartPosition + interval * i;
                     Bitmap bitmap = mediaMetadataRetriever.getFrameAtTime(frameTime * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
                     if(bitmap == null){ continue;}
