@@ -12,6 +12,7 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.engine.CacheResourcesEngine;
 import com.luck.picture.lib.engine.ImageEngine;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -63,6 +64,7 @@ public final class HulaGallery {
         style.pictureStatusBarColor = Color.parseColor("#000000");
         style.pictureNavBarColor = Color.parseColor("#000000");
         style.pictureRightDefaultTextColor = Color.parseColor("#333333");
+        style.pictureCheckedStyle = R.drawable.hula_num_selector;
         return style;
     }
 
@@ -73,6 +75,10 @@ public final class HulaGallery {
                 Color.parseColor("#000000"),
                 ContextCompat.getColor(context, R.color.picture_color_white),
                 false);
+    }
+
+    public static boolean isHula(PictureSelectionConfig config) {
+        return config.language == Constants.LanguageConfig.HULA;
     }
 
 }

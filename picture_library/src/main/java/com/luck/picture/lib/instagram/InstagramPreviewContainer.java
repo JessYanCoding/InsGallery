@@ -25,6 +25,7 @@ import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.hula.HulaGallery;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.yalantis.ucrop.UCrop;
@@ -194,6 +195,9 @@ public class InstagramPreviewContainer extends FrameLayout {
 
 
         mRatioView = new ImageView(context);
+        if (HulaGallery.isHula(config)) {
+            mRatioView.setVisibility(View.GONE);
+        }
 
         CombinedDrawable ratiodDrawable = new CombinedDrawable(InstagramUtils.createSimpleSelectorCircleDrawable(ScreenUtils.dip2px(context, 30), 0x88000000, Color.BLACK),
                 context.getResources().getDrawable(R.drawable.discover_telescopic).mutate());
@@ -217,6 +221,9 @@ public class InstagramPreviewContainer extends FrameLayout {
         });
 
         mMultiView = new ImageView(context);
+        if (HulaGallery.isHula(config)) {
+            mMultiView.setVisibility(View.GONE);
+        }
 
         CombinedDrawable multiDrawable = new CombinedDrawable(InstagramUtils.createSimpleSelectorCircleDrawable(ScreenUtils.dip2px(context, 30), 0x88000000, Color.BLACK),
                 context.getResources().getDrawable(R.drawable.discover_many).mutate());

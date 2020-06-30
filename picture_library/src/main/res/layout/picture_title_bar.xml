@@ -43,6 +43,21 @@
         android:textColor="?picture.right.textColor"
         android:textSize="14sp" />
 
+    <TextView
+        android:id="@+id/hula_right"
+        android:layout_width="72dp"
+        android:layout_height="32dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/hula_title_bar_right_bg"
+        android:gravity="center"
+        android:text="@string/picture_cancel"
+        android:textColor="?picture.right.textColor"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
     <ImageView
         android:id="@+id/pictureLeftBack"
         android:layout_width="wrap_content"

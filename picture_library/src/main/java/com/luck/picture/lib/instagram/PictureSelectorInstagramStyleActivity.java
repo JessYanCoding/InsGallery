@@ -37,6 +37,7 @@ import com.luck.picture.lib.dialog.PhotoItemSelectedDialog;
 import com.luck.picture.lib.dialog.PictureCustomDialog;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
+import com.luck.picture.lib.hula.HulaGallery;
 import com.luck.picture.lib.instagram.cache.LruCache;
 import com.luck.picture.lib.instagram.process.InstagramMediaProcessActivity;
 import com.luck.picture.lib.listener.OnAlbumItemClickListener;
@@ -197,23 +198,55 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         titleViewBg = findViewById(R.id.titleViewBg);
         mIvPictureLeftBack = findViewById(R.id.pictureLeftBack);
         mTvPictureTitle = findViewById(R.id.picture_title);
-        mTvPictureRight = findViewById(R.id.picture_right);
         mIvArrow = findViewById(R.id.ivArrow);
+        TextView pictureRight = findViewById(R.id.picture_right);
+        TextView hulaRight = findViewById(R.id.hula_right);
 
-        config.isCamera = false;
-        config.selectionMode = PictureConfig.SINGLE;
-        config.isSingleDirectReturn = true;
-        config.isWithVideoImage = false;
-        config.maxVideoSelectNum = 1;
-        config.aspect_ratio_x = 1;
-        config.aspect_ratio_y = 1;
-        config.enableCrop = true;
+        if (HulaGallery.isHula(config)) {
+            pictureRight.setVisibility(View.GONE);
+            hulaRight.setVisibility(View.VISIBLE);
+            mTvPictureRight = hulaRight;
+        } else {
+            pictureRight.setVisibility(View.VISIBLE);
+            hulaRight.setVisibility(View.GONE);
+            mTvPictureRight = pictureRight;
+
+            config.isCamera = false;
+            config.selectionMode = PictureConfig.SINGLE;
+            config.isSingleDirectReturn = true;
+            config.isWithVideoImage = false;
+            config.maxVideoSelectNum = 1;
+            config.aspect_ratio_x = 1;
+            config.aspect_ratio_y = 1;
+            config.enableCrop = true;
 //        config.recordVideoMinSecond = 3;
+        }
 
         mPictureRecycler = new GalleryViewImpl(getContext());
         mPreviewContainer = new InstagramPreviewContainer(getContext(), config);
         mInstagramGallery = new InstagramGallery(getContext(), mPreviewContainer, mPictureRecycler);
         mInstagramGallery.setPreviewBottomMargin(ScreenUtils.dip2px(getContext(), 2));
+
+        if (HulaGallery.isHula(config)) {
+            if (config.selectionMode == PictureConfig.MULTIPLE) {
+                if (mInstagramViewPager != null) {
+                    mInstagramGallery.setInitGalleryHeight();
+                    mInstagramViewPager.setScrollEnable(false);
+                    mInstagramViewPager.displayTabLayout(false);
+                }
+                if (mLruCache == null) {
+                    mLruCache = new LruCache<>(20);
+                }
+                bindPreviewPosition();
+            } else {
+                config.isSingleDirectReturn = true;
+                if (mInstagramViewPager != null) {
+                    mInstagramGallery.setInitGalleryHeight();
+                    mInstagramViewPager.setScrollEnable(true);
+                    mInstagramViewPager.displayTabLayout(true);
+                }
+            }
+        }
 
         mPreviewContainer.setListener(new InstagramPreviewContainer.onSelectionModeChangedListener() {
             @Override
@@ -536,6 +569,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             if (!TextUtils.isEmpty(config.style.pictureRightDefaultText)) {
                 mTvPictureRight.setText(config.style.pictureRightDefaultText);
             }
+            if (HulaGallery.isHula(config)) {
+                mTvPictureRight.setText(getString(R.string.next));
+            }
         } else {
             if (config.downResId != 0) {
                 Drawable drawable = ContextCompat.getDrawable(this, config.downResId);
@@ -747,7 +783,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     }
                 }
             }
-        } else if (id == R.id.picture_right) {
+        } else if (id == mTvPictureRight.getId()) {
             onComplete();
         } else if (id == R.id.titleViewBg) {
             if (mInstagramViewPager.getSelectedPosition() == 0 && config.isAutomaticTitleRecyclerTop) {

@@ -42,4 +42,6 @@
     <color name="picture_color_half_white">#99FFFFFF</color>
     <color name="picture_color_ff572e">#ff572e</color>
     <color name="picture_color_529BeA">#529BeA</color>
+
+    <color name="hula_color_main">#FFDE3C</color>
 </resources>
