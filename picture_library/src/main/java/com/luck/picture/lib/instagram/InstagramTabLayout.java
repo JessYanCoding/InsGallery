@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.hula.HulaGallery;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ public class InstagramTabLayout extends FrameLayout {
     private int tabWidth;
     private PictureSelectionConfig config;
 
+    private float scaledDensity;
+
     public InstagramTabLayout(Context context, List<Page> items, PictureSelectionConfig config) {
         super(context);
         this.config = config;
@@ -53,6 +56,8 @@ public class InstagramTabLayout extends FrameLayout {
         selectedIndicatorPaint = new Paint();
         defaultSelectionIndicator = new GradientDrawable();
         selectedIndicatorHeight = ScreenUtils.dip2px(context, 1);
+
+        scaledDensity = getContext().getResources().getDisplayMetrics().scaledDensity;
 
         if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
             selectedIndicatorPaint.setColor(ContextCompat.getColor(context, R.color.picture_color_white));
@@ -103,8 +108,12 @@ public class InstagramTabLayout extends FrameLayout {
         if (!tabViews.isEmpty()) {
             tabWidth = width / tabViews.size();
             if (indicatorLeft == -1) {
-                indicatorLeft = 0;
-                indicatorRight = tabWidth;
+                if (HulaGallery.isHula(config)) {
+                    setShortIndicatorPosition(0);
+                } else {
+                    indicatorLeft = 0;
+                    indicatorRight = tabWidth;
+                }
             }
 
             for (View view : tabViews) {
@@ -173,6 +182,19 @@ public class InstagramTabLayout extends FrameLayout {
             indicatorRight = right;
             ViewCompat.postInvalidateOnAnimation(this);
         }
+    }
+
+    public void setShortIndicatorPosition(int position) {
+        int tabLeft = position * tabWidth;
+        int tabRight = tabLeft + tabWidth;
+
+        float textSize = ((TextView) tabViews.get(position)).getTextSize();
+        int textWidth = Float.valueOf(textSize * scaledDensity).intValue();
+
+        tabLeft = tabLeft + tabWidth / 2 - textWidth / 2;
+        tabRight = tabRight - tabWidth / 2 + textWidth / 2;
+
+        setIndicatorPosition(tabLeft, tabRight);
     }
 
     public void selectTab(int position) {

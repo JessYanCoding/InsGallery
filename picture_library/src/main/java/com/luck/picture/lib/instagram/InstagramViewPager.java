@@ -12,6 +12,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 
 import com.luck.picture.lib.config.PictureSelectionConfig;
+import com.luck.picture.lib.hula.HulaGallery;
 import com.luck.picture.lib.tools.ScreenUtils;
 
 import java.util.ArrayList;
@@ -49,6 +50,8 @@ public class InstagramViewPager extends FrameLayout {
     private boolean scrollEnable = true;
     private boolean isDisplayTabLayout = true;
 
+    private boolean isHula = false;
+
     public InstagramViewPager(@NonNull Context context) {
         super(context);
     }
@@ -64,6 +67,7 @@ public class InstagramViewPager extends FrameLayout {
         mViews.get(0).setTag(true);
         mItems.get(0).refreshData(context);
         mTabLayout = new InstagramTabLayout(context, items, config);
+        isHula = HulaGallery.isHula(config);
         addView(mTabLayout);
     }
 
@@ -315,7 +319,11 @@ public class InstagramViewPager extends FrameLayout {
         int position = (int) (Math.abs(scrollHorizontalPosition) / getMeasuredWidth());
         float offset = Math.abs(scrollHorizontalPosition) % getMeasuredWidth();
 
-        mTabLayout.setIndicatorPosition(position, offset / getMeasuredWidth());
+        if (isHula) {
+            mTabLayout.setShortIndicatorPosition(position);
+        } else {
+            mTabLayout.setIndicatorPosition(position, offset / getMeasuredWidth());
+        }
 
         if (mOnPageChangeListener != null) {
             mOnPageChangeListener.onPageScrolled(position, offset / getMeasuredWidth(), (int) offset);
