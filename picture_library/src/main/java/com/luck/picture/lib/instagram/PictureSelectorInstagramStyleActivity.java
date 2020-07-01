@@ -329,6 +329,17 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         mInstagramViewPager.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                if (HulaGallery.isHula(config)) {
+                    if (position == 0) {
+                        // 显示标题栏，显示状态栏
+                        titleViewBg.setVisibility(View.VISIBLE);
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                    } else {
+                        // 隐藏标题栏，隐藏状态栏
+                        titleViewBg.setVisibility(View.GONE);
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.INVISIBLE | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                    }
+                }
                 if (position == 0) {
                     if (positionOffset >= 0.5f) {
                         mPreviewContainer.pauseVideo(true);

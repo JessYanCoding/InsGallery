@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/picture_color_white"
-    android:fitsSystemWindows="true"
     tools:context=".instagram.PictureSelectorInstagramStyleActivity">
 
     <include layout="@layout/picture_title_bar" />
