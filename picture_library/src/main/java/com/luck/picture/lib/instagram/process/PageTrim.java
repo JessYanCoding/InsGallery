@@ -53,6 +53,12 @@ public class PageTrim implements Page {
         return null;
     }
 
+    public void trimVideo() {
+        if (mContainer != null) {
+            mContainer.trimVideo();
+        }
+    }
+
     @Override
     public void onDestroy() {
         if (mContainer != null) {

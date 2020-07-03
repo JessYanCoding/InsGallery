@@ -203,6 +203,14 @@ public class RangeSeekBarView extends View {
         canvas.drawText(rightThumbsTime, normalizedToScreen(normalizedMaxValue), TextPositionY, mVideoTrimTimePaintR);
     }
 
+    public double getNormalizedMinValue() {
+        return normalizedMinValue;
+    }
+
+    public double getNormalizedMaxValue() {
+        return normalizedMaxValue;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (isTouchDown) {

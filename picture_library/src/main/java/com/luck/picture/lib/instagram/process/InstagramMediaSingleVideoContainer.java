@@ -236,7 +236,9 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
 
     @Override
     public void onProcess(InstagramMediaProcessActivity activity) {
-
+        if (mInstagramViewPager.getSelectedPosition() == 0) {
+            ((PageTrim) mList.get(0)).trimVideo();
+        }
     }
 
     @Override

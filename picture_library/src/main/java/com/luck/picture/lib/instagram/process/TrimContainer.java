@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -32,16 +33,20 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class TrimContainer extends FrameLayout {
     private RecyclerView mRecyclerView;
+    private LocalMedia mMedia;
     private final VideoTrimmerAdapter mVideoTrimmerAdapter;
     private getAllFrameTask mFrameTask;
     private final VideoRulerView mVideoRulerView;
     private final RangeSeekBarView mRangeSeekBarView;
     private View mLeftShadow;
     private View mRightShadow;
+    private int mScrollX;
+    private int mThumbsCount;
 
     public TrimContainer(@NonNull Context context, PictureSelectionConfig config, LocalMedia media) {
         super(context);
         mRecyclerView = new RecyclerView(context);
+        mMedia = media;
         if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DEFAULT) {
             mRecyclerView.setBackgroundColor(Color.parseColor("#333333"));
         } else {
@@ -64,6 +69,7 @@ public class TrimContainer extends FrameLayout {
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                mScrollX += dx;
                 mVideoRulerView.scrollBy(dx,0);
             }
         });
@@ -71,16 +77,15 @@ public class TrimContainer extends FrameLayout {
         mVideoRulerView = new VideoRulerView(context, media.getDuration());
         addView(mVideoRulerView);
 
-        int thumbsCount;
         if (media.getDuration() > 60000) {
-            thumbsCount = Math.round(media.getDuration() / 7500f);
+            mThumbsCount = Math.round(media.getDuration() / 7500f);
         } else if (media.getDuration() < 15000) {
-            thumbsCount = Math.round(media.getDuration() / 1875f);
+            mThumbsCount = Math.round(media.getDuration() / 1875f);
         } else {
-            thumbsCount = 8;
+            mThumbsCount = 8;
         }
 
-        mRangeSeekBarView = new RangeSeekBarView(context, 0, media.getDuration(), thumbsCount);
+        mRangeSeekBarView = new RangeSeekBarView(context, 0, media.getDuration(), mThumbsCount);
         mRangeSeekBarView.setSelectedMinValue(0);
         mRangeSeekBarView.setSelectedMaxValue(media.getDuration());
         mRangeSeekBarView.setStartEndTime(0, media.getDuration());
@@ -96,9 +101,20 @@ public class TrimContainer extends FrameLayout {
         mRightShadow.setBackgroundColor(0xBF000000);
         addView(mRightShadow);
 
-        mVideoTrimmerAdapter.setItemCount(thumbsCount);
-        mFrameTask = new getAllFrameTask(context, media, thumbsCount, 0, (int) media.getDuration(), new OnSingleBitmapListenerImpl(this));
+        mVideoTrimmerAdapter.setItemCount(mThumbsCount);
+        mFrameTask = new getAllFrameTask(context, media, mThumbsCount, 0, (int) media.getDuration(), new OnSingleBitmapListenerImpl(this));
         mFrameTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    public void trimVideo() {
+        if (mThumbsCount < 8) {
+            int duration = (int) (mMedia.getDuration() / 1000);
+            Log.d("Test", "Start = " + Math.round(mRangeSeekBarView.getNormalizedMinValue() * duration) + " || end = " + Math.round(mRangeSeekBarView.getNormalizedMaxValue() * duration));
+        } else {
+            float min = (float) (mRangeSeekBarView.getNormalizedMinValue() * mVideoRulerView.getRangWidth() + mScrollX);
+            float max = (float) (mRangeSeekBarView.getNormalizedMaxValue() * mVideoRulerView.getRangWidth() + mScrollX);
+            Log.d("Test", "Start = " + Math.round(min / mVideoRulerView.getInterval()) + " || end = " + Math.round(max / mVideoRulerView.getInterval()));
+        }
     }
 
     @Override

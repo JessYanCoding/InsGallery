@@ -82,6 +82,18 @@ public class VideoRulerView extends View {
         }
     }
 
+    public int getWidthByScrollX(int scrollX) {
+        return scrollX + getRangWidth();
+    }
+
+    public int getRangWidth() {
+        return getMeasuredWidth() - mPaddingLeft - mPaddingRight;
+    }
+
+    public float getInterval() {
+        return mInterval;
+    }
+
     private void drawShortLine(Canvas canvas, float left) {
         mPaint.setStrokeWidth(mShortLineWidth);
         canvas.drawLine(left, getMeasuredHeight() - mShortLineHeight, left, getMeasuredHeight(), mPaint);
