@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.luck.picture.lib.config.PictureSelectionConfig;
@@ -34,6 +35,9 @@ public class TrimContainer extends FrameLayout {
     private final VideoTrimmerAdapter mVideoTrimmerAdapter;
     private getAllFrameTask mFrameTask;
     private final VideoRulerView mVideoRulerView;
+    private final RangeSeekBarView mRangeSeekBarView;
+    private View mLeftShadow;
+    private View mRightShadow;
 
     public TrimContainer(@NonNull Context context, PictureSelectionConfig config, LocalMedia media) {
         super(context);
@@ -52,7 +56,19 @@ public class TrimContainer extends FrameLayout {
         addView(mRecyclerView);
         ObjectAnimator.ofFloat(mRecyclerView, "translationX", ScreenUtils.getScreenWidth(context), 0).setDuration(300).start();
 
-        mVideoRulerView = new VideoRulerView(context);
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                mVideoRulerView.scrollBy(dx,0);
+            }
+        });
+
+        mVideoRulerView = new VideoRulerView(context, media.getDuration());
         addView(mVideoRulerView);
 
         int thumbsCount;
@@ -63,6 +79,23 @@ public class TrimContainer extends FrameLayout {
         } else {
             thumbsCount = 8;
         }
+
+        mRangeSeekBarView = new RangeSeekBarView(context, 0, media.getDuration(), thumbsCount);
+        mRangeSeekBarView.setSelectedMinValue(0);
+        mRangeSeekBarView.setSelectedMaxValue(media.getDuration());
+        mRangeSeekBarView.setStartEndTime(0, media.getDuration());
+        mRangeSeekBarView.setMinShootTime(3000L);
+        mRangeSeekBarView.setNotifyWhileDragging(true);
+        addView(mRangeSeekBarView);
+
+        mLeftShadow = new View(context);
+        mLeftShadow.setBackgroundColor(0xBF000000);
+        addView(mLeftShadow);
+
+        mRightShadow = new View(context);
+        mRightShadow.setBackgroundColor(0xBF000000);
+        addView(mRightShadow);
+
         mVideoTrimmerAdapter.setItemCount(thumbsCount);
         mFrameTask = new getAllFrameTask(context, media, thumbsCount, 0, (int) media.getDuration(), new OnSingleBitmapListenerImpl(this));
         mFrameTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -74,6 +107,9 @@ public class TrimContainer extends FrameLayout {
         int height = MeasureSpec.getSize(heightMeasureSpec);
 
         mRecyclerView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 90), MeasureSpec.EXACTLY));
+        mRangeSeekBarView.measure(MeasureSpec.makeMeasureSpec(width - ScreenUtils.dip2px(getContext(), 20), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 90), MeasureSpec.EXACTLY));
+        mLeftShadow.measure(MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 10), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 90), MeasureSpec.EXACTLY));
+        mRightShadow.measure(MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 10), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(ScreenUtils.dip2px(getContext(), 90), MeasureSpec.EXACTLY));
         mVideoRulerView.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height - ScreenUtils.dip2px(getContext(), 90), MeasureSpec.EXACTLY));
         setMeasuredDimension(width, height);
     }
@@ -84,6 +120,15 @@ public class TrimContainer extends FrameLayout {
         int viewLeft = 0;
         mRecyclerView.layout(viewLeft, viewTop, viewLeft + mRecyclerView.getMeasuredWidth(), viewTop + mRecyclerView.getMeasuredHeight());
 
+        mLeftShadow.layout(viewLeft, viewTop, viewLeft + mLeftShadow.getMeasuredWidth(), viewTop + mLeftShadow.getMeasuredHeight());
+
+        viewLeft = getMeasuredWidth() - ScreenUtils.dip2px(getContext(), 10);
+        mRightShadow.layout(viewLeft, viewTop, viewLeft + mRightShadow.getMeasuredWidth(), viewTop + mRightShadow.getMeasuredHeight());
+
+        viewLeft = ScreenUtils.dip2px(getContext(), 20) - ScreenUtils.dip2px(getContext(), 10);
+        mRangeSeekBarView.layout(viewLeft, viewTop, viewLeft + mRangeSeekBarView.getMeasuredWidth(), viewTop + mRangeSeekBarView.getMeasuredHeight());
+
+        viewLeft = 0;
         viewTop += mRecyclerView.getMeasuredHeight();
         mVideoRulerView.layout(viewLeft, viewTop, viewLeft + mVideoRulerView.getMeasuredWidth(), viewTop + mVideoRulerView.getMeasuredHeight());
     }

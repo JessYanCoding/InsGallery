@@ -20,6 +20,11 @@ public class ScreenUtils {
         return (int) (dpValue * scale + 0.5f);
     }
 
+    public static int sp2px(Context context, float spValue) {
+        final float scale = context.getApplicationContext().getResources().getDisplayMetrics().scaledDensity;
+        return (int) (spValue * scale + 0.5f);
+    }
+
     public static int getScreenWidth(Context context) {
         DisplayMetrics localDisplayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(localDisplayMetrics);
