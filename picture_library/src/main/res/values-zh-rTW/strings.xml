@@ -79,4 +79,5 @@
     <string name="video_sound_on">視頻聲音: 開</string>
     <string name="trim">修剪</string>
     <string name="cover">封面</string>
+    <string name="video_clip_failed">視頻剪切失敗！</string>
 </resources>

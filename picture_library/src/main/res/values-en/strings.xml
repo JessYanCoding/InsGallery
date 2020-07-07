@@ -80,4 +80,5 @@
     <string name="video_sound_on">Video Sound On</string>
     <string name="trim">Trim</string>
     <string name="cover">Cover</string>
+    <string name="video_clip_failed">video clip failed!</string>
 </resources>

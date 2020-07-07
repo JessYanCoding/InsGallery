@@ -1,24 +1,40 @@
 package com.luck.picture.lib.instagram.process;
 
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.os.Parcelable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.luck.picture.lib.R;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.instagram.InsGallery;
 import com.luck.picture.lib.instagram.adapter.InstagramFrameItemDecoration;
 import com.luck.picture.lib.instagram.adapter.VideoTrimmerAdapter;
+import com.luck.picture.lib.thread.PictureThreadUtils;
+import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
+import com.luck.picture.lib.tools.SdkVersionUtils;
+import com.luck.picture.lib.tools.ToastUtils;
 
+import java.io.File;
+import java.io.FileDescriptor;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -70,7 +86,7 @@ public class TrimContainer extends FrameLayout {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 mScrollX += dx;
-                mVideoRulerView.scrollBy(dx,0);
+                mVideoRulerView.scrollBy(dx, 0);
             }
         });
 
@@ -106,15 +122,69 @@ public class TrimContainer extends FrameLayout {
         mFrameTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    public void trimVideo() {
+    public void trimVideo(InstagramMediaProcessActivity activity) {
+        activity.showLoadingView(true);
+
+        long startTime;
+        long endTime;
         if (mThumbsCount < 8) {
-            int duration = (int) (mMedia.getDuration() / 1000);
-            Log.d("Test", "Start = " + Math.round(mRangeSeekBarView.getNormalizedMinValue() * duration) + " || end = " + Math.round(mRangeSeekBarView.getNormalizedMaxValue() * duration));
+            startTime = Math.round(mRangeSeekBarView.getNormalizedMinValue() * mMedia.getDuration());
+            endTime = Math.round(mRangeSeekBarView.getNormalizedMaxValue() * mMedia.getDuration());
         } else {
-            float min = (float) (mRangeSeekBarView.getNormalizedMinValue() * mVideoRulerView.getRangWidth() + mScrollX);
-            float max = (float) (mRangeSeekBarView.getNormalizedMaxValue() * mVideoRulerView.getRangWidth() + mScrollX);
-            Log.d("Test", "Start = " + Math.round(min / mVideoRulerView.getInterval()) + " || end = " + Math.round(max / mVideoRulerView.getInterval()));
+            double min = mRangeSeekBarView.getNormalizedMinValue() * mRangeSeekBarView.getMeasuredWidth() + mScrollX;
+            double max = mRangeSeekBarView.getNormalizedMaxValue() * mVideoRulerView.getRangWidth() + mScrollX;
+            startTime = Math.round((min > 0 ? min + ScreenUtils.dip2px(getContext(), 1) : min) / mVideoRulerView.getInterval() * 1000);
+            endTime = Math.round((max - ScreenUtils.dip2px(getContext(), 1)) / mVideoRulerView.getInterval() * 1000);
         }
+        PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<File>() {
+
+            @Override
+            public File doInBackground() {
+                Uri inputUri;
+                if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(mMedia.getPath())) {
+                    inputUri = Uri.parse(mMedia.getPath());
+                } else {
+                    inputUri = Uri.fromFile(new File(mMedia.getPath()));
+                }
+
+                try {
+                    File outputDir = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES), "TrimVideos");
+                    outputDir.mkdir();
+                    File outputFile = File.createTempFile(DateUtils.getCreateFileName("trim_"), ".mp4", outputDir);
+
+                    ParcelFileDescriptor parcelFileDescriptor = getContext().getContentResolver().openFileDescriptor(inputUri, "r");
+                    if (parcelFileDescriptor != null) {
+                        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+//                        boolean succeeded = VideoClipUtils.trimUsingMp4Parser(fileDescriptor, outputFile.getAbsolutePath(), startTime, endTime);
+//                        if (!succeeded) {
+                           boolean succeeded = VideoClipUtils.genVideoUsingMuxer(fileDescriptor, outputFile.getAbsolutePath(), startTime, endTime, true, true);
+//                        }
+                        if (succeeded) {
+                            return outputFile;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            public void onSuccess(File result) {
+                if (result != null) {
+                    mMedia.setDuration(endTime - startTime);
+                    mMedia.setPath(result.getAbsolutePath());
+                    mMedia.setAndroidQToPath(SdkVersionUtils.checkedAndroid_Q() ? result.getAbsolutePath() : mMedia.getAndroidQToPath());
+                    List<LocalMedia> list = new ArrayList<>();
+                    list.add(mMedia);
+                    activity.showLoadingView(false);
+                    activity.setResult(Activity.RESULT_OK, new Intent().putParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST, (ArrayList<? extends Parcelable>) list));
+                    activity.finish();
+                } else {
+                    ToastUtils.s(getContext(), getContext().getString(R.string.video_clip_failed));
+                }
+            }
+        });
     }
 
     @Override

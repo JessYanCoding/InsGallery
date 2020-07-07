@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -57,16 +56,6 @@ import com.luck.picture.lib.tools.StringUtils;
 import com.luck.picture.lib.tools.ToastUtils;
 import com.luck.picture.lib.tools.ValueOf;
 import com.luck.picture.lib.widget.FolderPopWindow;
-import com.otaliastudios.transcoder.Transcoder;
-import com.otaliastudios.transcoder.TranscoderListener;
-import com.otaliastudios.transcoder.TranscoderOptions;
-import com.otaliastudios.transcoder.sink.DataSink;
-import com.otaliastudios.transcoder.sink.DefaultDataSink;
-import com.otaliastudios.transcoder.strategy.DefaultVideoStrategy;
-import com.otaliastudios.transcoder.strategy.TrackStrategy;
-import com.otaliastudios.transcoder.strategy.size.AspectRatioResizer;
-import com.otaliastudios.transcoder.strategy.size.PassThroughResizer;
-import com.otaliastudios.transcoder.strategy.size.Resizer;
 import com.yalantis.ucrop.UCrop;
 import com.yalantis.ucrop.callback.BitmapCropCallback;
 import com.yalantis.ucrop.callback.BitmapLoadCallback;
@@ -76,7 +65,6 @@ import com.yalantis.ucrop.task.BitmapCropTask;
 import com.yalantis.ucrop.util.BitmapLoadUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +75,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
@@ -985,78 +972,78 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         }
     }
 
-    private void cropVideo(List<LocalMedia> images) {
-        if (images.isEmpty()) {
-            return;
-        }
-        LocalMedia media = images.get(0);
-        File transcodeOutputFile;
-        try {
-            File outputDir = new File(getExternalFilesDir(null), "outputs");
-            //noinspection ResultOfMethodCallIgnored
-            outputDir.mkdir();
-            transcodeOutputFile = File.createTempFile("transcode_" + media.getId(), ".mp4", outputDir);
-        } catch (IOException e) {
-            ToastUtils.s(this, "Failed to create temporary file.");
-            return;
-        }
-
-        showPleaseDialog();
-
-        Resizer resizer = new PassThroughResizer();
-        if (mPreviewContainer != null) {
-            if (mPreviewContainer.isAspectRatio() && mPreviewContainer.getAspectRadio() > 0) {
-                resizer = new AspectRatioResizer(mPreviewContainer.getAspectRadio());
-            } else if (!mPreviewContainer.isAspectRatio()) {
-                resizer = new AspectRatioResizer(1f);
-            }
-        }
-        TrackStrategy videoStrategy = new DefaultVideoStrategy.Builder()
-                .addResizer(resizer)
-                .build();
-
-        DataSink sink = new DefaultDataSink(transcodeOutputFile.getAbsolutePath());
-        TranscoderOptions.Builder builder = Transcoder.into(sink);
-        if (PictureMimeType.isContent(media.getPath())) {
-            builder.addDataSource(getContext(), Uri.parse(media.getPath()));
-        } else {
-            builder.addDataSource(media.getPath());
-        }
-        builder.setListener(new TranscoderListener() {
-            @Override
-            public void onTranscodeProgress(double progress) {
-
-            }
-
-            @Override
-            public void onTranscodeCompleted(int successCode) {
-                if (successCode == Transcoder.SUCCESS_TRANSCODED) {
-                    File file = transcodeOutputFile;
-                    String type = "video/mp4";
-                    Uri uri = FileProvider.getUriForFile(PictureSelectorInstagramStyleActivity.this,
-                            "com.luck.pictureselector.provider", file);
-                    startActivity(new Intent(Intent.ACTION_VIEW)
-                            .setDataAndType(uri, type)
-                            .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
-                } else if (successCode == Transcoder.SUCCESS_NOT_NEEDED) {
-
-                }
-                dismissDialog();
-            }
-
-            @Override
-            public void onTranscodeCanceled() {
-                dismissDialog();
-            }
-
-            @Override
-            public void onTranscodeFailed(@NonNull Throwable exception) {
-                dismissDialog();
-            }
-        })
-                .setVideoTrackStrategy(videoStrategy)
-                .transcode();
-    }
+//    private void cropVideo(List<LocalMedia> images) {
+//        if (images.isEmpty()) {
+//            return;
+//        }
+//        LocalMedia media = images.get(0);
+//        File transcodeOutputFile;
+//        try {
+//            File outputDir = new File(getExternalFilesDir(null), "outputs");
+//            //noinspection ResultOfMethodCallIgnored
+//            outputDir.mkdir();
+//            transcodeOutputFile = File.createTempFile("transcode_" + media.getId(), ".mp4", outputDir);
+//        } catch (IOException e) {
+//            ToastUtils.s(this, "Failed to create temporary file.");
+//            return;
+//        }
+//
+//        showPleaseDialog();
+//
+//        Resizer resizer = new PassThroughResizer();
+//        if (mPreviewContainer != null) {
+//            if (mPreviewContainer.isAspectRatio() && mPreviewContainer.getAspectRadio() > 0) {
+//                resizer = new AspectRatioResizer(mPreviewContainer.getAspectRadio());
+//            } else if (!mPreviewContainer.isAspectRatio()) {
+//                resizer = new AspectRatioResizer(1f);
+//            }
+//        }
+//        TrackStrategy videoStrategy = new DefaultVideoStrategy.Builder()
+//                .addResizer(resizer)
+//                .build();
+//
+//        DataSink sink = new DefaultDataSink(transcodeOutputFile.getAbsolutePath());
+//        TranscoderOptions.Builder builder = Transcoder.into(sink);
+//        if (PictureMimeType.isContent(media.getPath())) {
+//            builder.addDataSource(getContext(), Uri.parse(media.getPath()));
+//        } else {
+//            builder.addDataSource(media.getPath());
+//        }
+//        builder.setListener(new TranscoderListener() {
+//            @Override
+//            public void onTranscodeProgress(double progress) {
+//
+//            }
+//
+//            @Override
+//            public void onTranscodeCompleted(int successCode) {
+//                if (successCode == Transcoder.SUCCESS_TRANSCODED) {
+//                    File file = transcodeOutputFile;
+//                    String type = "video/mp4";
+//                    Uri uri = FileProvider.getUriForFile(PictureSelectorInstagramStyleActivity.this,
+//                            "com.luck.pictureselector.provider", file);
+//                    startActivity(new Intent(Intent.ACTION_VIEW)
+//                            .setDataAndType(uri, type)
+//                            .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION));
+//                } else if (successCode == Transcoder.SUCCESS_NOT_NEEDED) {
+//
+//                }
+//                dismissDialog();
+//            }
+//
+//            @Override
+//            public void onTranscodeCanceled() {
+//                dismissDialog();
+//            }
+//
+//            @Override
+//            public void onTranscodeFailed(@NonNull Throwable exception) {
+//                dismissDialog();
+//            }
+//        })
+//                .setVideoTrackStrategy(videoStrategy)
+//                .transcode();
+//    }
 
     /**
      * 播放音频
@@ -1573,6 +1560,16 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     } else {
                         singleCropHandleResult(data);
                     }
+                    break;
+                case InstagramMediaProcessActivity.REQUEST_SINGLE_VIDEO_PROCESS:
+                    if (data != null) {
+                        List<LocalMedia> list = data.getParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST);
+                        if (list != null) {
+                            mAdapter.bindSelectImages(list);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                    onResult(mAdapter.getSelectedImages());
                     break;
                 case UCrop.REQUEST_MULTI_CROP:
                     multiCropHandleResult(data);

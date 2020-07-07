@@ -249,4 +249,12 @@ public class InstagramMediaProcessActivity extends PictureBaseActivity {
         activity.startActivityForResult(intent, requestCode);
         activity.overridePendingTransition(0, 0);
     }
+
+    public void showLoadingView(boolean isShow) {
+        if (isShow) {
+            showPleaseDialog();
+        } else {
+            dismissDialog();
+        }
+    }
 }

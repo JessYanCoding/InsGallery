@@ -37,7 +37,8 @@ dependencies {
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:${cfgs.localbroadcastmanager}"
     implementation "androidx.camera:camera-view:${cfgs.camerax_view}"
     api project(':ucrop')
-    api 'com.otaliastudios:transcoder:0.9.1'
+//    api 'com.otaliastudios:transcoder:0.9.1'
+//    api 'com.googlecode.mp4parser:isoparser:1.1.22'
     api 'jp.co.cyberagent.android:gpuimage:2.0.4'
 }
 

@@ -53,9 +53,9 @@ public class PageTrim implements Page {
         return null;
     }
 
-    public void trimVideo() {
+    public void trimVideo(InstagramMediaProcessActivity activity) {
         if (mContainer != null) {
-            mContainer.trimVideo();
+            mContainer.trimVideo(activity);
         }
     }
 
