@@ -124,7 +124,7 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
         mTopContainer.addView(mPlayButton, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
 
         mList = new ArrayList<>();
-        mList.add(new PageTrim(config, media));
+        mList.add(new PageTrim(config, media, mVideoView, () -> startVideo(false)));
         mList.add(new PageCover(config));
         mInstagramViewPager = new InstagramViewPager(getContext(), mList, config);
         mInstagramViewPager.setScrollEnable(false);
@@ -173,6 +173,10 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
             mVideoView.start();
         }
         mPlayAnimator.start();
+
+        if (mInstagramViewPager.getSelectedPosition() == 0) {
+            ((PageTrim) mList.get(0)).playVideo(start, mVideoView);
+        }
     }
 
     private void offVolume(ImageView view, boolean off) {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.VideoView;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.PictureSelectionConfig;
@@ -20,16 +21,20 @@ import com.luck.picture.lib.instagram.Page;
 public class PageTrim implements Page {
     private PictureSelectionConfig mConfig;
     private LocalMedia mMedia;
+    private VideoView mVideoView;
+    private TrimContainer.VideoPauseListener mVideoPauseListener;
     private TrimContainer mContainer;
 
-    public PageTrim(PictureSelectionConfig config, LocalMedia media) {
+    public PageTrim(PictureSelectionConfig config, LocalMedia media, VideoView videoView, TrimContainer.VideoPauseListener videoPauseListener) {
         mConfig = config;
         mMedia = media;
+        mVideoView = videoView;
+        mVideoPauseListener = videoPauseListener;
     }
 
     @Override
     public View getView(Context context) {
-        mContainer = new TrimContainer(context, mConfig, mMedia);
+        mContainer = new TrimContainer(context, mConfig, mMedia, mVideoView, mVideoPauseListener);
         return mContainer;
     }
 
@@ -56,6 +61,26 @@ public class PageTrim implements Page {
     public void trimVideo(InstagramMediaProcessActivity activity) {
         if (mContainer != null) {
             mContainer.trimVideo(activity);
+        }
+    }
+
+    public void playVideo(boolean isPlay, VideoView videoView) {
+        if (mContainer != null) {
+            mContainer.playVideo(isPlay, videoView);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        if (mContainer != null) {
+            mContainer.onResume();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        if (mContainer != null) {
+            mContainer.onPause();
         }
     }
 

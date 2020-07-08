@@ -59,8 +59,6 @@ public class RangeSeekBarView extends View {
     private OnRangeSeekBarChangeListener mRangeSeekBarChangeListener;
     private int whiteColorRes = Color.WHITE;
     private int mThumbsCount;
-    private int mIndicatorPosition;
-    private boolean isShowIndicator;
 
     public enum Thumb {
         MIN, MAX
@@ -176,16 +174,7 @@ public class RangeSeekBarView extends View {
 
         drawThumb(normalizedToScreen(normalizedMinValue), false, canvas, true);
         drawThumb(normalizedToScreen(normalizedMaxValue), false, canvas, false);
-        drawIndicator(normalizedToScreen(normalizedMinValue), normalizedToScreen(normalizedMaxValue), canvas);
 //    drawVideoTrimTimeText(canvas);
-    }
-
-    private void drawIndicator(float start, float end, Canvas canvas) {
-        if (!isShowIndicator) {
-            return;
-        }
-        float left = thumbHalfWidth + start;
-        canvas.drawRect(left, 0, left + ScreenUtils.dip2px(getContext(), 2), getHeight(), rectPaint);
     }
 
     private void drawThumb(float screenCoord, boolean pressed, Canvas canvas, boolean isLeft) {
@@ -530,6 +519,14 @@ public class RangeSeekBarView extends View {
 
     public long getSelectedMaxValue() {
         return normalizedToValue(normalizedMaxValueTime);
+    }
+
+    public float getStartLine() {
+        return normalizedToScreen(normalizedMinValue) + thumbHalfWidth;
+    }
+
+    public float getEndLine() {
+        return normalizedToScreen(normalizedMaxValue) - thumbHalfWidth;
     }
 
     private long normalizedToValue(double normalized) {
