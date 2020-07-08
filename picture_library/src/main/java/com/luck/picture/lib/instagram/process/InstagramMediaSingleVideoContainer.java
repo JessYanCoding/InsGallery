@@ -155,6 +155,10 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
             mVideoView.setVisibility(View.VISIBLE);
         }
 
+        if (mInstagramViewPager.getSelectedPosition() == 0) {
+            ((PageTrim) mList.get(0)).playVideo(start, mVideoView);
+        }
+
         if (mPlayAnimator != null && mPlayAnimator.isRunning()) {
             mPlayAnimator.cancel();
         }
@@ -173,10 +177,6 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
             mVideoView.start();
         }
         mPlayAnimator.start();
-
-        if (mInstagramViewPager.getSelectedPosition() == 0) {
-            ((PageTrim) mList.get(0)).playVideo(start, mVideoView);
-        }
     }
 
     private void offVolume(ImageView view, boolean off) {

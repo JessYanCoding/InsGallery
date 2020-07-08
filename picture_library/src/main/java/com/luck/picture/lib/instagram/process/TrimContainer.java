@@ -71,6 +71,7 @@ public class TrimContainer extends FrameLayout {
     private float mIndicatorPosition;
     private LinearInterpolator mInterpolator;
     private boolean isRangeChange = true;
+    private boolean mIsPreviewStart = true;
 
     public TrimContainer(@NonNull Context context, PictureSelectionConfig config, LocalMedia media, VideoView videoView, VideoPauseListener videoPauseListener) {
         super(context);
@@ -103,7 +104,7 @@ public class TrimContainer extends FrameLayout {
                 mScrollX += dx;
                 mVideoRulerView.scrollBy(dx, 0);
                 if (media.getDuration() > 60000) {
-                    changeRange(videoView, videoPauseListener);
+                    changeRange(videoView, videoPauseListener, true);
                 }
             }
         });
@@ -125,7 +126,7 @@ public class TrimContainer extends FrameLayout {
         mRangeSeekBarView.setStartEndTime(0, media.getDuration());
         mRangeSeekBarView.setMinShootTime(3000L);
         mRangeSeekBarView.setNotifyWhileDragging(true);
-        mRangeSeekBarView.setOnRangeSeekBarChangeListener((bar, minValue, maxValue, action, isMin, pressedThumb) -> changeRange(videoView, videoPauseListener));
+        mRangeSeekBarView.setOnRangeSeekBarChangeListener((bar, minValue, maxValue, action, isMin, pressedThumb) -> changeRange(videoView, videoPauseListener, pressedThumb == RangeSeekBarView.Thumb.MIN));
         addView(mRangeSeekBarView);
 
         mLeftShadow = new View(context);
@@ -146,8 +147,13 @@ public class TrimContainer extends FrameLayout {
         mFrameTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    private void changeRange(VideoView videoView, VideoPauseListener videoPauseListener) {
-        videoView.seekTo((int) getStartTime());
+    private void changeRange(VideoView videoView, VideoPauseListener videoPauseListener, boolean isPreviewStart) {
+        mIsPreviewStart = isPreviewStart;
+        if (isPreviewStart) {
+            videoView.seekTo((int) getStartTime());
+        } else {
+            videoView.seekTo((int) getEndTime());
+        }
         if (videoView.isPlaying()) {
             videoPauseListener.onVideoPause();
         }
@@ -161,6 +167,10 @@ public class TrimContainer extends FrameLayout {
         }
 
         if (isPlay) {
+            if (!mIsPreviewStart) {
+                videoView.seekTo((int) getStartTime());
+            }
+
             mIndicatorView.setVisibility(View.VISIBLE);
             mPauseAnim = ObjectAnimator.ofFloat(mIndicatorView, "alpha", 0, 1.0f).setDuration(200);
 
