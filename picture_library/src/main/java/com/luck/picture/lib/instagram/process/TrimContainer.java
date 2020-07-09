@@ -103,7 +103,7 @@ public class TrimContainer extends FrameLayout {
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 mScrollX += dx;
                 mVideoRulerView.scrollBy(dx, 0);
-                if (media.getDuration() > 60000) {
+                if (media.getDuration() > 60000 && dx != 0) {
                     changeRange(videoView, videoPauseListener, true);
                 }
             }
@@ -148,6 +148,7 @@ public class TrimContainer extends FrameLayout {
     }
 
     private void changeRange(VideoView videoView, VideoPauseListener videoPauseListener, boolean isPreviewStart) {
+        videoPauseListener.onChange();
         mIsPreviewStart = isPreviewStart;
         if (isPreviewStart) {
             videoView.seekTo((int) getStartTime());
@@ -410,6 +411,7 @@ public class TrimContainer extends FrameLayout {
     }
 
     public interface VideoPauseListener {
+        void onChange();
         void onVideoPause();
     }
 }
