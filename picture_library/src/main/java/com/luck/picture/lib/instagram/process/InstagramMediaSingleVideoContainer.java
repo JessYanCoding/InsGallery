@@ -60,10 +60,10 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
     private boolean isFrist;
     private boolean isVolumeOff;
     private List<Page> mList;
-    private int mTrimPlayPosition;
     private int mCoverPlayPosition;
     private boolean isPlay;
     private boolean needPause;
+    private boolean needSeekCover;
 
 
     public InstagramMediaSingleVideoContainer(@NonNull Context context, PictureSelectionConfig config, LocalMedia media, boolean isAspectRatio) {
@@ -103,6 +103,11 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
                 if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
                     // video started
                     isPlay = true;
+                    if (needSeekCover && mCoverPlayPosition >= 0) {
+                        mVideoView.seekTo(mCoverPlayPosition);
+                        mCoverPlayPosition = -1;
+                        needSeekCover = false;
+                    }
                     if (needPause) {
                         mVideoView.pause();
                         needPause = false;
@@ -183,7 +188,6 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
             @Override
             public void onPageSelected(int position) {
                 if (position == 1) {
-                    mTrimPlayPosition = mVideoView.getCurrentPosition();
                     if (isStart) {
                         startVideo(false);
                     }
@@ -194,10 +198,8 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
                     }
                 } else if (position == 0) {
                     mCoverPlayPosition = mVideoView.getCurrentPosition();
-                    if (mTrimPlayPosition >= 0) {
-                        mVideoView.seekTo(mTrimPlayPosition);
-                        mTrimPlayPosition = -1;
-                    }
+                    ((PageTrim) mList.get(0)).resetStartLine();
+                    mVideoView.seekTo((int) ((PageTrim) mList.get(0)).getStartTime());
                     if (!isStart) {
                         mPlayButton.setVisibility(VISIBLE);
                     }
@@ -326,10 +328,18 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
 
     @Override
     public void onResume(InstagramMediaProcessActivity activity) {
-        mThumbView.setVisibility(VISIBLE);
-        mThumbView.setAlpha(1f);
-        mPlayButton.setVisibility(VISIBLE);
-        mPlayButton.setAlpha(1f);
+        if (mInstagramViewPager.getSelectedPosition() == 0) {
+            mThumbView.setVisibility(VISIBLE);
+            mThumbView.setAlpha(1f);
+            mPlayButton.setVisibility(VISIBLE);
+            mPlayButton.setAlpha(1f);
+        } else {
+            if (!mVideoView.isPlaying()) {
+                mVideoView.start();
+            }
+            needPause = true;
+            needSeekCover = true;
+        }
         isStart = false;
         if (mInstagramViewPager != null) {
             mInstagramViewPager.onResume();
@@ -338,12 +348,17 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
 
     @Override
     public void onPause(InstagramMediaProcessActivity activity) {
+        if (mInstagramViewPager.getSelectedPosition() == 1) {
+            mCoverPlayPosition = mVideoView.getCurrentPosition();
+        }
         if (mVideoView.isPlaying()) {
             mVideoView.stopPlayback();
         }
         if (mInstagramViewPager != null) {
             mInstagramViewPager.onPause();
         }
+        isPlay = false;
+        needPause = false;
     }
 
     @Override

@@ -58,6 +58,19 @@ public class PageTrim implements Page {
         return null;
     }
 
+    public long getStartTime() {
+        if (mContainer != null) {
+            return mContainer.getStartTime();
+        }
+        return 0;
+    }
+
+    public void resetStartLine() {
+        if (mContainer != null) {
+            mContainer.resetStartLine();
+        }
+    }
+
     public void trimVideo(InstagramMediaProcessActivity activity) {
         if (mContainer != null) {
             mContainer.trimVideo(activity);

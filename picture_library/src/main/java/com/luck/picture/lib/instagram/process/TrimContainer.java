@@ -222,7 +222,7 @@ public class TrimContainer extends FrameLayout {
         mPauseAnim.start();
     }
 
-    private long getStartTime() {
+    public long getStartTime() {
         if (mThumbsCount < 8) {
             return Math.round(mRangeSeekBarView.getNormalizedMinValue() * mMedia.getDuration());
         } else {
@@ -231,7 +231,7 @@ public class TrimContainer extends FrameLayout {
         }
     }
 
-    private long getEndTime() {
+    public long getEndTime() {
         if (mThumbsCount < 8) {
             return Math.round(mRangeSeekBarView.getNormalizedMaxValue() * mMedia.getDuration());
         } else {
@@ -363,6 +363,10 @@ public class TrimContainer extends FrameLayout {
         if (mIndicatorAnim != null && mIndicatorAnim.isRunning()) {
             mIndicatorAnim.cancel();
         }
+        resetStartLine();
+    }
+
+    public void resetStartLine() {
         isRangeChange = true;
         mIndicatorPosition = 0;
         mIndicatorView.setVisibility(GONE);
