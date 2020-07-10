@@ -28,6 +28,8 @@ public class getFrameBitmapTask extends AsyncTask<Void, Void, Bitmap> {
     private OnCompleteListener mOnCompleteListener;
     private boolean isAspectRatio;
     private long mTime;
+    private int mCropWidth;
+    private int mCropHeight;
 
     public getFrameBitmapTask(Context context, LocalMedia media, boolean isAspectRatio, long time, OnCompleteListener onCompleteListener) {
         mContextWeakReference = new WeakReference<>(context);
@@ -35,6 +37,12 @@ public class getFrameBitmapTask extends AsyncTask<Void, Void, Bitmap> {
         this.isAspectRatio = isAspectRatio;
         mTime = time;
         mOnCompleteListener = onCompleteListener;
+    }
+
+    public getFrameBitmapTask(Context context, LocalMedia media, boolean isAspectRatio, long time, int cropWidth, int cropHeight, OnCompleteListener onCompleteListener) {
+        this(context, media, isAspectRatio, time, onCompleteListener);
+        mCropWidth = cropWidth;
+        mCropHeight = cropHeight;
     }
 
     @Override
@@ -89,6 +97,20 @@ public class getFrameBitmapTask extends AsyncTask<Void, Void, Bitmap> {
 
                     frame = Bitmap.createBitmap(frame, cropOffsetX, cropOffsetY, adjustWidth, adjustHeight);
                 } else {
+
+                    if (mCropWidth > 0 && mCropHeight > 0) {
+                        float scale;
+                        if (frame.getWidth() > frame.getHeight()) {
+                            scale = mCropHeight * 1f / frame.getHeight();
+                        } else {
+                            scale = mCropWidth * 1f / frame.getWidth();
+                        }
+
+                        frame = Bitmap.createScaledBitmap(frame,
+                                Math.round(frame.getWidth() * scale),
+                                Math.round(frame.getHeight() * scale), false);
+                    }
+
                     int cropWidth = Math.min(frame.getWidth(), frame.getHeight());
                     int cropOffsetX = (frame.getWidth() - cropWidth) / 2;
                     int cropOffsetY = (frame.getHeight() - cropWidth) / 2;

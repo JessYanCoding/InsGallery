@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -37,9 +38,13 @@ public class CoverContainer extends FrameLayout {
     int startClickY;
     private float scrollHorizontalPosition;
     private onSeekListener mOnSeekListener;
+    private LocalMedia mMedia;
+    private long mChangeTime;
+    private getFrameBitmapTask mGetFrameBitmapTask;
 
     public CoverContainer(@NonNull Context context, LocalMedia media) {
         super(context);
+        mMedia = media;
         mImageViewHeight = ScreenUtils.dip2px(getContext(), 60);
 
         for (int i = 0; i < mImageViews.length; i++) {
@@ -58,6 +63,9 @@ public class CoverContainer extends FrameLayout {
     }
 
     public void getFrame(@NonNull Context context, LocalMedia media) {
+        mGetFrameBitmapTask = new getFrameBitmapTask(context, media, false, -1, mImageViewHeight, mImageViewHeight, new OnCompleteListenerImpl(mZoomView));
+        mGetFrameBitmapTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
         mFrameTask = new getAllFrameTask(context, media, mImageViews.length, 0, (int) media.getDuration(), new OnSingleBitmapListenerImpl(this));
         mFrameTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
@@ -139,8 +147,19 @@ public class CoverContainer extends FrameLayout {
         }
 
         mZoomView.setTranslationX(scrollHorizontalPosition);
+
+        float currentPercent = scrollHorizontalPosition / (mMaskView.getMeasuredWidth() - mZoomView.getMeasuredWidth());
+
+        if (SystemClock.uptimeMillis() - mChangeTime > 200) {
+            mChangeTime = SystemClock.uptimeMillis();
+
+            long time = Math.round(mMedia.getDuration() * currentPercent * 1000);
+            mGetFrameBitmapTask = new getFrameBitmapTask(getContext(), mMedia, false, time, mImageViewHeight, mImageViewHeight, new OnCompleteListenerImpl(mZoomView));
+            mGetFrameBitmapTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+
         if (mOnSeekListener != null) {
-            mOnSeekListener.onSeek(scrollHorizontalPosition / (mMaskView.getMeasuredWidth() - mZoomView.getMeasuredWidth()));
+            mOnSeekListener.onSeek(currentPercent);
         }
     }
 
@@ -154,6 +173,11 @@ public class CoverContainer extends FrameLayout {
             mFrameTask.cancel(true);
             mFrameTask = null;
         }
+        if (mGetFrameBitmapTask != null) {
+            mGetFrameBitmapTask.cancel(true);
+            mGetFrameBitmapTask = null;
+        }
+
     }
 
     public static class OnSingleBitmapListenerImpl implements getAllFrameTask.OnSingleBitmapListener {
@@ -170,7 +194,7 @@ public class CoverContainer extends FrameLayout {
             CoverContainer container = mContainerWeakReference.get();
             if (container != null) {
                 container.post(new RunnableImpl(container.mImageViews[index], bitmap));
-                index ++;
+                index++;
             }
         }
 
@@ -189,6 +213,22 @@ public class CoverContainer extends FrameLayout {
                 if (imageView != null) {
                     imageView.setImageBitmap(mBitmap);
                 }
+            }
+        }
+    }
+
+    public static class OnCompleteListenerImpl implements getFrameBitmapTask.OnCompleteListener {
+        private WeakReference<ZoomView> mViewWeakReference;
+
+        public OnCompleteListenerImpl(ZoomView view) {
+            mViewWeakReference = new WeakReference<>(view);
+        }
+
+        @Override
+        public void onGetBitmapComplete(Bitmap bitmap) {
+            ZoomView view = mViewWeakReference.get();
+            if (view != null) {
+                view.setBitmap(bitmap);
             }
         }
     }
