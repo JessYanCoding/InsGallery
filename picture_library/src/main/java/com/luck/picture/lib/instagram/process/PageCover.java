@@ -10,6 +10,8 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.instagram.Page;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * ================================================
  * Created by JessYan on 2020/4/15 12:02
@@ -61,6 +63,12 @@ public class PageCover implements Page {
 
     public void setOnSeekListener(CoverContainer.onSeekListener onSeekListener) {
         mOnSeekListener = onSeekListener;
+    }
+
+    public void cropCover(CountDownLatch count) {
+        if (mContainer != null) {
+            mContainer.cropCover(count);
+        }
     }
 
     @Override

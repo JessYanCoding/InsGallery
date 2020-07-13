@@ -23,6 +23,8 @@ public class LocalMedia implements Parcelable {
      */
     private String path;
 
+    private String coverPath;
+
     /**
      * The real path，But you can't get access from AndroidQ
      * <p>
@@ -205,6 +207,14 @@ public class LocalMedia implements Parcelable {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getCoverPath() {
+        return coverPath;
+    }
+
+    public void setCoverPath(String coverPath) {
+        this.coverPath = coverPath;
     }
 
     public String getCompressPath() {
@@ -414,6 +424,7 @@ public class LocalMedia implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.id);
         dest.writeString(this.path);
+        dest.writeString(this.coverPath);
         dest.writeString(this.realPath);
         dest.writeString(this.originalPath);
         dest.writeString(this.compressPath);
@@ -443,6 +454,7 @@ public class LocalMedia implements Parcelable {
     protected LocalMedia(Parcel in) {
         this.id = in.readLong();
         this.path = in.readString();
+        this.coverPath = in.readString();
         this.realPath = in.readString();
         this.originalPath = in.readString();
         this.compressPath = in.readString();

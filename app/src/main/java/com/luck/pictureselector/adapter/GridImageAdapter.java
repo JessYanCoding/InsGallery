@@ -170,6 +170,8 @@ public class GridImageAdapter extends
             } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
                 // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
                 path = media.getCompressPath();
+            } else if (PictureMimeType.isHasVideo(media.getMimeType()) && !TextUtils.isEmpty(media.getCoverPath())) {
+                path = media.getCoverPath();
             } else {
                 // 原图
                 path = media.getPath();

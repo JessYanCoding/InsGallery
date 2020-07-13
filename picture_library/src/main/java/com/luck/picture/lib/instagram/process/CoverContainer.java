@@ -3,7 +3,10 @@ package com.luck.picture.lib.instagram.process;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,9 +15,15 @@ import android.widget.ImageView;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.luck.picture.lib.thread.PictureThreadUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
+import com.yalantis.ucrop.util.BitmapLoadUtils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.CountDownLatch;
 
 import androidx.annotation.NonNull;
 
@@ -41,6 +50,7 @@ public class CoverContainer extends FrameLayout {
     private LocalMedia mMedia;
     private long mChangeTime;
     private getFrameBitmapTask mGetFrameBitmapTask;
+    private float mCurrentPercent;
 
     public CoverContainer(@NonNull Context context, LocalMedia media) {
         super(context);
@@ -148,19 +158,62 @@ public class CoverContainer extends FrameLayout {
 
         mZoomView.setTranslationX(scrollHorizontalPosition);
 
-        float currentPercent = scrollHorizontalPosition / (mMaskView.getMeasuredWidth() - mZoomView.getMeasuredWidth());
+        mCurrentPercent = scrollHorizontalPosition / (mMaskView.getMeasuredWidth() - mZoomView.getMeasuredWidth());
 
         if (SystemClock.uptimeMillis() - mChangeTime > 200) {
             mChangeTime = SystemClock.uptimeMillis();
 
-            long time = Math.round(mMedia.getDuration() * currentPercent * 1000);
+            long time = Math.round(mMedia.getDuration() * mCurrentPercent * 1000);
             mGetFrameBitmapTask = new getFrameBitmapTask(getContext(), mMedia, false, time, mImageViewHeight, mImageViewHeight, new OnCompleteListenerImpl(mZoomView));
             mGetFrameBitmapTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         }
 
         if (mOnSeekListener != null) {
-            mOnSeekListener.onSeek(currentPercent);
+            mOnSeekListener.onSeek(mCurrentPercent);
         }
+    }
+
+    public void cropCover(CountDownLatch count) {
+        long time;
+        if (mCurrentPercent > 0) {
+            time = Math.round(mMedia.getDuration() * mCurrentPercent * 1000);
+        } else {
+            time = -1;
+        }
+        new getFrameBitmapTask(getContext(), mMedia, false, time, bitmap -> PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<File>() {
+
+            @Override
+            public File doInBackground() {
+                String fileName = System.currentTimeMillis() + ".jpg";
+                File path = getContext().getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                File file = new File(path, "Covers/" + fileName);
+                OutputStream outputStream = null;
+                try {
+                    file.getParentFile().mkdirs();
+                    outputStream = getContext().getApplicationContext().getContentResolver().openOutputStream(Uri.fromFile(file));
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
+                    bitmap.recycle();
+                    MediaScannerConnection.scanFile(getContext().getApplicationContext(),
+                            new String[]{
+                                    file.toString()
+                            }, null,
+                            (path1, uri) -> {
+                                mMedia.setCoverPath(path1);
+                                count.countDown();
+                            });
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } finally {
+                    BitmapLoadUtils.close(outputStream);
+                }
+                return null;
+            }
+
+            @Override
+            public void onSuccess(File result) {
+
+            }
+        })).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     public void onPause() {
@@ -239,6 +292,7 @@ public class CoverContainer extends FrameLayout {
 
     public interface onSeekListener {
         void onSeek(float percent);
+
         void onSeekEnd();
     }
 }

@@ -34,6 +34,7 @@ import com.luck.picture.lib.tools.ToastUtils;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -311,9 +312,9 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
 
     @Override
     public void onProcess(InstagramMediaProcessActivity activity) {
-        if (mInstagramViewPager.getSelectedPosition() == 0) {
-            ((PageTrim) mList.get(0)).trimVideo(activity);
-        }
+        CountDownLatch count = new CountDownLatch(2);
+        ((PageTrim) mList.get(0)).trimVideo(activity, count);
+        ((PageCover) mList.get(1)).cropCover(count);
     }
 
     @Override
@@ -333,7 +334,7 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
             mThumbView.setAlpha(1f);
             mPlayButton.setVisibility(VISIBLE);
             mPlayButton.setAlpha(1f);
-        } else {
+        } else if (mInstagramViewPager.getSelectedPosition() == 1) {
             if (!mVideoView.isPlaying()) {
                 mVideoView.start();
             }

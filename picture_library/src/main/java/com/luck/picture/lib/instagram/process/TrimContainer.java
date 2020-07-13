@@ -40,6 +40,8 @@ import java.io.FileDescriptor;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -240,7 +242,7 @@ public class TrimContainer extends FrameLayout {
         }
     }
 
-    public void trimVideo(InstagramMediaProcessActivity activity) {
+    public void trimVideo(InstagramMediaProcessActivity activity, CountDownLatch count) {
         activity.showLoadingView(true);
 
         long startTime = getStartTime();
@@ -270,6 +272,12 @@ public class TrimContainer extends FrameLayout {
                         boolean succeeded = VideoClipUtils.genVideoUsingMuxer(fileDescriptor, outputFile.getAbsolutePath(), startTime, endTime, true, true);
 //                        }
                         if (succeeded) {
+                            count.countDown();
+                            try {
+                                count.await(1500, TimeUnit.MILLISECONDS);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             return outputFile;
                         }
                     }

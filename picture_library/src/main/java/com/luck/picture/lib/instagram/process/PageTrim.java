@@ -11,6 +11,8 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.instagram.Page;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * ================================================
  * Created by JessYan on 2020/4/15 12:02
@@ -71,9 +73,9 @@ public class PageTrim implements Page {
         }
     }
 
-    public void trimVideo(InstagramMediaProcessActivity activity) {
+    public void trimVideo(InstagramMediaProcessActivity activity, CountDownLatch count) {
         if (mContainer != null) {
-            mContainer.trimVideo(activity);
+            mContainer.trimVideo(activity, count);
         }
     }
 
