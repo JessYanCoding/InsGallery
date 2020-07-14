@@ -161,6 +161,8 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
             RecyclerView.ViewHolder previousHolder = mFilterRecyclerView.findViewHolderForAdapterPosition(previousPosition);
             if (previousHolder != null && previousHolder.itemView != null) {
                 ((FilterItemView) previousHolder.itemView).selection(false);
+            } else {
+                mFilterAdapter.notifyItemChanged(previousPosition);
             }
         }
     }
@@ -217,6 +219,8 @@ public class InstagramMediaMultiImageContainer extends FrameLayout implements In
                         RecyclerView.ViewHolder holder = mFilterRecyclerView.findViewHolderForAdapterPosition(mCurrentFilterType.ordinal());
                         if (holder != null && holder.itemView != null) {
                             ((FilterItemView) holder.itemView).selection(false);
+                        } else {
+                            mFilterAdapter.notifyItemChanged(mCurrentFilterType.ordinal());
                         }
                     }
 

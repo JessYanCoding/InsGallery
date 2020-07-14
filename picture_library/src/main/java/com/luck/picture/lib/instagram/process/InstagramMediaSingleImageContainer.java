@@ -152,6 +152,8 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
             RecyclerView.ViewHolder previousHolder = mRecyclerView.findViewHolderForAdapterPosition(previousPosition);
             if (previousHolder != null && previousHolder.itemView != null) {
                 ((FilterItemView) previousHolder.itemView).selection(false);
+            } else {
+                mAdapter.notifyItemChanged(previousPosition);
             }
         }
     }
