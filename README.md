@@ -34,7 +34,7 @@
 </p>
 
 <p>
-  <img src="art/overview.gif"/>
+  <img src="art/overview_pick.gif"/>
   <img src="art/overview_filter.gif"/>
   <img src="art/overview_video_trim.gif"/>
 </p>
