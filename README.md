@@ -30,6 +30,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/JessYanCoding/InsGallery/raw/master/apk/v0.5.0_2020_07_14.apk">
+    <b>APK</b>
+  </a>
+</p>
+
+<p align="center">
 ⇣
 </p>
 
