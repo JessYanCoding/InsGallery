@@ -34,9 +34,9 @@
 </p>
 
 <p>
-  <img src="art/overview_pick.gif"/>
-  <img src="art/overview_filter.gif"/>
-  <img src="art/overview_video_trim.gif"/>
+  <img src="art/overview_pick.gif" width="60%" height="60%"/>
+  <img src="art/overview_filter.gif" width="60%" height="60%"/>
+  <img src="art/overview_video_trim.gif" width="60%" height="60%"/>
 </p>
 
 ## Download
