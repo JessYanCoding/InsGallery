@@ -53,8 +53,14 @@ InsGallery.openGallery(Activity, GlideEngine.createGlideEngine(), new OnResultCa
 ### Feature
 <p>
    <img src="art/feature_crop_photo.jpg" width="30%" height="30%">
+   <img src="art/feature_multiple_filters.jpg" width="30%" height="30%">
+   <img src="art/feature_single_filters.jpg" width="30%" height="30%">
+</p>
+
+<p>
    <img src="art/feature_play_video.jpg" width="30%" height="30%">
-   <img src="art/feature_multiple_selection.jpg" width="30%" height="30%">
+   <img src="art/feature_video_trim.jpg" width="30%" height="30%">
+   <img src="art/feature_video_cover.jpg" width="30%" height="30%">
 </p>
 
 ### Default Style
