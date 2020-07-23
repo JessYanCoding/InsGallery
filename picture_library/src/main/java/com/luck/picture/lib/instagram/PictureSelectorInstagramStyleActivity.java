@@ -115,6 +115,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private long intervalClickTime;
     private LruCache<LocalMedia, AsyncTask> mLruCache;
     private boolean isCroppingImage;
+    private int mFolderPosition;
+    private int mPreviousFolderPosition;
+    private boolean isChangeFolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -361,7 +364,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             List<LocalMedia> selectedImages = mAdapter.getSelectedImages();
             int size = selectedImages.size();
             String mimeType = size > 0 ? selectedImages.get(0).getMimeType() : "";
-            LocalMedia previewMedia = images.get(mPreviewPosition);
+            LocalMedia previewMedia = mAdapter.getImages().get(mPreviewPosition);
 
             if (selectedImages.contains(previewMedia) || containsMedia(selectedImages, previewMedia)) {
                 return;
@@ -1252,6 +1255,13 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
     @Override
     public void onItemClick(int position, boolean isCameraFolder, long bucketId, String folderName, List<LocalMedia> images) {
+        mPreviousFolderPosition = mFolderPosition;
+        mFolderPosition = position;
+        if (mPreviousFolderPosition != mFolderPosition) {
+            isChangeFolder = true;
+        } else {
+            isChangeFolder = false;
+        }
         boolean camera = config.isCamera && isCameraFolder;
         mAdapter.setShowCamera(camera);
         mTitle = folderName;
@@ -1349,7 +1359,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
      * @param position
      */
     public void startPreview(List<LocalMedia> previewImages, int position) {
-        if (mPreviewPosition == position) {
+        if (!isChangeFolder && mPreviewPosition == position) {
             return;
         }
 
@@ -1381,7 +1391,11 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
         }
 
         if (mPreviewPosition >= 0) {
-            savePreviousPositionCropInfo(previewImages.get(mPreviewPosition));
+            savePreviousPositionCropInfo(isChangeFolder ? foldersList.get(mPreviousFolderPosition).getData().get(mPreviewPosition) : previewImages.get(mPreviewPosition));
+        }
+
+        if(isChangeFolder) {
+            isChangeFolder = false;
         }
 
         setPreviewPosition(position);
@@ -1916,12 +1930,15 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
                     }
                 }
             }
-            mAdapter.notifyItemInserted(config.isCamera ? 1 : 0);
-            mAdapter.notifyItemRangeChanged(config.isCamera ? 1 : 0, images.size());
-            if (images.size() == 1 || (config.selectionMode != PictureConfig.SINGLE && isPreview)) {
-                startPreview(images, 0);
-            } else {
-                setPreviewPosition(mPreviewPosition + 1);
+            LocalMediaFolder localMediaFolder = foldersList.get(mFolderPosition);
+            if (localMediaFolder.isCameraFolder() || "Camera".equals(localMediaFolder.getName())) {
+                mAdapter.notifyItemInserted(config.isCamera ? 1 : 0);
+                mAdapter.notifyItemRangeChanged(config.isCamera ? 1 : 0, images.size());
+                if (images.size() == 1 || (config.selectionMode != PictureConfig.SINGLE && isPreview)) {
+                    startPreview(images, 0);
+                } else {
+                    setPreviewPosition(mPreviewPosition + 1);
+                }
             }
             // 解决部分手机拍照完Intent.ACTION_MEDIA_SCANNER_SCAN_FILE，不及时刷新问题手动添加
             manualSaveFolder(media);

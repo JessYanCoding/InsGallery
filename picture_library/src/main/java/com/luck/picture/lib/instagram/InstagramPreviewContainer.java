@@ -358,6 +358,7 @@ public class InstagramPreviewContainer extends FrameLayout {
         if (drawable != null) {
             mThumbView.setImageDrawable(drawable);
         } else {
+            mThumbView.setImageDrawable(null);
             if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK) {
                 mThumbView.setBackgroundColor(Color.BLACK);
             } else if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DARK_BLUE){
