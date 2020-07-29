@@ -143,7 +143,7 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
         mTopContainer.addView(mPlayButton, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
 
         mList = new ArrayList<>();
-        mList.add(new PageTrim(config, media, mVideoView, new TrimContainer.VideoPauseListener() {
+        mList.add(new PageTrim(config, media, mVideoView, isAspectRatio, new TrimContainer.VideoPauseListener() {
             @Override
             public void onChange() {
                 if (!isFrist) {

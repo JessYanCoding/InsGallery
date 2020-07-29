@@ -24,13 +24,15 @@ public class PageTrim implements Page {
     private PictureSelectionConfig mConfig;
     private LocalMedia mMedia;
     private VideoView mVideoView;
+    private boolean mIsAspectRatio;
     private TrimContainer.VideoPauseListener mVideoPauseListener;
     private TrimContainer mContainer;
 
-    public PageTrim(PictureSelectionConfig config, LocalMedia media, VideoView videoView, TrimContainer.VideoPauseListener videoPauseListener) {
+    public PageTrim(PictureSelectionConfig config, LocalMedia media, VideoView videoView, boolean isAspectRatio, TrimContainer.VideoPauseListener videoPauseListener) {
         mConfig = config;
         mMedia = media;
         mVideoView = videoView;
+        mIsAspectRatio = isAspectRatio;
         mVideoPauseListener = videoPauseListener;
     }
 
@@ -75,7 +77,8 @@ public class PageTrim implements Page {
 
     public void trimVideo(InstagramMediaProcessActivity activity, CountDownLatch count) {
         if (mContainer != null) {
-            mContainer.trimVideo(activity, count);
+//            mContainer.trimVideo(activity, count);
+            mContainer.cropVideo(activity, mIsAspectRatio);
         }
     }
 

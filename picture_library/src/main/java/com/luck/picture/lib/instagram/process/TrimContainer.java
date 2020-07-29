@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -27,6 +28,7 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.instagram.AnimatorListenerImpl;
 import com.luck.picture.lib.instagram.InsGallery;
+import com.luck.picture.lib.instagram.InstagramPreviewContainer;
 import com.luck.picture.lib.instagram.adapter.InstagramFrameItemDecoration;
 import com.luck.picture.lib.instagram.adapter.VideoTrimmerAdapter;
 import com.luck.picture.lib.thread.PictureThreadUtils;
@@ -34,9 +36,24 @@ import com.luck.picture.lib.tools.DateUtils;
 import com.luck.picture.lib.tools.ScreenUtils;
 import com.luck.picture.lib.tools.SdkVersionUtils;
 import com.luck.picture.lib.tools.ToastUtils;
+import com.otaliastudios.transcoder.Transcoder;
+import com.otaliastudios.transcoder.TranscoderListener;
+import com.otaliastudios.transcoder.TranscoderOptions;
+import com.otaliastudios.transcoder.sink.DataSink;
+import com.otaliastudios.transcoder.sink.DefaultDataSink;
+import com.otaliastudios.transcoder.source.ClipDataSource;
+import com.otaliastudios.transcoder.source.FilePathDataSource;
+import com.otaliastudios.transcoder.source.UriDataSource;
+import com.otaliastudios.transcoder.strategy.DefaultVideoStrategy;
+import com.otaliastudios.transcoder.strategy.TrackStrategy;
+import com.otaliastudios.transcoder.strategy.size.AspectRatioResizer;
+import com.otaliastudios.transcoder.strategy.size.FractionResizer;
+import com.otaliastudios.transcoder.strategy.size.PassThroughResizer;
+import com.otaliastudios.transcoder.strategy.size.Resizer;
 
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +74,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class TrimContainer extends FrameLayout {
     private final int mPadding;
     private RecyclerView mRecyclerView;
+    private PictureSelectionConfig mConfig;
     private LocalMedia mMedia;
     private VideoView mVideoView;
     private final VideoTrimmerAdapter mVideoTrimmerAdapter;
@@ -79,6 +97,7 @@ public class TrimContainer extends FrameLayout {
         super(context);
         mPadding = ScreenUtils.dip2px(context, 20);
         mRecyclerView = new RecyclerView(context);
+        mConfig = config;
         mMedia = media;
         mVideoView = videoView;
         if (config.instagramSelectionConfig.getCurrentTheme() == InsGallery.THEME_STYLE_DEFAULT) {
@@ -240,6 +259,96 @@ public class TrimContainer extends FrameLayout {
             double max = mRangeSeekBarView.getNormalizedMaxValue() * mVideoRulerView.getRangWidth() + mScrollX;
             return Math.round((max - ScreenUtils.dip2px(getContext(), 1)) / mVideoRulerView.getInterval() * 1000);
         }
+    }
+
+    public void cropVideo(InstagramMediaProcessActivity activity, boolean isAspectRatio) {
+        activity.showLoadingView(true);
+        long startTime = getStartTime();
+        long endTime = getEndTime();
+
+        long startTimeUS = getStartTime() * 1000;
+        long endTimeUS = getEndTime() * 1000;
+
+        File transcodeOutputFile;
+        try {
+            File outputDir = new File(getContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES), "TrimVideos");
+            //noinspection ResultOfMethodCallIgnored
+            outputDir.mkdir();
+            transcodeOutputFile = File.createTempFile(DateUtils.getCreateFileName("trim_"), ".mp4", outputDir);
+        } catch (IOException e) {
+            ToastUtils.s(getContext(), "Failed to create temporary file.");
+            return;
+        }
+
+        Resizer resizer = new PassThroughResizer();
+        if (mConfig.instagramSelectionConfig.isCropVideo()) {
+            MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+            Uri uri;
+            if (SdkVersionUtils.checkedAndroid_Q() && PictureMimeType.isContent(mMedia.getPath())) {
+                uri = Uri.parse(mMedia.getPath());
+            } else {
+                uri = Uri.fromFile(new File(mMedia.getPath()));
+            }
+            mediaMetadataRetriever.setDataSource(getContext(), uri);
+            int videoWidth = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            int videoHeight = Integer.parseInt(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            float instagramAspectRatio = InstagramPreviewContainer.getInstagramAspectRatio(videoWidth, videoHeight);
+            mediaMetadataRetriever.release();
+
+            if (isAspectRatio && instagramAspectRatio > 0) {
+                resizer = new AspectRatioResizer(instagramAspectRatio);
+            } else if (!isAspectRatio) {
+                resizer = new AspectRatioResizer(1f);
+            }
+        }
+        TrackStrategy videoStrategy = new DefaultVideoStrategy.Builder()
+                .addResizer(resizer)
+                .addResizer(new FractionResizer(1f))
+                .build();
+
+        DataSink sink = new DefaultDataSink(transcodeOutputFile.getAbsolutePath());
+        TranscoderOptions.Builder builder = Transcoder.into(sink);
+        if (PictureMimeType.isContent(mMedia.getPath())) {
+            builder.addDataSource(new ClipDataSource(new UriDataSource(getContext(), Uri.parse(mMedia.getPath())), startTimeUS, endTimeUS));
+        } else {
+            builder.addDataSource(new ClipDataSource(new FilePathDataSource(mMedia.getPath()), startTimeUS, endTimeUS));
+        }
+        builder.setListener(new TranscoderListener() {
+            @Override
+            public void onTranscodeProgress(double progress) {
+
+            }
+
+            @Override
+            public void onTranscodeCompleted(int successCode) {
+                if (successCode == Transcoder.SUCCESS_TRANSCODED) {
+                    mMedia.setDuration(endTime - startTime);
+                    mMedia.setPath(transcodeOutputFile.getAbsolutePath());
+                    mMedia.setAndroidQToPath(SdkVersionUtils.checkedAndroid_Q() ? transcodeOutputFile.getAbsolutePath() : mMedia.getAndroidQToPath());
+                    List<LocalMedia> list = new ArrayList<>();
+                    list.add(mMedia);
+                    activity.setResult(Activity.RESULT_OK, new Intent().putParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST, (ArrayList<? extends Parcelable>) list));
+                    activity.finish();
+                } else if (successCode == Transcoder.SUCCESS_NOT_NEEDED) {
+
+                }
+                activity.showLoadingView(false);
+            }
+
+            @Override
+            public void onTranscodeCanceled() {
+                activity.showLoadingView(false);
+            }
+
+            @Override
+            public void onTranscodeFailed(@NonNull Throwable exception) {
+                exception.printStackTrace();
+                ToastUtils.s(getContext(), getContext().getString(R.string.video_clip_failed));
+                activity.showLoadingView(false);
+            }
+        })
+                .setVideoTrackStrategy(videoStrategy)
+                .transcode();
     }
 
     public void trimVideo(InstagramMediaProcessActivity activity, CountDownLatch count) {

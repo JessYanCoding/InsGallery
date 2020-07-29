@@ -65,8 +65,26 @@ public final class InsGallery {
                 .forResult(listener);
     }
 
+    public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, List<LocalMedia> selectionMedia, InstagramSelectionConfig instagramConfig, OnResultCallbackListener listener) {
+        applyInstagramOptions(activity.getApplicationContext(), instagramConfig, PictureSelector.create(activity)
+                .openGallery(PictureMimeType.ofAll()))// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
+                .imageEngine(engine)// 外部传入图片加载引擎，必传项
+                .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
+                .selectionData(selectionMedia)// 是否传入已选图片
+                .forResult(listener);
+    }
+
     public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, List<LocalMedia> selectionMedia) {
         applyInstagramOptions(activity.getApplicationContext(), PictureSelector.create(activity)
+                .openGallery(PictureMimeType.ofAll()))// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
+                .imageEngine(engine)// 外部传入图片加载引擎，必传项
+                .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
+                .selectionData(selectionMedia)// 是否传入已选图片
+                .forResult(PictureConfig.CHOOSE_REQUEST);//结果回调onActivityResult code
+    }
+
+    public static void openGallery(Activity activity, ImageEngine engine, CacheResourcesEngine cacheResourcesEngine, List<LocalMedia> selectionMedia, InstagramSelectionConfig instagramConfig) {
+        applyInstagramOptions(activity.getApplicationContext(), instagramConfig, PictureSelector.create(activity)
                 .openGallery(PictureMimeType.ofAll()))// 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
                 .imageEngine(engine)// 外部传入图片加载引擎，必传项
                 .loadCacheResourcesCallback(cacheResourcesEngine)// 获取图片资源缓存，主要是解决华为10部分机型在拷贝文件过多时会出现卡的问题，这里可以判断只在会出现一直转圈问题机型上使用
@@ -83,10 +101,15 @@ public final class InsGallery {
                 .forResult(requestCode);//结果回调onActivityResult code
     }
 
-    @SuppressLint("SourceLockedOrientationActivity")
+
     public static PictureSelectionModel applyInstagramOptions(Context context, PictureSelectionModel selectionModel) {
+        return applyInstagramOptions(context, InstagramSelectionConfig.createConfig().setCurrentTheme(currentTheme), selectionModel);
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    public static PictureSelectionModel applyInstagramOptions(Context context, InstagramSelectionConfig instagramConfig, PictureSelectionModel selectionModel) {
         return selectionModel
-                .setInstagramConfig(InstagramSelectionConfig.createConfig().setCurrentTheme(currentTheme))
+                .setInstagramConfig(instagramConfig)
                 .setPictureStyle(createInstagramStyle(context))// 动态自定义相册主题
                 .setPictureCropStyle(createInstagramCropStyle(context))// 动态自定义裁剪主题
                 .setPictureWindowAnimationStyle(new PictureWindowAnimationStyle())// 自定义相册启动退出动画
