@@ -30,7 +30,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/JessYanCoding/InsGallery/raw/master/apk/v0.5.0_2020_07_14.apk">
+  <a href="https://github.com/JessYanCoding/InsGallery/raw/master/apk/v0.6.0_2020_07_30.apk">
     <b>APK</b>
   </a>
 </p>
@@ -47,7 +47,7 @@
 
 ## Download
 ``` gradle
- implementation 'me.jessyan:insgallery:0.5.0'
+ implementation 'me.jessyan:insgallery:0.6.0'
 ```
 
 ## Usage
