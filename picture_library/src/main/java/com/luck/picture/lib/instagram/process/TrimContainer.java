@@ -58,6 +58,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -92,6 +93,8 @@ public class TrimContainer extends FrameLayout {
     private LinearInterpolator mInterpolator;
     private boolean isRangeChange = true;
     private boolean mIsPreviewStart = true;
+    private InstagramLoadingDialog mLoadingDialog;
+    private Future<Void> mTranscodeFuture;
 
     public TrimContainer(@NonNull Context context, PictureSelectionConfig config, LocalMedia media, VideoView videoView, VideoPauseListener videoPauseListener) {
         super(context);
@@ -262,7 +265,7 @@ public class TrimContainer extends FrameLayout {
     }
 
     public void cropVideo(InstagramMediaProcessActivity activity, boolean isAspectRatio) {
-        activity.showLoadingView(true);
+        showLoadingView(true);
         long startTime = getStartTime();
         long endTime = getEndTime();
 
@@ -313,10 +316,13 @@ public class TrimContainer extends FrameLayout {
         } else {
             builder.addDataSource(new ClipDataSource(new FilePathDataSource(mMedia.getPath()), startTimeUS, endTimeUS));
         }
-        builder.setListener(new TranscoderListener() {
+        mTranscodeFuture = builder.setListener(new TranscoderListener() {
             @Override
             public void onTranscodeProgress(double progress) {
-
+                if (mLoadingDialog != null
+                        && mLoadingDialog.isShowing()) {
+                    mLoadingDialog.updateProgress(progress);
+                }
             }
 
             @Override
@@ -332,23 +338,46 @@ public class TrimContainer extends FrameLayout {
                 } else if (successCode == Transcoder.SUCCESS_NOT_NEEDED) {
 
                 }
-                activity.showLoadingView(false);
+                showLoadingView(false);
             }
 
             @Override
             public void onTranscodeCanceled() {
-                activity.showLoadingView(false);
+                showLoadingView(false);
             }
 
             @Override
             public void onTranscodeFailed(@NonNull Throwable exception) {
                 exception.printStackTrace();
                 ToastUtils.s(getContext(), getContext().getString(R.string.video_clip_failed));
-                activity.showLoadingView(false);
+                showLoadingView(false);
             }
         })
                 .setVideoTrackStrategy(videoStrategy)
                 .transcode();
+    }
+
+    private void showLoadingView(boolean isShow) {
+        if (isShow) {
+            if (mLoadingDialog == null) {
+                mLoadingDialog = new InstagramLoadingDialog(getContext());
+                mLoadingDialog.setOnCancelListener(dialog -> {
+                    if (mTranscodeFuture != null) {
+                        mTranscodeFuture.cancel(true);
+                    }
+                });
+            }
+            if (mLoadingDialog.isShowing()) {
+                mLoadingDialog.dismiss();
+            }
+            mLoadingDialog.updateProgress(0);
+            mLoadingDialog.show();
+        } else {
+            if (mLoadingDialog != null
+                    && mLoadingDialog.isShowing()) {
+                mLoadingDialog.dismiss();
+            }
+        }
     }
 
     public void trimVideo(InstagramMediaProcessActivity activity, CountDownLatch count) {
