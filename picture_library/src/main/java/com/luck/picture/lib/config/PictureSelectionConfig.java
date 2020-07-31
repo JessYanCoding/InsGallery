@@ -152,6 +152,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public boolean isAndroidQChangeWH;
     public boolean isAndroidQChangeVideoWH;
     public boolean isQuickCapture;
+    public boolean isCoverEnabled;
     /**
      * 内测专用###########
      */
@@ -263,6 +264,8 @@ public final class PictureSelectionConfig implements Parcelable {
         isAndroidQChangeWH = true;
         isAndroidQChangeVideoWH = false;
         isQuickCapture = true;
+        isCoverEnabled = true;
+
     }
 
     public static PictureSelectionConfig getInstance() {
@@ -401,6 +404,7 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeByte(this.isAndroidQChangeWH ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isAndroidQChangeVideoWH ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isQuickCapture ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isCoverEnabled ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion2 ? (byte) 1 : (byte) 0);
         dest.writeByte(this.isFallbackVersion3 ? (byte) 1 : (byte) 0);
@@ -507,6 +511,7 @@ public final class PictureSelectionConfig implements Parcelable {
         this.isAndroidQChangeWH = in.readByte() != 0;
         this.isAndroidQChangeVideoWH = in.readByte() != 0;
         this.isQuickCapture = in.readByte() != 0;
+        this.isCoverEnabled = in.readByte() != 0;
         this.isFallbackVersion = in.readByte() != 0;
         this.isFallbackVersion2 = in.readByte() != 0;
         this.isFallbackVersion3 = in.readByte() != 0;

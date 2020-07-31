@@ -116,6 +116,7 @@ public final class InsGallery {
                 .isWithVideoImage(false)// 图片和视频是否可以同选,只在ofAll模式下有效
                 .maxSelectNum(9)// 最大图片选择数量
                 .minSelectNum(1)// 最小选择数量
+                .isCoverEnabled(false)
                 .maxVideoSelectNum(1) // 视频最大选择数量，如果没有单独设置的需求则可以不设置，同用maxSelectNum字段
                 //.minVideoSelectNum(1)// 视频最小选择数量，如果没有单独设置的需求则可以不设置，同用minSelectNum字段
                 .imageSpanCount(4)// 每行显示个数
