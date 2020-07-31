@@ -56,12 +56,15 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
     private int mSelectionPosition;
     private final View mLoadingView;
     private PictureSelectionConfig mConfig;
+    private Bitmap mBitmap;
     private int mSelectionFilter;
     private PictureCustomDialog mDialog;
+    private GPUImage mGpuImage;
 
     public InstagramMediaSingleImageContainer(@NonNull Context context, PictureSelectionConfig config, Bitmap bitmap, boolean isAspectRatio, int selectionFilter) {
         super(context);
         mConfig = config;
+        mBitmap = bitmap;
         mSelectionFilter = selectionFilter;
         setWillNotDraw(false);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -72,6 +75,8 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
         } else {
             mPaint.setColor(Color.parseColor("#efefef"));
         }
+
+        mGpuImage = new GPUImage(context);
 
         mImageView = new GPUImageView(context);
         addView(mImageView);
@@ -144,6 +149,7 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
 
         if (mSelectionPosition != position) {
             mImageView.setFilter(FilterType.createFilterForType(getContext(), filterType));
+            mGpuImage.setFilter(FilterType.createFilterForType(getContext(), filterType));
 
             int previousPosition = mSelectionPosition;
             mSelectionPosition = position;
@@ -245,9 +251,10 @@ public class InstagramMediaSingleImageContainer extends FrameLayout implements I
         @Override
         protected Void doInBackground(final Void... params) {
             try {
-                Bitmap result = width != 0 ? mImageView.capture(width, height) : mImageView.capture();
+//                Bitmap result = width != 0 ? mImageView.capture(width, height) : mImageView.capture();
+                Bitmap result = mGpuImage.getBitmapWithFilterApplied(mBitmap);
                 saveImage(folderName, fileName, result);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
