@@ -2198,6 +2198,9 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
     @Override
     public void onBackPressed() {
+        if (mInstagramViewPager.getSelectedPosition() == 2 && ((PagePhoto) mList.get(1)).isInLongPress()) {
+            return;
+        }
         super.onBackPressed();
         if (config != null && PictureSelectionConfig.listener != null) {
             PictureSelectionConfig.listener.onCancel();

@@ -128,4 +128,11 @@ public class PagePhoto implements Page {
             mInstagramCameraView.setEmptyViewVisibility(visibility);
         }
     }
+
+    public boolean isInLongPress() {
+        if (mInstagramCameraView == null) {
+            return false;
+        }
+        return mInstagramCameraView.isInLongPress();
+    }
 }

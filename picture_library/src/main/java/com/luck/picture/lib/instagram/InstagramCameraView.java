@@ -285,6 +285,13 @@ public class InstagramCameraView extends FrameLayout {
         return mCameraView;
     }
 
+    public boolean isInLongPress() {
+        if (mCaptureLayout == null) {
+            return false;
+        }
+        return mCaptureLayout.isInLongPress();
+    }
+
     private void setFlashRes() {
         if (mCameraView == null) {
             return;
