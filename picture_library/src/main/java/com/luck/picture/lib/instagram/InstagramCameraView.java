@@ -73,6 +73,9 @@ public class InstagramCameraView extends FrameLayout {
         mSwitchView = new ImageView(context);
         mSwitchView.setImageResource(R.drawable.discover_flip);
         mSwitchView.setOnClickListener((v) -> {
+            if (mCaptureLayout.isInLongPress()) {
+                return;
+            }
             isFront = !isFront;
             ObjectAnimator.ofFloat(mSwitchView, "rotation", mSwitchView.getRotation() - 180f).setDuration(400).start();
             mCameraView.toggleCamera();

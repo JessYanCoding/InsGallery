@@ -139,6 +139,10 @@ public class InstagramCaptureLayout extends FrameLayout {
         mIsRecordEnd = false;
     }
 
+    public boolean isInLongPress() {
+        return mInLongPress;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (mCaptureButton == null || mRecordButton == null) {
