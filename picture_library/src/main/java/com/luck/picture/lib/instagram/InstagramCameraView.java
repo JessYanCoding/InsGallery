@@ -348,7 +348,10 @@ public class InstagramCameraView extends FrameLayout {
     }
 
     public void onPause() {
-
+        if (mCameraView != null && mCameraView.isRecording()) {
+            mRecordTime = 0;
+            mCameraView.stopRecording();
+        }
     }
 
     @SuppressLint("RestrictedApi")
