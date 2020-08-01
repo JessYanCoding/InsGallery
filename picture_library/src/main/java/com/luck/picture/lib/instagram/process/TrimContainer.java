@@ -316,48 +316,15 @@ public class TrimContainer extends FrameLayout {
         } else {
             builder.addDataSource(new ClipDataSource(new FilePathDataSource(mMedia.getPath()), startTimeUS, endTimeUS));
         }
-        mTranscodeFuture = builder.setListener(new TranscoderListener() {
-            @Override
-            public void onTranscodeProgress(double progress) {
-                if (mLoadingDialog != null
-                        && mLoadingDialog.isShowing()) {
-                    mLoadingDialog.updateProgress(progress);
-                }
-            }
-
-            @Override
-            public void onTranscodeCompleted(int successCode) {
-                if (successCode == Transcoder.SUCCESS_TRANSCODED) {
-                    mMedia.setDuration(endTime - startTime);
-                    mMedia.setPath(transcodeOutputFile.getAbsolutePath());
-                    mMedia.setAndroidQToPath(SdkVersionUtils.checkedAndroid_Q() ? transcodeOutputFile.getAbsolutePath() : mMedia.getAndroidQToPath());
-                    List<LocalMedia> list = new ArrayList<>();
-                    list.add(mMedia);
-                    activity.setResult(Activity.RESULT_OK, new Intent().putParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST, (ArrayList<? extends Parcelable>) list));
-                    activity.finish();
-                } else if (successCode == Transcoder.SUCCESS_NOT_NEEDED) {
-
-                }
-                showLoadingView(false);
-            }
-
-            @Override
-            public void onTranscodeCanceled() {
-                showLoadingView(false);
-            }
-
-            @Override
-            public void onTranscodeFailed(@NonNull Throwable exception) {
-                exception.printStackTrace();
-                ToastUtils.s(getContext(), getContext().getString(R.string.video_clip_failed));
-                showLoadingView(false);
-            }
-        })
+        mTranscodeFuture = builder.setListener(new TranscoderListenerImpl(this, activity, startTime, endTime, transcodeOutputFile))
                 .setVideoTrackStrategy(videoStrategy)
                 .transcode();
     }
 
     private void showLoadingView(boolean isShow) {
+        if (((Activity) getContext()).isFinishing()) {
+            return;
+        }
         if (isShow) {
             if (mLoadingDialog == null) {
                 mLoadingDialog = new InstagramLoadingDialog(getContext());
@@ -524,6 +491,10 @@ public class TrimContainer extends FrameLayout {
             mFrameTask.cancel(true);
             mFrameTask = null;
         }
+        if (mTranscodeFuture != null) {
+            mTranscodeFuture.cancel(true);
+            mTranscodeFuture = null;
+        }
     }
 
     public static class OnSingleBitmapListenerImpl implements getAllFrameTask.OnSingleBitmapListener {
@@ -562,6 +533,76 @@ public class TrimContainer extends FrameLayout {
 
     public interface VideoPauseListener {
         void onChange();
+
         void onVideoPause();
+    }
+
+    private static class TranscoderListenerImpl implements TranscoderListener {
+        private WeakReference<TrimContainer> mContainerWeakReference;
+        private WeakReference<InstagramMediaProcessActivity> mActivityWeakReference;
+        private long mStartTime;
+        private long mEndTime;
+        private File mTranscodeOutputFile;
+
+        public TranscoderListenerImpl(TrimContainer container, InstagramMediaProcessActivity activity, long startTime, long endTime, File transcodeOutputFile) {
+            mContainerWeakReference = new WeakReference<>(container);
+            mActivityWeakReference = new WeakReference<>(activity);
+            mStartTime = startTime;
+            mEndTime = endTime;
+            mTranscodeOutputFile = transcodeOutputFile;
+        }
+
+        @Override
+        public void onTranscodeProgress(double progress) {
+            TrimContainer trimContainer = mContainerWeakReference.get();
+            if (trimContainer == null) {
+                return;
+            }
+            if (trimContainer.mLoadingDialog != null
+                    && trimContainer.mLoadingDialog.isShowing()) {
+                trimContainer.mLoadingDialog.updateProgress(progress);
+            }
+        }
+
+        @Override
+        public void onTranscodeCompleted(int successCode) {
+            TrimContainer trimContainer = mContainerWeakReference.get();
+            InstagramMediaProcessActivity activity = mActivityWeakReference.get();
+            if (trimContainer == null || activity == null) {
+                return;
+            }
+            if (successCode == Transcoder.SUCCESS_TRANSCODED) {
+                trimContainer.mMedia.setDuration(mEndTime - mStartTime);
+                trimContainer.mMedia.setPath(mTranscodeOutputFile.getAbsolutePath());
+                trimContainer.mMedia.setAndroidQToPath(SdkVersionUtils.checkedAndroid_Q() ? mTranscodeOutputFile.getAbsolutePath() : trimContainer.mMedia.getAndroidQToPath());
+                List<LocalMedia> list = new ArrayList<>();
+                list.add(trimContainer.mMedia);
+                activity.setResult(Activity.RESULT_OK, new Intent().putParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST, (ArrayList<? extends Parcelable>) list));
+                activity.finish();
+            } else if (successCode == Transcoder.SUCCESS_NOT_NEEDED) {
+
+            }
+            trimContainer.showLoadingView(false);
+        }
+
+        @Override
+        public void onTranscodeCanceled() {
+            TrimContainer trimContainer = mContainerWeakReference.get();
+            if (trimContainer == null) {
+                return;
+            }
+            trimContainer.showLoadingView(false);
+        }
+
+        @Override
+        public void onTranscodeFailed(@NonNull Throwable exception) {
+            TrimContainer trimContainer = mContainerWeakReference.get();
+            if (trimContainer == null) {
+                return;
+            }
+            exception.printStackTrace();
+            ToastUtils.s(trimContainer.getContext(), trimContainer.getContext().getString(R.string.video_clip_failed));
+            trimContainer.showLoadingView(false);
+        }
     }
 }
