@@ -442,11 +442,13 @@ public class InstagramCameraView extends FrameLayout {
 
                     @Override
                     public void onSuccess(Boolean result) {
+                        if (result && cameraView.mCameraListener != null) {
+                            cameraView.mCameraListener.onRecordSuccess(file);
+                        }
                         PictureThreadUtils.cancel(PictureThreadUtils.getSinglePool());
                     }
                 });
-            }
-            if (file.exists() && cameraView.mCameraListener != null) {
+            } else if (file.exists() && cameraView.mCameraListener != null) {
                 cameraView.mCameraListener.onRecordSuccess(file);
             }
         }
