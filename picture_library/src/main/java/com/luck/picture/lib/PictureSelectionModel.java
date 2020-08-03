@@ -421,6 +421,15 @@ public class PictureSelectionModel {
     }
 
     /**
+     * @param isCoverEnabled PictureSelector cover tab
+     * @return
+     */
+    public PictureSelectionModel isCoverEnabled(boolean isCoverEnabled) {
+        selectionConfig.isCoverEnabled = isCoverEnabled;
+        return this;
+    }
+
+    /**
      * @param maxVideoSelectNum PictureSelector video max selection
      * @return
      */

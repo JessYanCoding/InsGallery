@@ -158,26 +158,31 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
                 }
             }
         }));
-        mList.add(new PageCover(config, media));
-        ((PageCover) mList.get(1)).setOnSeekListener(new CoverContainer.onSeekListener() {
-            @Override
-            public void onSeek(float percent) {
-                if (!isFrist) {
-                    startVideo(true);
-                }
-                mVideoView.seekTo((int) (mMedia.getDuration() * percent));
-            }
 
-            @Override
-            public void onSeekEnd() {
-                needPause = true;
-                if (isStart && isPlay) {
-                    startVideo(false);
+        if (config.isCoverEnabled) {
+            mList.add(new PageCover(config, media));
+            ((PageCover) mList.get(1)).setOnSeekListener(new CoverContainer.onSeekListener() {
+                @Override
+                public void onSeek(float percent) {
+                    if (!isFrist) {
+                        startVideo(true);
+                    }
+                    mVideoView.seekTo((int) (mMedia.getDuration() * percent));
                 }
-                mPlayButton.setVisibility(GONE);
-            }
-        });
+
+                @Override
+                public void onSeekEnd() {
+                    needPause = true;
+                    if (isStart && isPlay) {
+                        startVideo(false);
+                    }
+                    mPlayButton.setVisibility(GONE);
+                }
+            });
+        }
+
         mInstagramViewPager = new InstagramViewPager(getContext(), mList, config);
+        mInstagramViewPager.displayTabLayout(config.isCoverEnabled);
         mInstagramViewPager.setScrollEnable(false);
         addView(mInstagramViewPager);
         mInstagramViewPager.setOnPageChangeListener(new OnPageChangeListener() {
@@ -312,9 +317,15 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
 
     @Override
     public void onProcess(InstagramMediaProcessActivity activity) {
-        CountDownLatch count = new CountDownLatch(2);
+        int c = 1;
+        if (mConfig.isCoverEnabled) {
+            c++;
+        }
+        CountDownLatch count = new CountDownLatch(c);
         ((PageTrim) mList.get(0)).trimVideo(activity, count);
-        ((PageCover) mList.get(1)).cropCover(count);
+        if (mConfig.isCoverEnabled) {
+            ((PageCover) mList.get(1)).cropCover(count);
+        }
     }
 
     @Override
