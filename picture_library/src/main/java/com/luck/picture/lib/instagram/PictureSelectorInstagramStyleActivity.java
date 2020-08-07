@@ -135,7 +135,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     @Override
     protected void onResume() {
         super.onResume();
-        if (mPreviewContainer != null) {
+        if (mInstagramViewPager.getSelectedPosition() == 0 && mPreviewContainer != null) {
             mPreviewContainer.onResume();
         }
         if (mInstagramViewPager != null) {

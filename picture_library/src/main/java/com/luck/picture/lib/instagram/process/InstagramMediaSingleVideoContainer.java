@@ -159,7 +159,7 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
             }
         }));
 
-        if (config.isCoverEnabled) {
+        if (config.instagramSelectionConfig.haveCover()) {
             mList.add(new PageCover(config, media));
             ((PageCover) mList.get(1)).setOnSeekListener(new CoverContainer.onSeekListener() {
                 @Override
@@ -182,7 +182,7 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
         }
 
         mInstagramViewPager = new InstagramViewPager(getContext(), mList, config);
-        mInstagramViewPager.displayTabLayout(config.isCoverEnabled);
+        mInstagramViewPager.displayTabLayout(config.instagramSelectionConfig.haveCover());
         mInstagramViewPager.setScrollEnable(false);
         addView(mInstagramViewPager);
         mInstagramViewPager.setOnPageChangeListener(new OnPageChangeListener() {
@@ -318,12 +318,12 @@ public class InstagramMediaSingleVideoContainer extends FrameLayout implements P
     @Override
     public void onProcess(InstagramMediaProcessActivity activity) {
         int c = 1;
-        if (mConfig.isCoverEnabled) {
+        if (mConfig.instagramSelectionConfig.haveCover()) {
             c++;
         }
         CountDownLatch count = new CountDownLatch(c);
         ((PageTrim) mList.get(0)).trimVideo(activity, count);
-        if (mConfig.isCoverEnabled) {
+        if (mConfig.instagramSelectionConfig.haveCover()) {
             ((PageCover) mList.get(1)).cropCover(count);
         }
     }

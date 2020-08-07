@@ -15,7 +15,8 @@ import com.luck.picture.lib.config.PictureSelectionConfig;
  */
 public final class InstagramSelectionConfig implements Parcelable {
     private int currentTheme = InsGallery.THEME_STYLE_DEFAULT;
-    private boolean enableCropVideo = true;
+    private boolean cropVideoEnabled = true;
+    private boolean coverEnabled = true;
 
     public static InstagramSelectionConfig createConfig() {
         return new InstagramSelectionConfig();
@@ -40,11 +41,20 @@ public final class InstagramSelectionConfig implements Parcelable {
     }
 
     public boolean isCropVideo() {
-        return enableCropVideo;
+        return cropVideoEnabled;
     }
 
-    public InstagramSelectionConfig setCropVideo(boolean enableCropVideo) {
-        this.enableCropVideo = enableCropVideo;
+    public InstagramSelectionConfig setCropVideoEnabled(boolean enableCropVideo) {
+        this.cropVideoEnabled = enableCropVideo;
+        return this;
+    }
+
+    public boolean haveCover() {
+        return coverEnabled;
+    }
+
+    public InstagramSelectionConfig setCoverEnabled(boolean coverEnabled) {
+        this.coverEnabled = coverEnabled;
         return this;
     }
 
@@ -56,7 +66,8 @@ public final class InstagramSelectionConfig implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.currentTheme);
-        dest.writeByte(this.enableCropVideo ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.cropVideoEnabled ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.coverEnabled ? (byte) 1 : (byte) 0);
     }
 
     private InstagramSelectionConfig() {
@@ -64,7 +75,8 @@ public final class InstagramSelectionConfig implements Parcelable {
 
     private InstagramSelectionConfig(Parcel in) {
         this.currentTheme = in.readInt();
-        this.enableCropVideo = in.readByte() != 0;
+        this.cropVideoEnabled = in.readByte() != 0;
+        this.coverEnabled = in.readByte() != 0;
     }
 
     public static final Parcelable.Creator<InstagramSelectionConfig> CREATOR = new Parcelable.Creator<InstagramSelectionConfig>() {
