@@ -39,6 +39,7 @@ import java.lang.ref.WeakReference;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.OutputFileOptions;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.view.CameraView;
@@ -136,7 +137,8 @@ public class CustomCameraView extends RelativeLayout {
                     return;
                 }
                 mPhotoFile = imageOutFile;
-                mCameraView.takePicture(imageOutFile, ContextCompat.getMainExecutor(getContext()),
+                ImageCapture.OutputFileOptions options = new ImageCapture.OutputFileOptions.Builder(imageOutFile).build();
+                mCameraView.takePicture(options, ContextCompat.getMainExecutor(getContext()),
                         new MyImageResultCallback(getContext(), mConfig, imageOutFile,
                                 mImagePreview, mCaptureLayout, mImageCallbackListener, mCameraListener));
             }

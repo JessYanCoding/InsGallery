@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.luck.picture.lib.camera.CustomCameraView;
 import com.luck.picture.lib.camera.listener.CameraListener;
 import com.luck.picture.lib.camera.view.CaptureLayout;
@@ -27,6 +28,7 @@ import java.lang.ref.WeakReference;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.CameraView;
 
 /**
@@ -203,16 +205,6 @@ public class PictureCustomCameraActivity extends PictureSelectorCameraEmptyActiv
             PictureSelectionConfig.listener.onCancel();
         }
         closeActivity();
-    }
-
-    @SuppressLint("RestrictedApi")
-    @Override
-    protected void onDestroy() {
-        if (mCameraView != null) {
-            CameraX.unbindAll();
-            mCameraView = null;
-        }
-        super.onDestroy();
     }
 
     @Override

@@ -16,9 +16,9 @@ ext {
             version_appcompat             : "1.1.0",
             localbroadcastmanager         : "1.0.0",
 
-            camerax_view                  : "1.0.0-alpha10",
-            camerax_version               : "1.0.0-beta03",
-            camera_core_version           : "1.0.0-beta03",
+            camerax_view                  : "1.0.0-alpha14",
+            camerax_version               : "1.0.0-beta07",
+            camera_core_version           : "1.0.0-beta07",
             futures_version               : "1.0.0",
 
             // ucrop

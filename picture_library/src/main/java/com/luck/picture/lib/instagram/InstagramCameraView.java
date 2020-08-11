@@ -103,7 +103,8 @@ public class InstagramCameraView extends FrameLayout {
                 }
                 mCameraView.setCaptureMode(androidx.camera.view.CameraView.CaptureMode.IMAGE);
                 File imageOutFile = createImageFile();
-                mCameraView.takePicture(imageOutFile, ContextCompat.getMainExecutor(getContext().getApplicationContext()), new OnImageSavedCallbackImpl(InstagramCameraView.this, imageOutFile));
+                ImageCapture.OutputFileOptions options = new ImageCapture.OutputFileOptions.Builder(imageOutFile).build();
+                mCameraView.takePicture(options, ContextCompat.getMainExecutor(getContext().getApplicationContext()), new OnImageSavedCallbackImpl(InstagramCameraView.this, imageOutFile));
             }
 
             @Override
