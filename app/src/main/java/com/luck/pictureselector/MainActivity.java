@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (savedInstanceState != null && savedInstanceState.getParcelableArrayList("selectorList") != null) {
             mAdapter.setList(savedInstanceState.getParcelableArrayList("selectorList"));
         }
-
+      // Test Arabic changes
 //        List<LocalMedia> list = new ArrayList<>();
 //        LocalMedia m = new LocalMedia();
 //        m.setPath("https://wx1.sinaimg.cn/mw690/006e0i7xly1gaxqq5m7t8j31311g2ao6.jpg");
