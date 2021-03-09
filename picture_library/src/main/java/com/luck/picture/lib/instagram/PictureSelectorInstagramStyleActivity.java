@@ -118,6 +118,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
     private int mFolderPosition;
     private int mPreviousFolderPosition;
     private boolean isChangeFolder;
+    private boolean useCamera = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -251,36 +252,39 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 
         mList = new ArrayList<>();
         mList.add(new PageGallery(mInstagramGallery));
-        PagePhoto pagePhoto = new PagePhoto(this, config);
-        mList.add(pagePhoto);
-        mList.add(new PageVideo(pagePhoto));
+        if (useCamera) {
+            PagePhoto pagePhoto = new PagePhoto(this, config);
+            mList.add(pagePhoto);
+            mList.add(new PageVideo(pagePhoto));
+            pagePhoto.setCameraListener(new CameraListener() {
+                @Override
+                public void onPictureSuccess(@NonNull File file) {
+                    Intent intent = new Intent();
+                    intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
+                    requestCamera(intent);
+                }
+
+                @Override
+                public void onRecordSuccess(@NonNull File file) {
+                    Intent intent = new Intent();
+                    intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
+                    requestCamera(intent);
+                }
+
+                @Override
+                public void onError(int videoCaptureError, String message, Throwable cause) {
+                    if (videoCaptureError == -1) {
+                        onTakePhoto();
+                    } else {
+                        ToastUtils.s(getContext(), message);
+                    }
+                }
+            });
+        }
         mInstagramViewPager = new InstagramViewPager(getContext(), mList, config);
         ((RelativeLayout) container).addView(mInstagramViewPager, params);
 
-        pagePhoto.setCameraListener(new CameraListener() {
-            @Override
-            public void onPictureSuccess(@NonNull File file) {
-                Intent intent = new Intent();
-                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
-                requestCamera(intent);
-            }
 
-            @Override
-            public void onRecordSuccess(@NonNull File file) {
-                Intent intent = new Intent();
-                intent.putExtra(PictureConfig.EXTRA_MEDIA_PATH, file.getAbsolutePath());
-                requestCamera(intent);
-            }
-
-            @Override
-            public void onError(int videoCaptureError, String message, Throwable cause) {
-                if (videoCaptureError == -1) {
-                    onTakePhoto();
-                } else {
-                    ToastUtils.s(getContext(), message);
-                }
-            }
-        });
 
         mInstagramViewPager.setSkipRange(1);
         mInstagramViewPager.setOnPageChangeListener(new OnPageChangeListener() {
@@ -1394,7 +1398,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
             savePreviousPositionCropInfo(isChangeFolder ? foldersList.get(mPreviousFolderPosition).getData().get(mPreviewPosition) : previewImages.get(mPreviewPosition));
         }
 
-        if(isChangeFolder) {
+        if (isChangeFolder) {
             isChangeFolder = false;
         }
 
@@ -1421,7 +1425,7 @@ public class PictureSelectorInstagramStyleActivity extends PictureBaseActivity i
 //                    // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
 //                    path = media.getCompressPath();
 //                } else {
-                    path = media.getPath();
+                path = media.getPath();
 //                }
                 boolean isHttp = PictureMimeType.isHasHttp(path);
                 boolean isAndroidQ = SdkVersionUtils.checkedAndroid_Q();

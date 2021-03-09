@@ -392,55 +392,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.left_back:
-                finish();
-                break;
-            case R.id.minus:
-                if (maxSelectNum > 1) {
-                    maxSelectNum--;
-                }
-                tv_select_num.setText(maxSelectNum + "");
-                mAdapter.setSelectMax(maxSelectNum);
-                break;
-            case R.id.plus:
-                maxSelectNum++;
-                tv_select_num.setText(maxSelectNum + "");
-                mAdapter.setSelectMax(maxSelectNum);
-                break;
-        }
+        v.getId();//            case R.id.left_back:
+//                finish();
+//                break;
+//            case R.id.minus:
+//                if (maxSelectNum > 1) {
+//                    maxSelectNum--;
+//                }
+//                tv_select_num.setText(maxSelectNum + "");
+//                mAdapter.setSelectMax(maxSelectNum);
+//                break;
+//            case R.id.plus:
+//                maxSelectNum++;
+//                tv_select_num.setText(maxSelectNum + "");
+//                mAdapter.setSelectMax(maxSelectNum);
+//                break;
     }
 
     @Override
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
-        switch (checkedId) {
-            case R.id.rb_default_style:
-                InsGallery.setCurrentTheme(InsGallery.THEME_STYLE_DEFAULT);
-                break;
-            case R.id.rb_dark_style:
-                InsGallery.setCurrentTheme(InsGallery.THEME_STYLE_DARK);
-                break;
-            case R.id.rb_dark_blue_style:
-                InsGallery.setCurrentTheme(InsGallery.THEME_STYLE_DARK_BLUE);
-                break;
-        }
+        //            case R.id.rb_default_style:
+        //                InsGallery.setCurrentTheme(InsGallery.THEME_STYLE_DEFAULT);
+        //                break;
+        //            case R.id.rb_dark_style:
+        //                InsGallery.setCurrentTheme(InsGallery.THEME_STYLE_DARK);
+        //                break;
+        //            case R.id.rb_dark_blue_style:
+        //                InsGallery.setCurrentTheme(InsGallery.THEME_STYLE_DARK_BLUE);
+        //                break;
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE:
-                // 存储权限
-                for (int i = 0; i < grantResults.length; i++) {
-                    if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                        PictureFileUtils.deleteCacheDirFile(getContext(), PictureMimeType.ofImage());
-                    } else {
-                        Toast.makeText(MainActivity.this,
-                                getString(R.string.picture_jurisdiction), Toast.LENGTH_SHORT).show();
-                    }
+        if (requestCode == PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE) {// 存储权限
+            for (int grantResult : grantResults) {
+                if (grantResult == PackageManager.PERMISSION_GRANTED) {
+                    PictureFileUtils.deleteCacheDirFile(getContext(), PictureMimeType.ofImage());
+                } else {
+                    Toast.makeText(MainActivity.this,
+                            getString(R.string.picture_jurisdiction), Toast.LENGTH_SHORT).show();
                 }
-                break;
+            }
         }
     }
 
