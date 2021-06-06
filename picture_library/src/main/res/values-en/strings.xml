@@ -1,8 +1,8 @@
 <resources>
-    <string name="picture_camera_roll">CameraRoll</string>
+    <string name="picture_camera_roll">Gallery</string>
     <string name="picture_camera_roll_num">%1$s (%2$d)</string>
     <string name="picture_cancel">Cancel</string>
-    <string name="picture_take_picture">Shot</string>
+    <string name="picture_take_picture">Camera</string>
     <string name="picture_rule">not pictures or video</string>
     <string name="picture_min_video_num">Video Selection Cannot%1$sNumber</string>
     <string name="picture_message_max_num">Select up to %1$s images</string>
@@ -19,13 +19,13 @@
     <string name="picture_audio_empty">You can use system recordings to record audio</string>
     <string name="picture_empty">you can use your camera to take photos or videos</string>
     <string name="picture_min_img_num">Picture Selection Cannot%1$sNumber</string>
-    <string name="picture_gif_tag">gif</string>
+    <string name="picture_gif_tag">GIF</string>
     <string name="picture_audio">Access to system recording permission denied</string>
     <string name="picture_jurisdiction">Read memory card access denied</string>
     <string name="picture_camera">Get system camera permission denied</string>
     <string name="picture_video_toast">Video not Preview</string>
-    <string name="picture_record_video">Record Video</string>
-    <string name="picture_photograph">Photograph</string>
+    <string name="picture_record_video">Record video</string>
+    <string name="picture_photograph">Take photo</string>
     <string name="picture_long_chart">Long</string>
     <string name="picture_warning">No Media files!</string>
     <string name="picture_prompt">Prompt</string>
@@ -70,7 +70,7 @@
     <string name="done">Done</string>
     <string name="camera_init">Camera is initializing...</string>
     <string name="picture_know">I know the</string>
-    <string name="picture_data_null">There no data here…</string>
+    <string name="picture_data_null">There's no data here…</string>
     <string name="next">Next</string>
     <string name="discard_edits">Discard Edits?</string>
     <string name="discard_edits_alert">If you go back now, your image edits will be discarded.</string>
