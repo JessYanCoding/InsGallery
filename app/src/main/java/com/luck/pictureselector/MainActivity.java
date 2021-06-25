@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)// 设置相册Activity方向，不设置默认使用系统
                                 .isNotPreviewDownload(true)// 预览图片长按是否可以下载
                                 //.bindCustomPlayVideoCallback(callback)// 自定义播放回调控制，用户可以使用自己的视频播放界面
-                                .loadImageEngine(GlideEngine.createGlideEngine())// 外部传入图片加载引擎，必传项
+                                .imageEngine(GlideEngine.createGlideEngine())// 外部传入图片加载引擎，必传项
                                 .openExternalPreview(position, selectList);
                         break;
                 }

@@ -348,6 +348,9 @@ public final class LocalMediaLoader {
      */
     private LocalMediaFolder getImageFolder(String path, String folderName, List<LocalMediaFolder> imageFolders) {
         if (!config.isFallbackVersion) {
+            if(TextUtils.isEmpty(folderName)) {
+                folderName = "/";
+            }
             for (LocalMediaFolder folder : imageFolders) {
                 // Under the same folder, return yourself, otherwise create a new folder
                 String name = folder.getName();
